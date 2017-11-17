@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Aztec Diamond</title>
+    <!--web<link rel="icon" href="./aztec-diamond.ico">web-->
+    <style>
+        <!--@font-face {-->
+            <!--font-family: 'quicksand';-->
+            <!--src: url('Quicksand-Regular.otf');-->
+            <!--font-weight: normal;-->
+            <!--font-style: normal;-->
+        <!--}-->
+
+        <!--@font-face {-->
+            <!--font-family: 'quicksand-bold';-->
+            <!--src: url('Quicksand-Bold.otf');-->
+            <!--font-weight: normal;-->
+            <!--font-style: normal;-->
+        <!--}-->
+
+        <!--* {-->
+            <!--font-size: 14px;-->
+            <!--font-family: quicksand;-->
+        <!--}-->
+
+         <!--/* Style the tab */-->
+        <!--div.tab {-->
+            <!--overflow: hidden;-->
+            <!--border: 1px solid #003399;-->
+            <!--background-color: #f1f1f1;-->
+        <!--}-->
+
+        <!--/* Style the buttons inside the tab */-->
+        <!--div.tab button {-->
+            <!--background-color: inherit;-->
+            <!--float: left;-->
+            <!--border: none;-->
+            <!--outline: none;-->
+            <!--cursor: pointer;-->
+            <!--padding: 14px 16px;-->
+            <!--transition: 0.3s;-->
+        <!--}-->
+
+        <!--/* Change background color of buttons on hover */-->
+        <!--div.tab button:hover {-->
+            <!--background-color: #ddd;-->
+        <!--}-->
+
+        <!--/* Create an active/current tabLink class */-->
+        <!--div.tab button.active {-->
+            <!--background-color: #003399;-->
+            <!--color: white;-->
+        <!--}-->
+
+        <!--/* Style the tab content */-->
+        <!--.tabContent {-->
+            <!--display: none;-->
+            <!--padding: 6px 12px;-->
+            <!--border: 1px solid #003399;-->
+            <!--border-top: none;-->
+        <!--}-->
+
+        <!--.sectionContainer {-->
+            <!--max-width: 1000px;-->
+            <!--width: 100%;-->
+            <!--padding-top: 0px;-->
+            <!--padding-left: 0px;-->
+            <!--padding-bottom: 5px;-->
+            <!--padding-right: 0px;-->
+            <!--margin-bottom: 10px;-->
+            <!--border: 2px solid black;-->
+        <!--}-->
+
+        <!--.sectionContainer > * {-->
+            <!--margin-left: 5px;-->
+        <!--}-->
+
+        <!--.sectionContainer header {-->
+            <!--width: 100%;-->
+            <!--height: 30px;-->
+            <!--background-color: #003399;-->
+            <!--color: white;-->
+            <!--text-align: left;-->
+            <!--margin-left: 0px;-->
+            <!--margin-top: 0px;-->
+        <!--}-->
+
+        <!--.sectionContainer header h1 {-->
+            <!--line-height: 30px;-->
+            <!--font-size: 18px;-->
+            <!--font-family: quicksand-bold;-->
+            <!--padding: 0px;-->
+            <!--padding-left: 16px;-->
+            <!--margin: 0px;-->
+        <!--}-->
+
+        <!--.validateButton {-->
+            <!--background-color: #00cc00;-->
+            <!--border: none;-->
+            <!--display: inline-block;-->
+            <!--padding: 5px;-->
+            <!--margin: 5px;-->
+        <!--}-->
+
+        <!--.validateButton:hover {-->
+            <!--background-color: #009900;-->
+            <!--cursor: pointer;-->
+        <!--}-->
+
+        <!--.cancelButton {-->
+            <!--background-color: red;-->
+            <!--color: white;-->
+            <!--border: none;-->
+            <!--display: inline-block;-->
+            <!--padding: 5px;-->
+            <!--margin: 5px;-->
+        <!--}-->
+
+        <!--.cancelButton:hover {-->
+            <!--background-color: #cc0000;-->
+            <!--cursor: pointer;-->
+        <!--}-->
+
+        <!--input[type="button"]:disabled,input[type="submit"]:disabled {-->
+            <!--background-color: #ccc;-->
+            <!--cursor: default;-->
+        <!--}-->
+    </style>
+    <link href="style.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+
+<div class="tab">
+    <button id="diamondGenerationTab" class="tabLinks">Diamond Generation</button>
+    <button id="tilingNumberTab" class="tabLinks">Count Tiling Number</button>
+</div>
+
+
+<div id="diamondGenerationDiv" class="tabContent">
+    <div>
+        <label>Chose a type of shape to tile</label>
+        <select id="formChooser" style="margin-bottom: 10px"></select>
+    </div>
+
+    <form id="generateForm" class="sectionContainer">
+        <header id="generateFormHeader"><h1>dummy</h1></header>
+        <div id="generateParameters"></div>
+        <div id="submitInputDiv">
+            <p id="generationInfo"></p>
+            <input id="diamondGenerationStart" type="submit" value="Generate" class="validateButton">
+            <input id="diamondGenerationCancel" type="button" value="Cancel" class="cancelButton">
+            <div>
+                <input id="memoryOptimizeGeneration" type="checkbox">
+                <label> Optimize Memory usage (with huge performance loss)</label>
+            </div>
+        </div>
+    </form>
+
+    <div id="drawOptions" class="sectionContainer" style="padding-bottom: 0px">
+        <header style="cursor: pointer"><h1>Plotting Options</h1></header>
+        <div class="slidingContent" style="display: none">
+            <div id="divInFullAztec">
+                <label>Show in full Aztec Diamond</label>
+                <input id="inFullAztec" type="checkbox">
+            </div>
+            <div id="divDrawInLozenges">
+                <label>Draw dominoes as lozenges</label>
+                <input id="drawInLozenges" type="checkbox">
+            </div>
+            <div id="divShowDominoesBorder">
+                <label>Show border of dominoes</label>
+                <input id="showDominoesBorder" type="checkbox">
+            </div>
+            <div id="dominoColors">
+                <h4 style="padding: 2px; margin-bottom: 2px; margin-top: 5px">Chose colors for the dominoes</h4>
+                <select id="colorNumber">
+                    <option label="Two types" value="2"></option>
+                    <option label="Four types" value="4" selected></option>
+                    <option label="Eight types" value="8"></option>
+                </select>
+                <div id="twoDominoTypesSelector" style="display: none"></div>
+                <div id="fourDominoTypesSelector"></div>
+                <div id="eightDominoTypesSelector" style="display: none"></div>
+                <div>
+                    <input id="applyColorSettings" type="button" value="Apply Colors" class="validateButton">
+                </div>
+                <div id="drawingTransformation">
+                    <h4 style="padding: 2px; margin-bottom: 2px; margin-top: 5px">Drawing Transformations</h4>
+                    <div>
+                        <label style="width: 150px; display: inline-block">Rotation (in degrees)</label>
+                        <input id="rotationBox" type="number">
+                    </div>
+                    <div>
+                        <label style="width: 150px; display: inline-block">Zoom</label>
+                        <input id="zoomBox" style="width: 50; display: inline-block">
+                    </div>
+                    <div>
+                        <input id="applyTransformationSettings" type="button" value="Apply Transformations" class="validateButton">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <a href="#" id="savePng" download="aztec-diamond.png">Save as PNG image</a>
+    </div>
+    <div id="statusBarContainer">
+        <p id="computationPhase">Finished computing!</p>
+    </div>
+    <div style="position: relative; height: 510px; width: 100%; margin-left: auto; margin-right: auto">
+        <div style="width: 500px; height: 500px; position: absolute; left: 0px; top: 0px; z-index: 1">
+        </div>
+        <canvas id="aztecDrawing" width=500 height=500 style="border: 2px solid black; position: absolute; z-index: 0"></canvas>
+    </div>
+    <div id="colorPickerBackground" style="display: none; position: fixed; width: 100%; height: 100%; left: 0px; top: 0px; z-index: 2">
+        <div id="colorPicker" style="width: 202px; background-color: white; border: 4px outset #CCC; position: absolute; z-index: 3">
+            <button id="colorPickerCancel" style="text-align: center; background-color: red; color: white; width: 20px; height: 20px; position: absolute; right: 4px; top: 4px"></button>
+            <h3 style="text-align: center; padding: 0px; margin: 7px">Pick a color</h3>
+            <canvas id="colorWheel" width="200" height="200"></canvas>
+            <div id="chosenColor" style="width: 128px; height: 32px; margin-left: auto; margin-right: auto; margin-bottom: 3px; border: 2px outset #AAA"></div>
+        </div>
+    </div>
+    <p id="timeTaken"></p>
+</div>
+
+
+<div id="tilingNumberDiv" class="tabContent">
+    <div>
+        <label>Chose a type of shape to tile</label>
+        <select id="countingFormChooser" style="margin-bottom: 10px"></select>
+    </div>
+
+    <form id="computePartitionForm" class="sectionContainer">
+        <header id="computePartitionFormHeader"><h1>dummy</h1></header>
+        <div id="computePartitionParameters"></div>
+        <div id="submitInputDivComputePartition">
+            <p id="computePartitionInfo"></p>
+            <input id="computePartitionStart" type="submit" value="Start counting" class="validateButton">
+            <input id="computePartitionCancel" type="button" value="Cancel" class="cancelButton">
+        </div>
+    </form>
+
+    <div id="countingStatusBarContainer"></div>
+
+</div>
+
+
+<div id="informationParagraphs">
+    <p>
+        The algorithm that we used is the one discovered by Élise Janvresse, Thierry de la Rue and Yvan Velenik in
+        <a class="link" href="http://www.combinatorics.org/ojs/index.php/eljc/article/view/v13i1r30">"A note on Domino Shuffling"</a>,
+        in the Electronic Journal of Combinatorics <span style="font-family: quicksand-bold">13</span> (2006)
+    </p>
+    <p style="display: none">
+        The project website is available at <a class="link" href="#">this address</a>
+    </p>
+</div>
+
+<script type="text/js-worker" id="scriptWorker">
+self.onmessage = function(e) {
+  var data = e.data
+
+  <!--if (data.url) {-->
+    <!--var url = data.url.href;-->
+    <!--var index = url.indexOf('index.html');-->
+    <!--if (index != -1) {-->
+      <!--url = url.substring(0, index);-->
+    <!--}-->
+    <!--importScripts(url + '../js/webworker-fastopt.js');-->
+  <!--}-->
+
+
+
+    importScripts(data + "../js/webworkerjs-fastopt.js")
+}
+</script>
+
+
+<!--web<script type="text/javascript" src="../js/webapp-fastopt.js"></script>web-->
+<!--electron<script type="text/javascript">require('../js/electronapp-fastopt.js')</script>electron-->
+
+<!--<button onclick="document.getElementById('file-input').click();">Open</button>-->
+<!--<input id="file-input" type="file" name="name" style="display: none;" />-->
+<!--<p id="file-content"></p>-->
+</body>
+</html>

@@ -1,0 +1,5 @@
+{
+  "name"    : "AztecDiamond",
+  "version" : "1.0.0",
+  "main"    : "mainprocess/electronmainprocess-fastopt.js"
+}

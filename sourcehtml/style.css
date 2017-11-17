@@ -1,0 +1,306 @@
+@font-face {
+    font-family: 'quicksand';
+    src: url('Quicksand-Regular.otf');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'quicksand-bold';
+    src: url('Quicksand-Bold.otf');
+    font-weight: normal;
+    font-style: normal;
+}
+
+* {
+    font-size: 14px;
+    font-family: quicksand;
+}
+
+* {
+    margin: 0px;
+}
+
+
+
+ /* Style the tab */
+div.tab {
+    overflow: hidden;
+    border: 1px solid #003399;
+    background-color: #f1f1f1;
+}
+
+/* Style the buttons inside the tab */
+div.tab button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+}
+
+/* Change background color of buttons on hover */
+div.tab button:hover {
+    background-color: #ddd;
+}
+
+/* Create an active/current tabLink class */
+div.tab button.active {
+    background-color: #003399;
+    color: white;
+}
+
+/* Style the tab content */
+.tabContent {
+    display: none;
+    padding: 6px 12px;
+    border: 1px solid #003399;
+    border-top: none;
+}
+
+.sectionContainer {
+    max-width: 1000px;
+    width: 100%;
+    padding-top: 0px;
+    padding-left: 0px;
+    padding-bottom: 5px;
+    padding-right: 0px;
+    margin-bottom: 10px;
+    border: 2px solid black;
+}
+
+.sectionContainer > * {
+    margin-left: 5px;
+}
+
+.sectionContainer header {
+    width: 100%;
+    height: 30px;
+    background-color: #003399;
+    color: white;
+    text-align: left;
+    margin-left: 0px;
+    margin-top: 0px;
+}
+
+.sectionContainer header h1 {
+    line-height: 30px;
+    font-size: 18px;
+    font-family: quicksand-bold;
+    padding: 0px;
+    padding-left: 16px;
+    margin: 0px;
+}
+
+#informationParagraph > p {
+    margin: 10px;
+    max-width: 500px;
+}
+
+.validateButton {
+    background-color: #00cc00;
+    border: none;
+    display: inline-block;
+    padding: 5px;
+    margin: 5px;
+}
+
+.validateButton:hover {
+    background-color: #009900;
+    cursor: pointer;
+}
+
+.cancelButton {
+    background-color: red;
+    color: white;
+    border: none;
+    display: inline-block;
+    padding: 5px;
+    margin: 5px;
+}
+
+.cancelButton:hover {
+    background-color: #cc0000;
+    cursor: pointer;
+}
+
+input[type="button"]:disabled,input[type="submit"]:disabled {
+    background-color: #ccc;
+    cursor: default;
+}
+
+
+#webMainPageHeader, section, footer {
+    max-width: 1000px;
+}
+
+#webMainPageHeader {
+    position: fixed;
+    top: 0px;
+    right: 0px;
+    left: 0px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    max-width: none;
+    background-color: #003399;
+    height: 50px;
+    padding-top: 10px;
+}
+
+section {
+    width: 100%;
+    min-height: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 70px;
+    padding-left: 50px;
+    padding-right: 50px;
+}
+
+footer {
+    width: 100%;
+    max-width: none;
+    background-color: #003399;
+    color: white;
+    margin-left: auto;
+    margin-right: auto;
+    min-height: 50px;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+}
+
+.center {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    display: block;
+    margin-top: 15px;
+}
+
+h1:first-child {
+    font-size: 32px;
+    text-align: center;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+h2 {
+    font-size: 26px;
+}
+
+a {
+    text-decoration: none;
+    color: black;
+}
+
+#headerButtons > a {
+    padding: 10px;
+    background-color: #003399;
+    color: white;
+    margin: 0px;
+    font-family: quicksand-bold;
+}
+
+#headerButtons > a:hover {
+    background-color: #000066;
+    color: white;
+}
+
+#intro > p {
+    max-width: 500px;
+    text-align: center;
+    text-justify: auto;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 30px;
+}
+
+#examples > p, #availableShapes > p {
+    text-align: justify;
+    margin-top: 30px;
+}
+
+#examples > p:after, #availableShapes > p:after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+#availableShapes > h2 {
+    margin-top: 20px;
+}
+
+#algorithm > p {
+    max-width: 700px;
+    text-align: justify;
+    margin-top: 30px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#algorithm > h2 {
+    margin-top: 30px;
+}
+
+#availableShapes > p {
+    text-align: justify;
+    margin-top: 30px;
+}
+
+footer > div > p {
+    width: 300px;
+    text-align: center;
+    font-size: 12px;
+    display: inline-block;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.tryGenerator {
+    background-color: #00cc00;
+    padding: 10px;
+    font-size: 16px;
+    font-family: quicksand-bold;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+    display: inline-block;
+}
+
+.tryGenerator:hover {
+    background-color: #009900;
+}
+
+.link {
+    color: #009900;
+}
+
+.link:hover {
+    color: #00cc00;
+}
+
+.floatRight {
+    float: right;
+    padding: 40px;
+}
+
+.floatLeft {
+    float: left;
+    padding: 40px;
+}
+
+.disclaimerAlert {
+    border: 2px solid red;
+    background-color: #ffcccc;
+    max-width: 700px !important;
+    padding: 20px;
+}
