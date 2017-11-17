@@ -94,9 +94,10 @@ div.tab button.active {
     margin: 0px;
 }
 
-#informationParagraph > p {
+#informationParagraphs > p {
     margin: 10px;
     max-width: 500px;
+    text-align: justify;
 }
 
 .validateButton {
