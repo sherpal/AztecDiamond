@@ -1,6 +1,6 @@
 package computationcom
 
-import messages.Message
+import messages.{Message, WorkerLoaded}
 import org.scalajs.dom
 import org.scalajs.dom.raw.URL
 import org.scalajs.dom.webworkers.Worker
@@ -17,6 +17,7 @@ trait ComputerWorker extends Computer {
         if (scala.scalajs.LinkingInfo.developmentMode) {
           println(s"received $s")
         }
+        postMessage(WorkerLoaded())
         postMessage(initialMessage)
       case _ =>
         receiveMessage(Message.decode(event.data.asInstanceOf[scala.scalajs.js.Array[Byte]].toArray))

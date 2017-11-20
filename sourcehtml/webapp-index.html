@@ -4,219 +4,20 @@
     <meta charset="UTF-8">
     <title>Aztec Diamond</title>
     <link rel="icon" href="./aztec-diamond.ico">
-    <style>
-        <!--@font-face {-->
-            <!--font-family: 'quicksand';-->
-            <!--src: url('Quicksand-Regular.otf');-->
-            <!--font-weight: normal;-->
-            <!--font-style: normal;-->
-        <!--}-->
-        <!--@font-face {-->
-            <!--font-family: 'quicksand-bold';-->
-            <!--src: url('Quicksand-Bold.otf');-->
-            <!--font-weight: normal;-->
-            <!--font-style: normal;-->
-        <!--}-->
-
-        <!--* {-->
-            <!--font-size: 16px;-->
-            <!--font-family: quicksand;-->
-        <!--}-->
-
-
-        <!--* {-->
-            <!--margin: 0px;-->
-        <!--}-->
-
-        <!--header, section, footer {-->
-            <!--max-width: 1000px;-->
-        <!--}-->
-
-        <!--header {-->
-            <!--position: fixed;-->
-            <!--top: 0px;-->
-            <!--right: 0px;-->
-            <!--left: 0px;-->
-            <!--margin-left: auto;-->
-            <!--margin-right: auto;-->
-            <!--width: 100%;-->
-            <!--max-width: none;-->
-            <!--background-color: #003399;-->
-            <!--height: 50px;-->
-            <!--padding-top: 10px;-->
-        <!--}-->
-
-        <!--section {-->
-            <!--width: 100%;-->
-            <!--min-height: 100%;-->
-            <!--margin-left: auto;-->
-            <!--margin-right: auto;-->
-            <!--padding-top: 70px;-->
-            <!--padding-left: 50px;-->
-            <!--padding-right: 50px;-->
-        <!--}-->
-
-        <!--footer {-->
-            <!--width: 100%;-->
-            <!--max-width: none;-->
-            <!--background-color: #003399;-->
-            <!--color: white;-->
-            <!--margin-left: auto;-->
-            <!--margin-right: auto;-->
-            <!--min-height: 50px;-->
-        <!--}-->
-
-        <!--body, html {-->
-            <!--width: 100%;-->
-            <!--height: 100%;-->
-        <!--}-->
-
-        <!--.center {-->
-            <!--margin-left: auto;-->
-            <!--margin-right: auto;-->
-            <!--text-align: center;-->
-            <!--display: block;-->
-            <!--margin-top: 15px;-->
-        <!--}-->
-
-        <!--h1:first-child {-->
-            <!--font-size: 32px;-->
-            <!--text-align: center;-->
-            <!--width: 100%;-->
-            <!--margin-left: auto;-->
-            <!--margin-right: auto;-->
-        <!--}-->
-
-        <!--h2 {-->
-            <!--font-size: 26px;-->
-        <!--}-->
-
-        <!--a {-->
-            <!--text-decoration: none;-->
-            <!--color: black;-->
-        <!--}-->
-
-        <!--#headerButtons > a {-->
-            <!--padding: 10px;-->
-            <!--background-color: #003399;-->
-            <!--color: white;-->
-            <!--margin: 0px;-->
-            <!--font-family: quicksand-bold;-->
-        <!--}-->
-
-        <!--#headerButtons > a:hover {-->
-            <!--background-color: #000066;-->
-            <!--color: white;-->
-        <!--}-->
-
-        <!--#intro > p {-->
-            <!--max-width: 500px;-->
-            <!--text-align: center;-->
-            <!--text-justify: auto;-->
-            <!--margin-left: auto;-->
-            <!--margin-right: auto;-->
-            <!--margin-top: 30px;-->
-        <!--}-->
-
-        <!--#examples > p, #availableShapes > p {-->
-            <!--text-align: justify;-->
-            <!--margin-top: 30px;-->
-        <!--}-->
-
-        <!--#examples > p:after, #availableShapes > p:after {-->
-            <!--content: "";-->
-            <!--clear: both;-->
-            <!--display: table;-->
-        <!--}-->
-
-        <!--#availableShapes > h2 {-->
-            <!--margin-top: 20px;-->
-        <!--}-->
-
-        <!--#algorithm > p {-->
-            <!--max-width: 700px;-->
-            <!--text-align: justify;-->
-            <!--margin-top: 30px;-->
-            <!--margin-left: auto;-->
-            <!--margin-right: auto;-->
-        <!--}-->
-
-        <!--#algorithm > h2 {-->
-            <!--margin-top: 30px;-->
-        <!--}-->
-
-        <!--#availableShapes > p {-->
-            <!--text-align: justify;-->
-            <!--margin-top: 30px;-->
-        <!--}-->
-
-        <!--footer > div > p {-->
-            <!--width: 300px;-->
-            <!--text-align: center;-->
-            <!--font-size: 12px;-->
-            <!--display: inline-block;-->
-            <!--margin-top: 20px;-->
-            <!--margin-bottom: 10px;-->
-        <!--}-->
-
-        <!--.tryGenerator {-->
-            <!--background-color: #00cc00;-->
-            <!--padding: 10px;-->
-            <!--font-size: 16px;-->
-            <!--font-family: quicksand-bold;-->
-            <!--margin-left: auto;-->
-            <!--margin-right: auto;-->
-            <!--margin-top: 20px;-->
-            <!--margin-bottom: 20px;-->
-            <!--text-align: center;-->
-            <!--display: inline-block;-->
-        <!--}-->
-
-        <!--.tryGenerator:hover {-->
-            <!--background-color: #009900;-->
-        <!--}-->
-
-        <!--.link {-->
-            <!--color: #009900;-->
-        <!--}-->
-
-        <!--.link:hover {-->
-            <!--color: #00cc00;-->
-        <!--}-->
-
-        <!--.floatRight {-->
-            <!--float: right;-->
-            <!--padding: 40px;-->
-        <!--}-->
-
-        <!--.floatLeft {-->
-            <!--float: left;-->
-            <!--padding: 40px;-->
-        <!--}-->
-
-        <!--.disclaimerAlert {-->
-            <!--border: 2px solid red;-->
-            <!--background-color: #ffcccc;-->
-            <!--max-width: 700px !important;-->
-            <!--padding: 20px;-->
-        <!--}-->
-    </style>
     <link href="style.css" type="text/css" rel="stylesheet">
 </head>
 <body>
-<header id="webMainPageHeader">
-    <div id="headerButtons" class="center">
-        <a href="#intro">Introduction</a>
-        <a href="#examples">Examples</a>
-        <a href="#availableShapes">Shapes</a>
-        <a href="#algorithm">Algorithm</a>
-        <a href="domino-shuffling-implementation.html">Generate online</a>
-        <a href="download-page.html">Download</a>
-    </div>
+<header id="webMainPageHeader" class="row">
+    <a href="#intro" class="col-2">Introduction</a>
+    <a href="#examples" class="col-2">Examples</a>
+    <a href="#availableShapes" class="col-2">Shapes</a>
+    <a href="#algorithm" class="col-2">Algorithm</a>
+    <a href="domino-shuffling-implementation.html" class="col-2">Generate online</a>
+    <a href="download-page.html" class="col-2">Download</a>
 </header>
-<section id="intro" style="margin-top: 70px">
+<section id="intro">
     <h1>Discover Aztec Diamonds</h1>
-    <img src="aztec_diamond_5_example.png" width="100" height="100" class="center" alt="Image of diamond of order 5">
+    <img src="aztec_diamond_5_example.png" alt="Image of diamond of order 5" class="center" style="max-width: 100px">
     <p>
         The goal of this website is to offer an easy-to-use tool for generating random tilings of shapes in the plane,
         as well as counting the number of such tilings.
@@ -252,43 +53,51 @@
 <hr>
 <section id="examples">
     <h1>Some examples</h1>
-    <div style="float: right"><img src="uniform_30.png" width="300" height="300" alt="Aztec diamond of order 30"></div>
-    <p style="padding-right: 350px">
-        On the right, an example of the tiling of an Aztec Diamond of order 30. The *order* of a Diamond represents the
-        number of rows in the upper half part of region.<br>The tiling is drawn uniformly at random. That means that,
-        among all the possible tilings of the Aztec Diamond of order 30, we took one at random, with each of them having
-        equal probability of being picked.<br>Although there
-        are only two types of dominoes (horizontal and vertical dominoes), we paint the dominoes with four colors, two
-        colors for each type. These four types of dominoes may seem artificial, but they come very naturally in the
-        study of Aztec Diamonds.
-    </p>
+    <div class="row">
+        <img src="uniform_30.png" alt="Aztec diamond of order 30" class="col-4">
+        <p class="col-8">
+            The first example is the tiling of an Aztec Diamond of order 30. The *order* of a Diamond represents the
+            number of rows in the upper half part of region.<br>The tiling is drawn uniformly at random. That means that,
+            among all the possible tilings of the Aztec Diamond of order 30, we took one at random, with each of them having
+            equal probability of being picked.<br>Although there
+            are only two types of dominoes (horizontal and vertical dominoes), we paint the dominoes with four colors, two
+            colors for each type. These four types of dominoes may seem artificial, but they come very naturally in the
+            study of Aztec Diamonds.
+        </p>
+    </div>
 
-    <div style="float: left"><img src="rectangle40x30.png" width="300" height="227" alt="40 by 30 rectangle"></div>
-    <p style="padding-left: 350px;">
-        On the left, an example of the tiling of a 40 by 30 rectangle. It is drawn uniformly among all the tilings
-        of such a rectangle.<br>Although apparently much simpler than the Aztec Diamond, the formula giving the number
-        of tilings is much more complicated.
-    </p>
+    <div class="row">
+        <img src="rectangle40x30.png" width="300" height="227" alt="40 by 30 rectangle" class="col-4">
+        <p class="col-8">
+            The second is an example of the tiling of a 40 by 30 rectangle. It is drawn uniformly among all the tilings
+            of such a rectangle.<br>Although apparently much simpler than the Aztec Diamond, the formula giving the number
+            of tilings is much more complicated.
+        </p>
+    </div>
 
-    <div style="float: right"><img src="uniform_1000.png" width="300" height="300" alt="Aztec diamond of order 1000"></div>
-    <p style="padding-right: 350px">
-        On the right, an Aztec Diamond of order 1000 drawn uniformly. The number of such diamonds is way bigger than the
-        number of particles in the universe. Yet, the algorithm is able to generate one uniformly at random, by reducing
-        the problem to generating (a reasonable amount of) Bernoulli independent random variables.<br>If these
-        Bernoulli's are independent, it is provent that the result of the algorithm is a random tiling drawn uniformly.
-        You just need to trust that your computer is capable of that.<br><br>In the picture, we can witness the
-        phenomenon of the Arctic Circle. The dominoes outside of the inscribed circle are frozen into only one of the
-        four types of dominoes.
-    </p>
+    <div class="row">
+        <img src="uniform_1000.png" alt="Aztec diamond of order 1000" class="col-4">
+        <p class="col-8">
+            Next is an Aztec Diamond of order 1000 drawn uniformly. The number of such diamonds is way bigger than the
+            number of particles in the universe. Yet, the algorithm is able to generate one uniformly at random, by reducing
+            the problem to generating (a reasonable amount of) Bernoulli independent random variables.<br>If these
+            Bernoulli's are independent, it is proven that the result of the algorithm is a random tiling drawn uniformly.
+            You just need to trust that your computer is capable of that.<br><br>In the picture, we can witness the
+            phenomenon of the Arctic Circle. The dominoes outside of the inscribed circle are frozen into only one of the
+            four types of dominoes.
+        </p>
+    </div>
 
-    <div style="float: left"><img src="hexagon_15x15x15.png" width="300" height="300" alt="Lozenge tiling of a Hexagon"></div>
-    <p style="padding-left: 350px">
-        An other way to tile a region of the plane is by using lozenges. On the left, we generated a random tiling of a
-        hexagon, tiled with three types of lozenges.<br>By coloring two types in white, and the last in black, we see
-        that it can be put in relation with little cubes that we put in the corner of a cubic room.<br><br>The algorithm
-        for generating Aztec diamonds may surprisingly be used to generate lozenge tilings. The three types of lozenges
-        are mapped to three of the four types of dominoes, and we forbid the last type to appear.
-    </p>
+    <div class="row">
+        <img src="hexagon_15x15x15.png" alt="Lozenge tiling of a Hexagon" class="col-4">
+        <p class="col-8">
+            An other way to tile a region of the plane is by using lozenges. On the left, we generated a random tiling of a
+            hexagon, tiled with three types of lozenges.<br>By coloring two types in white, and the last in black, we see
+            that it can be put in relation with little cubes that we put in the corner of a cubic room.<br><br>The algorithm
+            for generating Aztec diamonds may surprisingly be used to generate lozenge tilings. The three types of lozenges
+            are mapped to three of the four types of dominoes, and we forbid the last type to appear.
+        </p>
+    </div>
 </section>
 <hr style="clear: both">
 <section id="availableShapes">
@@ -306,51 +115,72 @@
     <ul>
         <li>Change the colors of the dominoes.</li>
         <li>Draw the dominoes with or without a black boundary. If the order of the diamond is bigger than 50, it
-        will not draw to border by default.</li>
+        will not draw the border by default.</li>
         <li>See the shape in its enclosing Diamond.</li>
         <li>Draw the dominoes as lozenges. This is activated by default for Hexagon tiling.</li>
         <li>Rotate the Shape and zoom.</li>
     </ul>
     <h2>Shapes</h2>
-    <div style="float: left; margin-top: 20px"><img src="uniform_30.png" width="100" height="100" alt="Aztec diamond of order 30"></div>
-    <p style="padding-left: 150px">
-        Uniformly distributed diamonds.
-    </p>
-    <div style="float: left"><img src="rectangle40x30.png" width="100" height="76" alt="Rectangle"></div>
-    <p style="padding-left: 150px">
-        Uniformly distributed rectangles.
-    </p>
-    <div style="float: left"><img src="aztec-ring_i15_o31.png" width="100" height="100" alt="Aztec Ring"></div>
-    <p style="padding-left: 150px">
-        Uniformly distributed Aztec Rings. An Aztec Ring is obtained by removing an Aztec diamond from a bigger Aztec
-        Diamond. In <a class="link" href="http://www.combinatorics.org/ojs/index.php/eljc/article/view/v13i1r30">A note on Domino Shuffling</a>,
-        it was proven that if the difference between the outer and the inner order is either even, or satisfy outer >=
-        inner-1, then the shape is tileable.
-    </p>
-    <div style="float: left"><img src="double-aztec_order25_overlap5.png" width="100" height="100" alt="Double Aztec"></div>
-    <p style="padding-left: 150px">
-        Uniformly distributed Double Aztec Diamonds. Two Aztec Diamonds that slightly overlap. In
-        <a class="link" href="https://arxiv.org/abs/1112.5532">Double Aztec Diamonds and the Tacnode Process</a>, it was
-        proven that the Tacnode determinantal point process appear when the size of the dominoes go to infinity such
-        that the overlapping growth at a particular rate.
-    </p>
-    <div style="float: left"><img src="aztec-house_n30_h30.png" width="100" height="100" alt="Double Aztec"></div>
-    <p style="padding-left: 150px">
-        Uniformly distributed Aztec houses. A Triangle in top of a Rectangle.
-    </p>
-    <div style="float: left"><img src="two-periodic_500_a1_b3.png" width="150" height="150" alt="Double Aztec"></div>
-    <p style="padding-left: 200px">
-        Two periodic Aztec Diamonds. These are Aztec Diamonds with a non uniform probability distribution. The name
-        "Two periodic" comes from the way the weights are put on the dominoes. It was introduced in
-        <a class="link" href="https://arxiv.org/abs/1302.0615">Coupling Functions for Domino tilings of Aztec diamonds</a>
-        by Chhita and Young. The special feature of Two Periodic Aztec Diamond is the appearance of a new phase beside
-        the solid and liquid phase. This phase appears in the middle, and starts to appear clearly with diamonds of
-        order 250.
-    </p>
-    <div style="float: left"><img src="hexagon_15x15x15.png" width="100" height="100" alt="Hexagon"></div>
-    <p style="padding-left: 150px">
-        Uniformly distributed lozenge tilings of hexagons.
-    </p>
+    <div class="row">
+        <img src="uniform_30.png" alt="Aztec diamond of order 30" class="col-2">
+        <p class="col-10">
+            Uniformly distributed diamonds.
+        </p>
+    </div>
+
+    <div class="row">
+        <img src="rectangle40x30.png" alt="Rectangle" class="col-2">
+        <p class="col-10">
+            Uniformly distributed rectangles.
+        </p>
+    </div>
+
+    <div class="row">
+        <img src="aztec-ring_i15_o31.png" alt="Aztec Ring" class="col-2">
+        <p class="col-10">
+            Uniformly distributed Aztec Rings. An Aztec Ring is obtained by removing an Aztec diamond from a bigger Aztec
+            Diamond. In <a class="link" href="http://www.combinatorics.org/ojs/index.php/eljc/article/view/v13i1r30">A note on Domino Shuffling</a>,
+            it was proven that if the difference between the outer and the inner order is either even, or satisfy outer >=
+            inner-1, then the shape is tileable.
+        </p>
+    </div>
+
+    <div class="row">
+        <img src="double-aztec_order25_overlap5.png" alt="Double Aztec" class="col-2">
+        <p class="col-10">
+            Uniformly distributed Double Aztec Diamonds. Two Aztec Diamonds that slightly overlap. In
+            <a class="link" href="https://arxiv.org/abs/1112.5532">Double Aztec Diamonds and the Tacnode Process</a>, it was
+            proven that the Tacnode determinantal point process appears when the size of the dominoes go to infinity such
+            that the overlapping growth at a particular rate.
+        </p>
+    </div>
+
+    <div class="row">
+        <img src="aztec-house_n30_h30.png" alt="Double Aztec" class="col-2">
+        <p class="col-10">
+            Uniformly distributed Aztec houses. A Triangle on top of a Rectangle.
+        </p>
+    </div>
+
+    <div class="row">
+        <img src="two-periodic_500_a1_b3.png" alt="Double Aztec" class="col-2">
+        <p class="col-10">
+            Two periodic Aztec Diamonds. These are Aztec Diamonds with a non uniform probability distribution. The name
+            "Two periodic" comes from the way the weights are put on the dominoes. It was introduced in
+            <a class="link" href="https://arxiv.org/abs/1302.0615">Coupling Functions for Domino tilings of Aztec diamonds</a>
+            by Chhita and Young. The special feature of Two Periodic Aztec Diamond is the appearance of a new phase beside
+            the solid and liquid phase. This phase appears in the middle, and starts to appear clearly with diamonds of
+            order 250.
+        </p>
+    </div>
+
+    <div class="row">
+        <img src="hexagon_15x15x15.png" alt="Hexagon" class="col-2">
+        <p class="col-10">
+            Uniformly distributed lozenge tilings of hexagons.
+        </p>
+    </div>
+
 </section>
 <hr style="clear: both">
 <section id="algorithm">
@@ -417,7 +247,7 @@
     </p>
     <h2>Counting tilings and computing partition functions</h2>
     <p>
-        An other nice consequence of the algorithm is that it allows to easily compute the number of tilings of shapes.
+        Another nice consequence of the algorithm is that it allows to easily compute the number of tilings of shapes.
         All you need to do is to take one particular tiling of your shape embedded in an Aztec Diamond, define the
         weights as described in the "Other Shapes" subsection, and compute the probability to see that particular
         tiling. Since all tilings are equi-probable, you directly get the number of tilings.<br>More precisely, you get

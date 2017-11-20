@@ -19,6 +19,8 @@ trait TilingCounting extends Computer {
     receivedMessage = true
 
     message match {
+      case WorkerLoaded() =>
+        computePartitionInfo.textContent = "Worker loaded, starting computation..."
       case _: DiamondGenerationMessage =>
         dom.console.warn("We are in tiling counting")
         dom.console.warn(message.toString)
@@ -117,12 +119,12 @@ object TilingCounting {
     endOfGenerator()
   }
 
-  val outerLoopStatusBar: StatusBar = StatusBar(0, 100, 200, 15)
+  val outerLoopStatusBar: StatusBar = StatusBar(0, 100, 200, 20)
   outerLoopStatusBar.setWithText(enabled = true)
   outerLoopStatusBar.setColor(255, 69, 0)
   outerLoopStatusBar.setParent(dom.document.getElementById("countingStatusBarContainer").asInstanceOf[html.Element])
 
-  val innerLoopStatusBar: StatusBar = StatusBar(0, 100, 200, 15)
+  val innerLoopStatusBar: StatusBar = StatusBar(0, 100, 200, 20)
   innerLoopStatusBar.setWithText(enabled = true)
   innerLoopStatusBar.setColor(255, 69, 0)
   innerLoopStatusBar.setParent(dom.document.getElementById("countingStatusBarContainer").asInstanceOf[html.Element])
@@ -140,7 +142,7 @@ object TilingCounting {
           )
         ))
 
-        computePartitionInfo.textContent = "Starting tiling counting..."
+        computePartitionInfo.textContent = "Loading worker..."
         computePartitionInfo.style.color = "black"
 
         outerLoopStatusBar.setValue(0)

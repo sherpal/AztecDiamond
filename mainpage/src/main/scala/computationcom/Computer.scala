@@ -19,6 +19,9 @@ trait Computer {
 
   protected def receiveMessage(message: Message): Unit
 
+  /**
+   * Call the endOfGenerator with crashed = true.
+   */
   protected def end(): Unit
 
   protected var receivedMessage: Boolean = false
@@ -39,10 +42,12 @@ trait Computer {
 
   protected def terminateGenerator(): Unit
 
-  def kill(): Unit = {
+  def kill(crashed: Boolean = false): Unit = {
     terminateGenerator()
     clearInterval(handler)
-    crashHandler()
+    if (crashed) {
+      crashHandler()
+    }
   }
 
   def postMessage(message: Message): Unit

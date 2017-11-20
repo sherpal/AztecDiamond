@@ -20,6 +20,8 @@ trait DiamondGenerator extends Computer {
     receivedMessage = true
 
     message match {
+      case WorkerLoaded() =>
+        computationPhase.textContent = "Weights are being computed"
       case message: TilingComputationMessage =>
         dom.console.warn("We are in diamond generator")
         dom.console.warn(message.toString)
@@ -84,7 +86,7 @@ trait DiamondGenerator extends Computer {
   }
 
   override protected def end(): Unit =
-    endOfGenerator()
+    endOfGenerator(crashed = true)
 
 }
 
@@ -153,12 +155,12 @@ object DiamondGenerator {
     }
   }
 
-  val weightGenerationStatusBar: StatusBar = StatusBar(0, 100, 200, 15)
+  val weightGenerationStatusBar: StatusBar = StatusBar(0, 100, 200, 20)
   weightGenerationStatusBar.setParent(dom.document.getElementById("statusBarContainer").asInstanceOf[html.Div])
   weightGenerationStatusBar.setColor(255,69,0)
   weightGenerationStatusBar.setWithText(enabled = true)
 
-  val diamondComputationStatusBar: StatusBar = StatusBar(0, 100, 200, 15)
+  val diamondComputationStatusBar: StatusBar = StatusBar(0, 100, 200, 20)
   diamondComputationStatusBar.setParent(dom.document.getElementById("statusBarContainer").asInstanceOf[html.Div])
   diamondComputationStatusBar.setColor(255,69,0)
   diamondComputationStatusBar.setWithText(enabled = true)
@@ -172,9 +174,9 @@ object DiamondGenerator {
 
   cancelButton.disabled = true
 
-  private def endOfGenerator(): Unit = {
+  private def endOfGenerator(crashed: Boolean = false): Unit = {
     if (workingGenerator.isDefined) {
-      workingGenerator.get.kill()
+      workingGenerator.get.kill(crashed)
       workingGenerator = None
       cancelButton.disabled = true
       generateButton.disabled = false
@@ -206,7 +208,7 @@ object DiamondGenerator {
         weightGenerationStatusBar.setColor(255,69,0)
         diamondComputationStatusBar.setValue(0)
         diamondComputationStatusBar.setColor(255,69,0)
-        computationPhase.textContent = "Weights are being computed..."
+        computationPhase.textContent = "Loading worker..."
       case None =>
         generationInfo.textContent = "Malformed number arguments."
         generationInfo.style.color = "red"

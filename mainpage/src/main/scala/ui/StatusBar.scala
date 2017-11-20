@@ -30,9 +30,9 @@ class StatusBar private (val minValue: Double, val maxValue: Double, val width: 
 
     statusDiv.style.width = s"$percentage%"
     if (withText) {
-      statusDiv.textContent = s"$percentage%"
+      statusDiv.innerHTML = s"&#160;$percentage%"
     } else {
-      statusDiv.textContent = ""
+      statusDiv.innerHTML = ""
     }
   }
 
@@ -45,7 +45,7 @@ class StatusBar private (val minValue: Double, val maxValue: Double, val width: 
   div.style.marginBottom = "5px"
 
   private val statusDiv: html.Div = dom.document.createElement("div").asInstanceOf[html.Div]
-  statusDiv.style.height = s"${height}px"
+  statusDiv.style.height = "100%"
   statusDiv.style.width = "0%"
   statusDiv.style.backgroundColor = CSSColor
   div.appendChild(statusDiv)

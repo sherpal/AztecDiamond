@@ -11,6 +11,8 @@ object Message {
   implicit val messagePickler: CompositePickler[Message] = compositePickler[Message]
     .addConcreteType[TestMessage]
     .addConcreteType[ErrorMessage]
+    .addConcreteType[WorkerLoaded]
+
     .addConcreteType[GenerateDiamondMessage]
     .addConcreteType[DiamondMessage]
     .addConcreteType[WeightComputationStatus]
@@ -46,6 +48,8 @@ sealed trait Message
 final case class TestMessage(msg: String) extends Message
 
 final case class ErrorMessage(error: String) extends Message
+
+final case class WorkerLoaded() extends Message
 
 trait DiamondGenerationMessage extends Message
 

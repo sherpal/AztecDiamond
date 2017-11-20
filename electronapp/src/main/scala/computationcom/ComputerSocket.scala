@@ -1,7 +1,7 @@
 package computationcom
 
 import electron.{ElectronGlobals, IPCRenderer}
-import messages.{DiamondMessage, Message, TilingMessage}
+import messages.{DiamondMessage, Message, TilingMessage, WorkerLoaded}
 import nodejs.{ChildProcess, Path}
 import nodejs.net.{Net, TCPServer, TCPSocket}
 import org.scalajs.dom
@@ -47,6 +47,7 @@ trait ComputerSocket extends Computer {
         if (scala.scalajs.LinkingInfo.developmentMode) {
           println(data)
         }
+        receiveMessage(WorkerLoaded())
       } else if (active) {
         deserializeMessage(data.toString).foreach(receiveMessage)
       }
@@ -73,7 +74,7 @@ trait ComputerSocket extends Computer {
         }
 
          if (active && (error != null || !js.isUndefined(error))) {
-          end()
+           end()
            if (error.toString.toLowerCase.contains("outofmemoryerror")) {
              AlertBox(
                "Out Of Memory",
