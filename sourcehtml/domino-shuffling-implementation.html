@@ -3,133 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <title>Aztec Diamond</title>
-    <!--web<link rel="icon" href="./aztec-diamond.ico">web-->
-    <style>
-        <!--@font-face {-->
-            <!--font-family: 'quicksand';-->
-            <!--src: url('Quicksand-Regular.otf');-->
-            <!--font-weight: normal;-->
-            <!--font-style: normal;-->
-        <!--}-->
-
-        <!--@font-face {-->
-            <!--font-family: 'quicksand-bold';-->
-            <!--src: url('Quicksand-Bold.otf');-->
-            <!--font-weight: normal;-->
-            <!--font-style: normal;-->
-        <!--}-->
-
-        <!--* {-->
-            <!--font-size: 14px;-->
-            <!--font-family: quicksand;-->
-        <!--}-->
-
-         <!--/* Style the tab */-->
-        <!--div.tab {-->
-            <!--overflow: hidden;-->
-            <!--border: 1px solid #003399;-->
-            <!--background-color: #f1f1f1;-->
-        <!--}-->
-
-        <!--/* Style the buttons inside the tab */-->
-        <!--div.tab button {-->
-            <!--background-color: inherit;-->
-            <!--float: left;-->
-            <!--border: none;-->
-            <!--outline: none;-->
-            <!--cursor: pointer;-->
-            <!--padding: 14px 16px;-->
-            <!--transition: 0.3s;-->
-        <!--}-->
-
-        <!--/* Change background color of buttons on hover */-->
-        <!--div.tab button:hover {-->
-            <!--background-color: #ddd;-->
-        <!--}-->
-
-        <!--/* Create an active/current tabLink class */-->
-        <!--div.tab button.active {-->
-            <!--background-color: #003399;-->
-            <!--color: white;-->
-        <!--}-->
-
-        <!--/* Style the tab content */-->
-        <!--.tabContent {-->
-            <!--display: none;-->
-            <!--padding: 6px 12px;-->
-            <!--border: 1px solid #003399;-->
-            <!--border-top: none;-->
-        <!--}-->
-
-        <!--.sectionContainer {-->
-            <!--max-width: 1000px;-->
-            <!--width: 100%;-->
-            <!--padding-top: 0px;-->
-            <!--padding-left: 0px;-->
-            <!--padding-bottom: 5px;-->
-            <!--padding-right: 0px;-->
-            <!--margin-bottom: 10px;-->
-            <!--border: 2px solid black;-->
-        <!--}-->
-
-        <!--.sectionContainer > * {-->
-            <!--margin-left: 5px;-->
-        <!--}-->
-
-        <!--.sectionContainer header {-->
-            <!--width: 100%;-->
-            <!--height: 30px;-->
-            <!--background-color: #003399;-->
-            <!--color: white;-->
-            <!--text-align: left;-->
-            <!--margin-left: 0px;-->
-            <!--margin-top: 0px;-->
-        <!--}-->
-
-        <!--.sectionContainer header h1 {-->
-            <!--line-height: 30px;-->
-            <!--font-size: 18px;-->
-            <!--font-family: quicksand-bold;-->
-            <!--padding: 0px;-->
-            <!--padding-left: 16px;-->
-            <!--margin: 0px;-->
-        <!--}-->
-
-        <!--.validateButton {-->
-            <!--background-color: #00cc00;-->
-            <!--border: none;-->
-            <!--display: inline-block;-->
-            <!--padding: 5px;-->
-            <!--margin: 5px;-->
-        <!--}-->
-
-        <!--.validateButton:hover {-->
-            <!--background-color: #009900;-->
-            <!--cursor: pointer;-->
-        <!--}-->
-
-        <!--.cancelButton {-->
-            <!--background-color: red;-->
-            <!--color: white;-->
-            <!--border: none;-->
-            <!--display: inline-block;-->
-            <!--padding: 5px;-->
-            <!--margin: 5px;-->
-        <!--}-->
-
-        <!--.cancelButton:hover {-->
-            <!--background-color: #cc0000;-->
-            <!--cursor: pointer;-->
-        <!--}-->
-
-        <!--input[type="button"]:disabled,input[type="submit"]:disabled {-->
-            <!--background-color: #ccc;-->
-            <!--cursor: default;-->
-        <!--}-->
-    </style>
+    <!--web<link rel="icon" href="./assets/aztec-diamond.ico">web-->
     <link href="style.css" type="text/css" rel="stylesheet">
 </head>
-<body>
+<body style="overflow-y: scroll">
+
+<h1>
+    Aztec Diamond Generator
+</h1>
+
+<p style="padding: 30px">
+    Click on one of the tabs below to generate random tilings, or count them.
+</p>
+
+<noscript>
+    <p class="disclaimerAlert center">
+        Your browser does not seem to support JavaScript, or it is disabled.<br>The Aztec Diamond generation tool
+        will not work in your browser.
+    </p>
+</noscript>
+
+<p id="mobileAlert" class="disclaimerAlert center" style="display: none">
+    You seem to be visiting us with a mobile device. We kindly warn you that all computations done are made on your
+    device, which can result in using a lot of the battery.
+</p>
+
 
 <div class="tab">
     <button id="diamondGenerationTab" class="tabLinks">Diamond Generation</button>
@@ -202,17 +100,21 @@
             </div>
         </div>
     </div>
+
     <div>
-        <a href="#" id="savePng" download="aztec-diamond.png">Save as PNG image</a>
+        <a href="#" id="savePng" class="validateButton" download="aztec-diamond.png">Save as PNG image</a>
     </div>
+
     <div id="statusBarContainer">
         <p id="computationPhase">Finished computing!</p>
     </div>
+
     <div style="position: relative; height: 510px; width: 100%; margin-left: auto; margin-right: auto">
         <div style="width: 500px; height: 500px; position: absolute; left: 0px; top: 0px; z-index: 1">
         </div>
         <canvas id="aztecDrawing" width=500 height=500 style="border: 2px solid black; position: absolute; z-index: 0"></canvas>
     </div>
+
     <div id="colorPickerBackground" style="display: none; position: fixed; width: 100%; height: 100%; left: 0px; top: 0px; z-index: 2">
         <div id="colorPicker" style="width: 202px; background-color: white; border: 4px outset #CCC; position: absolute; z-index: 3">
             <button id="colorPickerCancel" style="text-align: center; background-color: red; color: white; width: 20px; height: 20px; position: absolute; right: 4px; top: 4px"></button>
@@ -221,6 +123,7 @@
             <div id="chosenColor" style="width: 128px; height: 32px; margin-left: auto; margin-right: auto; margin-bottom: 3px; border: 2px outset #AAA"></div>
         </div>
     </div>
+
     <p id="timeTaken"></p>
 </div>
 
@@ -235,7 +138,7 @@
         <header id="computePartitionFormHeader"><h1>dummy</h1></header>
         <div id="computePartitionParameters"></div>
         <div id="submitInputDivComputePartition">
-            <p id="computePartitionInfo"></p>
+            <p id="computePartitionInfo" style="word-wrap: break-word;"></p>
             <input id="computePartitionStart" type="submit" value="Start counting" class="validateButton">
             <input id="computePartitionCancel" type="button" value="Cancel" class="cancelButton">
         </div>
@@ -252,9 +155,11 @@
         <a class="link" href="http://www.combinatorics.org/ojs/index.php/eljc/article/view/v13i1r30">"A note on Domino Shuffling"</a>,
         in the Electronic Journal of Combinatorics <span style="font-family: quicksand-bold">13</span> (2006)
     </p>
-    <p style="display: none">
-        The project website is available at <a class="link" href="#">this address</a>
+
+    <p>
+        The project website is available at <a class="link" href="https://sites.uclouvain.be/aztecdiamond/">this address</a>.
     </p>
+
     <p>
         The code of the project is <a class="link" href="https://github.com/sherpal/AztecDiamond">available on the GitHub website</a>.
     </p>
@@ -275,12 +180,12 @@ self.onmessage = function(e) {
 
 
 
-    importScripts(data + "../js/webworkerjs-fastopt.js")
+    importScripts(data + "./js/webworkerjs-fastopt.js")
 }
 </script>
 
 
-<!--web<script type="text/javascript" src="../js/webapp-fastopt.js"></script>web-->
+<!--web<script type="text/javascript" src="./js/webapp-fastopt.js"></script>web-->
 <!--electron<script type="text/javascript">require('../js/electronapp-fastopt.js')</script>electron-->
 
 <!--<button onclick="document.getElementById('file-input').click();">Open</button>-->

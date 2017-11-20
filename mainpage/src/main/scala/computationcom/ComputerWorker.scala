@@ -17,7 +17,7 @@ trait ComputerWorker extends Computer {
         if (scala.scalajs.LinkingInfo.developmentMode) {
           println(s"received $s")
         }
-        postMessage(WorkerLoaded())
+        receiveMessage(WorkerLoaded())
         postMessage(initialMessage)
       case _ =>
         receiveMessage(Message.decode(event.data.asInstanceOf[scala.scalajs.js.Array[Byte]].toArray))

@@ -1,13 +1,13 @@
 @font-face {
     font-family: 'quicksand';
-    src: url('Quicksand-Regular.otf');
+    src: url('./font/Quicksand-Regular.otf');
     font-weight: normal;
     font-style: normal;
 }
 
 @font-face {
     font-family: 'quicksand-bold';
-    src: url('Quicksand-Bold.otf');
+    src: url('./font/Quicksand-Bold.otf');
     font-weight: normal;
     font-style: normal;
 }
@@ -18,7 +18,7 @@
     float: left;
     width: 100%;
 }
-@media (min-width: 500px) {
+@media (min-width: 800px) {
     /* For desktop: */
     .col-1 {width: 8.33%;}
     .col-2 {width: 16.66%;}
@@ -44,6 +44,10 @@
     display: table;
 }
 
+img {
+    height: auto;
+}
+
 
 * {
     font-size: 14px;
@@ -56,13 +60,13 @@
  /* Style the tab */
 div.tab {
     overflow: hidden;
-    border: 1px solid #003399;
-    background-color: #f1f1f1;
 }
 
 /* Style the buttons inside the tab */
 div.tab button {
-    background-color: inherit;
+    font-family: quicksand-bold;
+    text-align: center;
+    background-color: #f1f1f1;
     float: left;
     border: none;
     outline: none;
@@ -86,7 +90,6 @@ div.tab button.active {
 .tabContent {
     display: none;
     padding: 6px 12px;
-    border: 1px solid #003399;
     border-top: none;
 }
 
@@ -175,10 +178,9 @@ input[type="button"]:disabled,input[type="submit"]:disabled {
     left: 0px;
     max-width: none;
     background-color: #003399;
-    padding-top: 10px;
 }
 
-@media (min-width: 500px) {
+@media (min-width: 800px) {
     #webMainPageHeader {
         display: block;
     }
@@ -194,9 +196,9 @@ section {
     padding-right: 50px;
 }
 
-@media (min-width: 500px) {
+@media (min-width: 800px) {
     section {
-        margin-top: 70px;
+        padding-top: 70px;
     }
 }
 
@@ -268,7 +270,7 @@ a {
     margin-bottom: 20px
 }
 
-@media (min-width: 500px) {
+@media (min-width: 800px) {
     #availableShapes > .row > p, #examples > .row > p {
         padding: 20px;
     }

@@ -47,7 +47,6 @@ fastOptElectronApp := {
     baseDirectory.value / ("electron/mainwindow/js/" + concreteMainWindowFileName)
   )
 
-  // TODO: remove this
   val webWorkerDirectory = (fastCompileWebWorker in webWorkerJS).value
   val concreteWebWorkerFileName = """[a-z-\.]+$""".r.findFirstIn(webWorkerDirectory.toString).get
   IO.copyFile(
@@ -107,7 +106,6 @@ fullOptElectronApp := {
     baseDirectory.value / ("electron/mainwindow/js/" + concreteMainWindowFileName)
   )
 
-  // TODO: remove this
   val webWorkerDirectory = (fullCompileWebWorker in webWorkerJS).value
   val concreteWebWorkerFileName = """[a-z-\.]+$""".r.findFirstIn(webWorkerDirectory.toString).get
   IO.copyFile(
@@ -171,7 +169,7 @@ fastOptChangeHtml := {
 
   val sourceHtml = IO.readLines(baseDirectory.value / "sourcehtml/domino-shuffling-implementation.html")
 
-  val html = baseDirectory.value / "compiled/html/domino-shuffling-implementation.html"
+  val html = baseDirectory.value / "compiled/domino-shuffling-implementation.html"
 
   def replaceBaseDirectory(line: String): String =
     new Regex("baseDirectory").replaceAllIn(line, baseDirectory.value.toPath.iterator().toList.mkString("/"))
@@ -188,19 +186,16 @@ fastOptChangeHtml := {
 
   val sourceIndex = IO.readLines(baseDirectory.value / "sourcehtml/webapp-index.html")
 
-  val index = baseDirectory.value / "compiled/html/index.html"
-
-  def replaceImageSources(line: String): String =
-    new Regex("src=\"").replaceAllIn(line, "src=\"../assets/")
+  val index = baseDirectory.value / "compiled/index.html"
 
   IO.writeLines(
     index,
-    sourceIndex.map(replaceImageSources)
+    sourceIndex
   )
 
   IO.copyFile(
     baseDirectory.value / "sourcehtml/style.css",
-    baseDirectory.value / "compiled/html/style.css"
+    baseDirectory.value / "compiled/style.css"
   )
 }
 
@@ -225,7 +220,7 @@ fullOptChangeHtml := {
 
   val sourceHtml = IO.readLines(baseDirectory.value / "sourcehtml/domino-shuffling-implementation.html")
 
-  val html = baseDirectory.value / "compiled/html/domino-shuffling-implementation.html"
+  val html = baseDirectory.value / "compiled/domino-shuffling-implementation.html"
 
   def replaceBaseDirectory(line: String): String =
     new Regex("baseDirectory").replaceAllIn(line, baseDirectory.value.toPath.iterator().toList.mkString("/"))
@@ -245,19 +240,16 @@ fullOptChangeHtml := {
 
   val sourceIndex = IO.readLines(baseDirectory.value / "sourcehtml/webapp-index.html")
 
-  val index = baseDirectory.value / "compiled/html/index.html"
-
-  def replaceImageSources(line: String): String =
-    new Regex("src=\"").replaceAllIn(line, "src=\"../assets/")
+  val index = baseDirectory.value / "compiled/index.html"
 
   IO.writeLines(
     index,
-    sourceIndex.map(replaceImageSources)
+    sourceIndex
   )
 
   IO.copyFile(
     baseDirectory.value / "sourcehtml/style.css",
-    baseDirectory.value / "compiled/html/style.css"
+    baseDirectory.value / "compiled/style.css"
   )
 }
 

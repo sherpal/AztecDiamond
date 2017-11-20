@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Aztec Diamond</title>
-    <link rel="icon" href="./aztec-diamond.ico">
+    <link rel="icon" href="./assets/aztec-diamond.ico">
     <link href="style.css" type="text/css" rel="stylesheet">
 </head>
 <body>
@@ -13,11 +13,11 @@
     <a href="#availableShapes" class="col-2">Shapes</a>
     <a href="#algorithm" class="col-2">Algorithm</a>
     <a href="domino-shuffling-implementation.html" class="col-2">Generate online</a>
-    <a href="download-page.html" class="col-2">Download</a>
+    <a href="https://github.com/sherpal/AztecDiamond/releases" class="col-2">Download</a>
 </header>
 <section id="intro">
     <h1>Discover Aztec Diamonds</h1>
-    <img src="aztec_diamond_5_example.png" alt="Image of diamond of order 5" class="center" style="max-width: 100px">
+    <img src="./assets/aztec_diamond_5_example.png" alt="Image of diamond of order 5" class="center" style="max-width: 100px">
     <p>
         The goal of this website is to offer an easy-to-use tool for generating random tilings of shapes in the plane,
         as well as counting the number of such tilings.
@@ -54,7 +54,7 @@
 <section id="examples">
     <h1>Some examples</h1>
     <div class="row">
-        <img src="uniform_30.png" alt="Aztec diamond of order 30" class="col-4">
+        <img src="./assets/uniform_30.png" alt="Aztec diamond of order 30" class="col-4">
         <p class="col-8">
             The first example is the tiling of an Aztec Diamond of order 30. The *order* of a Diamond represents the
             number of rows in the upper half part of region.<br>The tiling is drawn uniformly at random. That means that,
@@ -67,7 +67,7 @@
     </div>
 
     <div class="row">
-        <img src="rectangle40x30.png" width="300" height="227" alt="40 by 30 rectangle" class="col-4">
+        <img src="./assets/rectangle40x30.png" width="300" height="227" alt="40 by 30 rectangle" class="col-4">
         <p class="col-8">
             The second is an example of the tiling of a 40 by 30 rectangle. It is drawn uniformly among all the tilings
             of such a rectangle.<br>Although apparently much simpler than the Aztec Diamond, the formula giving the number
@@ -76,7 +76,7 @@
     </div>
 
     <div class="row">
-        <img src="uniform_1000.png" alt="Aztec diamond of order 1000" class="col-4">
+        <img src="./assets/uniform_1000.png" alt="Aztec diamond of order 1000" class="col-4">
         <p class="col-8">
             Next is an Aztec Diamond of order 1000 drawn uniformly. The number of such diamonds is way bigger than the
             number of particles in the universe. Yet, the algorithm is able to generate one uniformly at random, by reducing
@@ -89,7 +89,7 @@
     </div>
 
     <div class="row">
-        <img src="hexagon_15x15x15.png" alt="Lozenge tiling of a Hexagon" class="col-4">
+        <img src="./assets/hexagon_15x15x15.png" alt="Lozenge tiling of a Hexagon" class="col-4">
         <p class="col-8">
             An other way to tile a region of the plane is by using lozenges. On the left, we generated a random tiling of a
             hexagon, tiled with three types of lozenges.<br>By coloring two types in white, and the last in black, we see
@@ -122,21 +122,21 @@
     </ul>
     <h2>Shapes</h2>
     <div class="row">
-        <img src="uniform_30.png" alt="Aztec diamond of order 30" class="col-2">
+        <img src="./assets/uniform_30.png" alt="Aztec diamond of order 30" class="col-2">
         <p class="col-10">
             Uniformly distributed diamonds.
         </p>
     </div>
 
     <div class="row">
-        <img src="rectangle40x30.png" alt="Rectangle" class="col-2">
+        <img src="./assets/rectangle40x30.png" alt="Rectangle" class="col-2">
         <p class="col-10">
             Uniformly distributed rectangles.
         </p>
     </div>
 
     <div class="row">
-        <img src="aztec-ring_i15_o31.png" alt="Aztec Ring" class="col-2">
+        <img src="./assets/aztec-ring_i15_o31.png" alt="Aztec Ring" class="col-2">
         <p class="col-10">
             Uniformly distributed Aztec Rings. An Aztec Ring is obtained by removing an Aztec diamond from a bigger Aztec
             Diamond. In <a class="link" href="http://www.combinatorics.org/ojs/index.php/eljc/article/view/v13i1r30">A note on Domino Shuffling</a>,
@@ -146,7 +146,7 @@
     </div>
 
     <div class="row">
-        <img src="double-aztec_order25_overlap5.png" alt="Double Aztec" class="col-2">
+        <img src="./assets/double-aztec_order25_overlap5.png" alt="Double Aztec" class="col-2">
         <p class="col-10">
             Uniformly distributed Double Aztec Diamonds. Two Aztec Diamonds that slightly overlap. In
             <a class="link" href="https://arxiv.org/abs/1112.5532">Double Aztec Diamonds and the Tacnode Process</a>, it was
@@ -156,14 +156,14 @@
     </div>
 
     <div class="row">
-        <img src="aztec-house_n30_h30.png" alt="Double Aztec" class="col-2">
+        <img src="./assets/aztec-house_n30_h30.png" alt="Double Aztec" class="col-2">
         <p class="col-10">
             Uniformly distributed Aztec houses. A Triangle on top of a Rectangle.
         </p>
     </div>
 
     <div class="row">
-        <img src="two-periodic_500_a1_b3.png" alt="Double Aztec" class="col-2">
+        <img src="./assets/two-periodic_500_a1_b3.png" alt="Double Aztec" class="col-2">
         <p class="col-10">
             Two periodic Aztec Diamonds. These are Aztec Diamonds with a non uniform probability distribution. The name
             "Two periodic" comes from the way the weights are put on the dominoes. It was introduced in
@@ -175,7 +175,7 @@
     </div>
 
     <div class="row">
-        <img src="hexagon_15x15x15.png" alt="Hexagon" class="col-2">
+        <img src="./assets/hexagon_15x15x15.png" alt="Hexagon" class="col-2">
         <p class="col-10">
             Uniformly distributed lozenge tilings of hexagons.
         </p>
@@ -266,12 +266,12 @@
     <div class="center" style="width: 75%;">
         <div style="width: 110px; float: left; margin-top: 5px;">
             <a href="https://uclouvain.be/fr/instituts-recherche/irmp">
-                <img src="irmp.png" alt="IRMP logo">
+                <img src="./assets/irmp.png" alt="IRMP logo">
             </a>
         </div>
         <div style="width: 110px; float: right; margin-top: 5px;">
             <a href="https://uclouvain.be/fr/index.html">
-                <img src="logo_ucl.png" alt="UCL logo">
+                <img src="./assets/logo_ucl.png" alt="UCL logo">
             </a>
         </div>
         <p>Contact: Antoine Doeraene,<br>antoine.doeraene@uclouvain.be</p>

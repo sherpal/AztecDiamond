@@ -36,6 +36,9 @@ trait DiamondGenerator extends Computer {
         }
       case DiamondMessage(diamondTypeString, time, args, diamondInfo) =>
         diamondComputationStatusBar.setColor(0, 255, 0)
+        diamondComputationStatusBar.setValue(100)
+        weightGenerationStatusBar.setColor(0, 255, 0)
+        weightGenerationStatusBar.setValue(100)
         computationPhase.textContent = "Diamond has been generated."
 
         val diamondType = diamondTypeString.toDiamondType

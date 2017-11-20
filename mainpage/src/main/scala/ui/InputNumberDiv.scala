@@ -3,7 +3,7 @@ package ui
 import org.scalajs.dom
 import org.scalajs.dom.html
 
-class InputNumberDiv(labelString: String) {
+class InputNumberDiv(labelString: String, defaultGenerationValue: Double) {
 
   private val div: html.Div = dom.document.createElement("div").asInstanceOf[html.Div]
   div.style.width = "201px"
@@ -22,6 +22,7 @@ class InputNumberDiv(labelString: String) {
   inputDiv.style.display = "inline-block"
   private val input: html.Input = dom.document.createElement("input").asInstanceOf[html.Input]
   input.style.width = "50px"
+  input.value = defaultGenerationValue.toString
   inputDiv.appendChild(input)
 
   div.appendChild(labelDiv)

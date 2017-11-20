@@ -16,7 +16,13 @@ trait ArgumentForm {
   private lazy val name: html.Heading = header.firstChild.asInstanceOf[html.Heading]
   //name.textContent = diamondType.name
 
-  private lazy val inputNumberDivs: List[InputNumberDiv] = diamondType.argumentNames.map(new InputNumberDiv(_))
+  private lazy val inputNumberDivs: List[InputNumberDiv] = diamondType.argumentNames.map({
+    case (label, generationValue, countingValue) =>
+      this match {
+        case _: CountingTilingForm => new InputNumberDiv(label, countingValue)
+        case _: GenerateDiamondForm => new InputNumberDiv(label, generationValue)
+      }
+  })
 
   def hide(): Unit = {
     //parametersDiv.removeChild(name)

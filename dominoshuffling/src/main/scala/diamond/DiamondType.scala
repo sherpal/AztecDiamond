@@ -7,7 +7,6 @@ import geometry.{Domino, Point}
 import scala.language.implicitConversions
 
 
-// TODO: add whether it is Partition function or Tiling number that is computed, and functions
 sealed trait DiamondType {
   type ArgType
 
@@ -60,8 +59,11 @@ sealed trait DiamondType {
   /** A space separated version of the toString of the object. */
   def name: String = """[A-Z][a-z]*""".r.findAllIn(toString).mkString(" ")
 
-  /** A List of the names of the arguments to display in the html file. */
-  val argumentNames: List[String]
+  /**
+   * A List of the names of the arguments to display in the html file, as well as default generation and tiling counting
+   * values.
+   */
+  val argumentNames: List[(String, Double, Double)]
 }
 
 
@@ -97,7 +99,7 @@ object DiamondType {
 
     def theoreticTilingNumber(order: Int): QRoot = QRoot(BigInt(2) pow order, 1)
 
-    val argumentNames: List[String] = List("Diamond Order")
+    val argumentNames: List[(String, Double, Double)] = List(("Diamond Order", 100, 5))
   }
 
   case object AztecHouse extends DiamondType {
@@ -138,7 +140,7 @@ object DiamondType {
     def isInDiamond(args: (Int, Int)): Domino => Boolean =
       (domino: Domino) => WeightTrait.isInAztecHouse(domino.p1, args._1, args._2)
 
-    val argumentNames: List[String] = List("Aztec n", "Aztec h")
+    val argumentNames: List[(String, Double, Double)] = List(("Aztec n", 30, 5), ("Aztec h", 30, 5))
   }
 
   case object AztecRing extends DiamondType {
@@ -209,7 +211,7 @@ object DiamondType {
     def isInDiamond(args: (Int, Int)): Domino => Boolean =
       (domino: Domino) => WeightTrait.isInDiamondRing(domino.p1, args._1, args._2)
 
-    val argumentNames: List[String] = List("Inner order", "Outer order")
+    val argumentNames: List[(String, Double, Double)] = List(("Inner order", 20, 3), ("Outer order", 40, 8))
   }
 
 
@@ -312,7 +314,7 @@ object DiamondType {
     def isInDiamond(args: (Int, Int)): Domino => Boolean =
       (domino: Domino) => WeightTrait.isInRectangle(domino.p1, args._1, args._2)
 
-    val argumentNames: List[String] = List("Width", "Height")
+    val argumentNames: List[(String, Double, Double)] = List(("Width", 40, 4), ("Height", 30, 3))
   }
 
 
@@ -357,7 +359,8 @@ object DiamondType {
 
     def totalPartitionFunctionToSubGraph(args: (Int, Double, Double), totalPartition: QRoot): QRoot = totalPartition
 
-    val argumentNames: List[String] = List("Diamond Order", "Weight a", "Weight b")
+    val argumentNames: List[(String, Double, Double)] =
+      List(("Diamond Order", 100, 5), ("Weight a", 0.5, 0.5), ("Weight b", 1, 1))
   }
 
   case object DoubleAztecDiamond extends DiamondType {
@@ -396,7 +399,8 @@ object DiamondType {
     def isInDiamond(args: (Int, Int)): Domino => Boolean =
       (domino: Domino) => WeightTrait.isInRightDoubleAztec(domino.p1, args._1, args._1 - args._2)
 
-    val argumentNames: List[String] = List("Order of diamonds", "Overlap")
+    val argumentNames: List[(String, Double, Double)] =
+      List(("Order of diamonds", 50, 3), ("Overlap", 10, 1))
   }
 
   case object Hexagon extends DiamondType {
@@ -434,7 +438,8 @@ object DiamondType {
     def isInDiamond(args: (Int, Int, Int)): Domino => Boolean =
       (domino: Domino) => WeightTrait.isInHexagon(domino.p1, args._1, args._2, args._3)
 
-    val argumentNames: List[String] = List("First side size", "Second side size", "Third side size")
+    val argumentNames: List[(String, Double, Double)] =
+      List(("First side size", 15, 3), ("Second side size", 15, 3), ("Third side size", 15, 3))
   }
 
 

@@ -43,16 +43,18 @@ object DiamondGeneration {
   }
 
   def computeWeightOfOrder(order: Int, baseWeight: GenerationWeight): GenerationWeight = {
-    val totalNumber = totalNumberOfWeights(baseWeight.n)
+    val totalNumber = totalNumberOfWeights(baseWeight.n) - totalNumberOfWeights(order - 1)
 
     def accumulator(weight: GenerationWeight): GenerationWeight = {
       if (weight.n == order) weight
       else {
-        Communicator.postMessage(
-          WeightComputationStatus(
-            math.round((weight.n to baseWeight.n).map(n => 4 * n * n).sum / totalNumber * 100).toInt
+        if (weight.n % 2 == 0)
+          Communicator.postMessage(
+            WeightComputationStatus(
+              math.round((weight.n to baseWeight.n).map(n => 4 * n * n).sum / totalNumber * 100).toInt
+            )
           )
-        )
+
         accumulator(weight.subWeights.asInstanceOf[GenerationWeight])
       }
     }
@@ -62,25 +64,87 @@ object DiamondGeneration {
 
   def generateDiamondMemoryOptimized(baseWeight: GenerationWeight): Diamond = {
     val totalComputations: Double = (math.pow(baseWeight.n, 2).toInt + baseWeight.n) / 2
+//
+//    def accumulator(diamond: Diamond, weights: List[GenerationWeight]): Diamond =
+//      if (diamond.order == baseWeight.n) diamond
+//      else {
+//        val order = diamond.order + 1
+//        val w = if (weights.nonEmpty) weights else {
+//          computeWeightSliceFrom(order, baseWeight)
+//        }
+//        Communicator.postMessage(
+//          DiamondComputationStatus(
+//            math.round((order * order + order) / 2 / totalComputations * 100).toInt
+//          )
+//        )
+//
+//        accumulator(w.head.generateDiamond(diamond), w.tail)
+//      }
+//
+//    val firstWeights = computeWeightSliceFrom(1, baseWeight)
+//    accumulator(firstWeights.head.generateOrderOneDiamond, firstWeights.tail)
 
-    def accumulator(diamond: Diamond, weights: List[GenerationWeight]): Diamond =
+    val milestones = computeMilestoneWeights(baseWeight)
+
+    def weight(order: Int): GenerationWeight = computeWeightOfOrder(order, milestones.find(_.n >= order).get)
+
+    def accumulator(diamond: Diamond): Diamond = {
       if (diamond.order == baseWeight.n) diamond
       else {
-        val order = diamond.order + 1
-        val w = if (weights.nonEmpty) weights else {
-          computeWeightSliceFrom(order, baseWeight)
-        }
+        val j = diamond.order
+
         Communicator.postMessage(
           DiamondComputationStatus(
-            math.round((order * order + order) / 2 / totalComputations * 100).toInt
+            math.round((j * j + j) / 2 / totalComputations * 100).toInt
           )
         )
 
-        accumulator(w.head.generateDiamond(diamond), w.tail)
+        if (j + 1 == baseWeight.n)
+          accumulator(weight(j + 1).generateDiamond(diamond))
+        else {
+          val w = weight(j + 2)
+          accumulator(w.generateDiamond(w.subWeights.asInstanceOf[GenerationWeight].generateDiamond(diamond)))
+        }
       }
+    }
 
-    val firstWeights = computeWeightSliceFrom(1, baseWeight)
-    accumulator(firstWeights.head.generateOrderOneDiamond, firstWeights.tail)
+    accumulator(weight(1).generateOrderOneDiamond)
+  }
+
+  def computeMilestoneWeights(weight: GenerationWeight): List[GenerationWeight] = {
+    val order = weight.n
+    val totalNumber = totalNumberOfWeights(order)
+    val milestoneSteps: Int = 100
+
+    def accumulator(
+                     computed: List[GenerationWeight],
+                     lastComputed: GenerationWeight,
+                     nextMilestone: Int
+                   ): List[GenerationWeight] = {
+      if (nextMilestone < 1) {
+
+        Communicator.postMessage(WeightComputationStatus(100))
+
+        computed
+      }
+      else {
+        val nextComputed = lastComputed.subWeights.asInstanceOf[GenerationWeight]
+
+        Communicator.postMessage(
+          WeightComputationStatus(
+            math.round((nextComputed.n to order).map(n => 4 * n * n).sum / totalNumber * 100).toInt
+          )
+        )
+
+        if (nextComputed.n == nextMilestone) {
+          accumulator(nextComputed +: computed, nextComputed, nextMilestone - milestoneSteps)
+        } else {
+          accumulator(computed, nextComputed, nextMilestone)
+        }
+      }
+    }
+
+    accumulator(List(weight), weight, order - milestoneSteps)
   }
 
   def computeAllWeights(weight: GenerationWeight): List[GenerationWeight] = {

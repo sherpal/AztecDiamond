@@ -2,6 +2,7 @@ package mainobject
 
 import computationcom.{DiamondGenerationWorker, TilingNumberCountingWorker}
 import org.scalajs.dom
+import org.scalajs.dom.html
 
 import scala.scalajs.js
 
@@ -23,6 +24,13 @@ object WebApp {
       DiamondGenerationWorker
       TilingNumberCountingWorker
     }
+
+    if (List[String](
+      "Android", "webOS", "iPhone", "iPad", "iPod", "BlackBerry", "Windows Phone"
+    ).exists(dom.window.navigator.userAgent.contains)) {
+      dom.document.getElementById("mobileAlert").asInstanceOf[html.Element].style.display = "block"
+    }
+
   }
 
 }
