@@ -46,7 +46,6 @@ trait ComputerWorker extends Computer {
     val href = url.href
     val index = href.indexOf("domino-shuffling-implementation.html")
     val finalUrl = if (index != -1) href.substring(0, index) else href
-    println(finalUrl)
     worker.postMessage(finalUrl)
   }
 

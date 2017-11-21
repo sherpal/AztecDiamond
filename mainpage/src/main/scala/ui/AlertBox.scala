@@ -9,6 +9,7 @@ object AlertBox extends MessageBox[() => Unit] {
 
   private val closeButton: html.Button = dom.document.createElement("button").asInstanceOf[html.Button]
   closeButton.textContent = "OK"
+  closeButton.className = "validateButton"
   addButton(closeButton)
 
   closeButton.onclick = (_: dom.MouseEvent) => {

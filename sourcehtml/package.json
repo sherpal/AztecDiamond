@@ -1,5 +1,7 @@
 {
   "name"    : "AztecDiamond",
   "version" : "1.0.0",
-  "main"    : "mainprocess/electronmainprocess-fastopt.js"
+  "main"    : "mainprocess/electronmainprocess-fastopt.js",
+  "author"  : "Antoine Doeraene",
+  "repository" : "https://github.com/sherpal/AztecDiamond"
 }

@@ -38,6 +38,11 @@ object ElectronApp {
 
     def openJavaDownloadPage(): Unit = Shell.openExternal("https://java.com/en/download/")
 
+
+    /**
+     * Checks if Java is installed on the computer by using the java -version command.
+     * Also checks if the version is at least 1.8.
+     */
     ChildProcess.exec(
       "java -version",
       (error, _, stderr) => {
@@ -61,7 +66,6 @@ object ElectronApp {
 
           try {
             val versionNumbers = """\d+\.\d+""".r.findFirstIn(stderr.toString).get.split("""\.""")
-            println(versionNumbers.mkString(", "))
             val version = JavaVersion(versionNumbers(0).toInt, versionNumbers(1).toInt)
 
             val requiredVersion = JavaVersion(1, 8)
@@ -71,11 +75,14 @@ object ElectronApp {
                 "Old Java version",
                 s"The Java version installed on your machine is $version. The app requires at least version " +
                   s"$requiredVersion to work.<br>" +
+                  "We will use the online technology instead. Restart the app when Java is installed.<br>" +
                   s"You would like us to open the Java download page in your browser?",
                 (answer: Boolean) => if (answer) {
                   openJavaDownloadPage()
                 }
               )
+              TilingNumberCountingWorker
+              DiamondGenerationWorker
             }
           } catch {
             case e: Throwable =>
@@ -93,22 +100,31 @@ object ElectronApp {
       }
     )
 
+
+    /**
+     * Change the href of anchors by Shell.openExternal.
+     */
     val linkList = dom.document.getElementsByClassName("link")
     val linkListElements = (for (j <- 0 until linkList.length) yield linkList(j).asInstanceOf[html.Anchor]).toList
 
     linkListElements.foreach(anchor => {
       val href = anchor.href
-      anchor.href = ""
-      anchor.onclick = (event: dom.MouseEvent) => {
-        event.preventDefault()
+      if (href != "") {
+        anchor.href = ""
+        anchor.onclick = (event: dom.MouseEvent) => {
+          event.preventDefault()
 
-        Shell.openExternal(href)
+          Shell.openExternal(href)
 
-        false
+          false
+        }
       }
     })
 
 
+    /**
+     * Checks whether this version of the application is the latest one.
+     */
     try {
       HTTPS.get("https://sites.uclouvain.be/aztecdiamond/version.txt", (response: ServerResponse) => {
         var received: String = ""

@@ -1,13 +1,23 @@
 package nodejs
 
+import stream.Readable
+
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
 import scala.scalajs.js.|
 
 @js.native
-trait ChildProcess extends js.Object {
+trait ChildProcess extends EventEmitter {
 
   def kill(signal: String = "SIGTERM"): Unit = js.native
+
+  val stderr: Readable = js.native
+
+  val stdin: Readable = js.native
+
+  val stdio: Readable = js.native
+
+  val stdout: Readable = js.native
 
 }
 

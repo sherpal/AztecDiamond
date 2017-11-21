@@ -16,9 +16,10 @@ private[communication] object PlatformDependent {
   private lazy val output: DataOutputStream = new DataOutputStream(socket.getOutputStream)
 
   private def disconnect(): Unit = {
-    Thread.sleep(1000)
     output.close()
     socket.close()
+
+    System.out.println("Task ended.")
   }
 
   def postMessage(message: Message): Unit = {
@@ -53,7 +54,14 @@ private[communication] object PlatformDependent {
 
     val message = Message.decode(args(1).split(",").map(_.toInt).map(_.toByte))
 
-    Communicator.receiveMessage(message)
+    try {
+      Communicator.receiveMessage(message)
+    } catch {
+      case _: OutOfMemoryError =>
+        System.err.println("outofmemory")
+      case e: Throwable =>
+        throw e
+    }
 
 //    System.out.println(message.toString)
 

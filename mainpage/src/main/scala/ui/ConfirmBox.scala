@@ -11,6 +11,7 @@ object ConfirmBox extends MessageBox[(Boolean) => Unit] {
   addButton(yesButton)
   yesButton.style.marginRight = "10px"
   yesButton.textContent = "Yes"
+  yesButton.className = "validateButton"
   yesButton.onclick = (_: dom.MouseEvent) => {
     closeCallback(true)
     hide()
@@ -19,6 +20,7 @@ object ConfirmBox extends MessageBox[(Boolean) => Unit] {
   private val noButton: html.Button = dom.document.createElement("button").asInstanceOf[html.Button]
   addButton(noButton)
   noButton.textContent = "No"
+  noButton.className = "cancelButton"
   noButton.onclick = (_: dom.MouseEvent) => {
     closeCallback(false)
     hide()
