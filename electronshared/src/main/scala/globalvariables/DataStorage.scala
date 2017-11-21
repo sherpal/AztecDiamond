@@ -24,15 +24,7 @@ object DataStorage {
     compositePickler[Data]
       .addConcreteType[BaseDirectory]
       .addConcreteType[WindowId]
-      .addConcreteType[RGBData]
-
-      .addConcreteType[DrawLine]
-      .addConcreteType[DrawCircle]
-      .addConcreteType[DrawEllipse]
-      .addConcreteType[DrawFillCircle]
-      .addConcreteType[DrawFillEllipse]
-      .addConcreteType[DrawRectangle]
-      .addConcreteType[DrawPolygon]
+      .addConcreteType[AppVersion]
 
   }
 
@@ -73,13 +65,15 @@ object DataStorage {
 
 final case class BaseDirectory(directory: String) extends Data
 final case class WindowId(id: Int) extends Data
-final case class RGBData(red: Int, green: Int, blue: Int) extends Data
-
-abstract sealed class DrawMode extends Data
-case class DrawLine() extends DrawMode
-case class DrawCircle() extends DrawMode
-case class DrawEllipse() extends DrawMode
-case class DrawRectangle() extends DrawMode
-case class DrawFillEllipse() extends DrawMode
-case class DrawFillCircle() extends DrawMode
-case class DrawPolygon() extends DrawMode
+final case class AppVersion(major: Int, minor: Int, update: Int) extends Data with Ordered[AppVersion] {
+  override def compare(that: AppVersion): Int =
+    if (that.major != this.major) this.major - that.major
+    else if (that.minor != this.minor) this.minor - this.minor
+    else this.update - that.update
+}
+object AppVersion {
+  def fromString(string: String): AppVersion = {
+    val numbers = """\d+""".r.findAllIn(string).toArray
+    AppVersion(numbers(0).toInt, numbers(1).toInt, numbers(2).toInt)
+  }
+}

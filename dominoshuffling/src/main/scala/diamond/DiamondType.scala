@@ -97,7 +97,7 @@ object DiamondType {
 
     def isInDiamond(args: Int): Domino => Boolean = (_: Domino) => true
 
-    def theoreticTilingNumber(order: Int): QRoot = QRoot(BigInt(2) pow order, 1)
+    def theoreticTilingNumber(order: Int): QRoot = QRoot(BigInt(2) pow (order * (order + 1) / 2), 1)
 
     val argumentNames: List[(String, Double, Double)] = List(("Diamond Order", 100, 5))
   }

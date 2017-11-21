@@ -1,7 +1,7 @@
 package storage
 
-import electron.{IPCMain, IPCMainEvent, ElectronGlobals, WebContents}
-import globalvariables.{BaseDirectory, Data, DataStorage}
+import electron._
+import globalvariables.{AppVersion, BaseDirectory, Data, DataStorage}
 import nodejs.Path
 
 import scala.collection.mutable
@@ -86,6 +86,10 @@ object Storage {
   storeGlobalVariable(
     "baseDirectory",
     BaseDirectory(Path.join(ElectronGlobals.__dirname, "/.."))
+  )
+
+  storeGlobalVariable(
+    "appVersion", AppVersion.fromString(App.getVersion())
   )
 
 

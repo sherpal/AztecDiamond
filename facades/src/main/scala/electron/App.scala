@@ -1,5 +1,7 @@
 package electron
 
+import nodejs.EventEmitter
+
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
 
@@ -10,10 +12,12 @@ import scala.scalajs.js.annotation.JSImport
  */
 @js.native
 @JSImport("electron", "app")
-object App extends js.Object {
-  def on(callbackName: String, handler: js.Function): Unit = js.native
+object App extends EventEmitter {
 
   def quit(): Unit = js.native
+
+  def getVersion(): String = js.native
+
 }
 
 

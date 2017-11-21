@@ -1,7 +1,7 @@
 package renderer
 
 import electron._
-import globalvariables.WindowId
+import globalvariables.{AppVersion, WindowId}
 import nodejs.Path
 import org.scalajs.dom.Event
 import storage.Storage

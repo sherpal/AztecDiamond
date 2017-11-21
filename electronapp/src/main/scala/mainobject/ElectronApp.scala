@@ -2,24 +2,41 @@ package mainobject
 
 import computationcom.{DiamondGenerationSocket, DiamondGenerationWorker, TilingNumberCountingSocket, TilingNumberCountingWorker}
 import electron.Shell
+import globalvariables.{AppVersion, DataStorage}
 import nodejs.ChildProcess
+import nodejs.https.{HTTPS, ServerResponse}
 import org.scalajs.dom
 import org.scalajs.dom.html
-import ui.AlertBox
+import ui.{AlertBox, ConfirmBox}
 
 import scala.scalajs.js
 
 
 object ElectronApp {
 
+  private case class JavaVersion(major: Int, minor: Int) extends Ordered[JavaVersion] {
+
+    override def compare(that: JavaVersion): Int = if (this.major != that.major) this.major - that.major
+    else this.minor - that.minor
+
+    override def toString: String = major + "." + minor
+
+  }
+
   def main(args: Array[String]): Unit = {
 
     println("This is an electron application")
+
+    if (scala.scalajs.LinkingInfo.developmentMode) {
+      println("App version: " + DataStorage.retrieveGlobalValue("appVersion"))
+    }
 
     AztecDiamond
 
     TilingNumberCountingSocket
     DiamondGenerationSocket
+
+    def openJavaDownloadPage(): Unit = Shell.openExternal("https://java.com/en/download/")
 
     ChildProcess.exec(
       "java -version",
@@ -32,14 +49,46 @@ object ElectronApp {
             "where you can download it. It may take a little while...<br>" +
             "We will use the online technology instead. Restart the app when Java is installed.<br>" +
             s"",//Error:<br>$error",
-            () => {
-              Shell.openExternal("https://java.com/en/download/")
-            }
+            () => openJavaDownloadPage()
           )
           TilingNumberCountingWorker
           DiamondGenerationWorker
-        } else if (scala.scalajs.LinkingInfo.developmentMode) {
-          println(stderr)
+        } else {
+          if (scala.scalajs.LinkingInfo.developmentMode) {
+            println(stderr)
+          }
+
+
+          try {
+            val versionNumbers = """\d+\.\d+""".r.findFirstIn(stderr.toString).get.split("""\.""")
+            println(versionNumbers.mkString(", "))
+            val version = JavaVersion(versionNumbers(0).toInt, versionNumbers(1).toInt)
+
+            val requiredVersion = JavaVersion(1, 8)
+
+            if (version < requiredVersion) {
+              ConfirmBox(
+                "Old Java version",
+                s"The Java version installed on your machine is $version. The app requires at least version " +
+                  s"$requiredVersion to work.<br>" +
+                  s"You would like us to open the Java download page in your browser?",
+                (answer: Boolean) => if (answer) {
+                  openJavaDownloadPage()
+                }
+              )
+            }
+          } catch {
+            case e: Throwable =>
+              if (scala.scalajs.LinkingInfo.developmentMode) {
+                e.printStackTrace()
+              }
+              AlertBox(
+                "Java not identified",
+                "We were not able to identify the version of Java installed on your machine. The app might not be " +
+                  "working.",
+                () => {}
+              )
+          }
         }
       }
     )
@@ -58,6 +107,38 @@ object ElectronApp {
         false
       }
     })
+
+
+    try {
+      HTTPS.get("https://sites.uclouvain.be/aztecdiamond/version.txt", (response: ServerResponse) => {
+        var received: String = ""
+
+        response.on("data", (data: js.Any) => received += data)
+        response.on("end", () => {
+          val officialVersion = AppVersion.fromString(
+            """version: #\d+\.\d+\.\d+#""".r.findFirstIn(received).get.drop("version: #".length).dropRight(1)
+          )
+
+          val appVersion = DataStorage.retrieveGlobalValue("appVersion").asInstanceOf[AppVersion]
+
+          if (appVersion < officialVersion) {
+            ConfirmBox(
+              "New version",
+              "A new version of the program is available. Would you like to be redirected to the GitHub website?",
+              (answer: Boolean) => if (answer) {
+                Shell.openExternal("https://github.com/sherpal/AztecDiamond/releases")
+              }
+            )
+          }
+        })
+      })
+    } catch {
+      case e: Throwable =>
+        if (scala.scalajs.LinkingInfo.developmentMode) {
+          println("Could not verify app version.")
+          e.printStackTrace()
+        }
+    }
 
 
 //
