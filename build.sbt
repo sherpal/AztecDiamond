@@ -67,8 +67,12 @@ fastOptElectronApp := {
         if ("""(?<=<!--web).+(?=web-->)""".r.findFirstIn(line).isDefined) "" else line
     }
 
+  def changeImportScripts(line: String): String =
+    if (line.contains("importScripts(data + \"./js/webworkerjs-fastopt.js\")")) {
+      "\timportScripts(data + \"../js/webworkerjs-fastopt.js\")"
+    } else line
 
-  IO.writeLines(html, sourceHtml.map(setAppType).filter(_.nonEmpty))
+  IO.writeLines(html, sourceHtml.map(changeImportScripts).map(setAppType).filter(_.nonEmpty))
 
   val sourcePackageJSON = IO.readLines(baseDirectory.value / "sourcehtml/package.json")
 
@@ -127,7 +131,12 @@ fullOptElectronApp := {
 
   def fastOptToFullOpt(line: String): String = new Regex("fastopt").replaceAllIn(line, "opt")
 
-  IO.writeLines(html, sourceHtml.map(fastOptToFullOpt).map(setAppType).filter(_.nonEmpty))
+  def changeImportScripts(line: String): String =
+    if (line.contains("importScripts(data + \"./js/webworkerjs-fastopt.js\")")) {
+      "\timportScripts(data + \"../js/webworkerjs-fastopt.js\")"
+    } else line
+
+  IO.writeLines(html, sourceHtml.map(changeImportScripts).map(fastOptToFullOpt).map(setAppType).filter(_.nonEmpty))
 
   val sourcePackageJSON = IO.readLines(baseDirectory.value / "sourcehtml/package.json")
 
