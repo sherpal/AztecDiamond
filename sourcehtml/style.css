@@ -326,16 +326,18 @@ footer > div > p {
     padding: 10px;
     font-size: 16px;
     font-family: quicksand-bold;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 20px;
-    margin-bottom: 20px;
     text-align: center;
-    display: inline-block;
+    margin-top: 20px;
 }
 
 .tryGenerator:hover {
     background-color: #009900;
+}
+
+@media (min-width: 800px) {
+    .tryGenerator {
+        margin-left: 41.66%;
+    }
 }
 
 .link {

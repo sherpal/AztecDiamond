@@ -20,13 +20,25 @@ val fullCompileElectronMainWindow = taskKey[File]("Return main file")
 lazy val fullOptElectronApp = taskKey[Unit]("Compile in fullOptJS and create all electron files.")
 
 
-
+val releaseVersion: String = "1.0.0"
 
 val commonSettings = Seq(
-  version := "0.1.0-SNAPSHOT",
+  version := releaseVersion,
   scalaVersion := "2.12.1",
   scalacOptions ++= Seq("-deprecation", "-feature", "-encoding", "utf-8")
 )
+
+
+def removeHtmlCommentLine(line: String): String = {
+  val newLine = """<!--.+-->""".r.replaceAllIn(line, "")
+
+  if (newLine.trim.isEmpty) "" else newLine
+}
+
+def changePackageJSONVersion(line: String): String =
+  if (line.contains("version")) """\d+\.\d+\.\d+""".r.replaceAllIn(line, releaseVersion)
+  else line
+
 
 fastOptElectronApp := {
 
@@ -72,13 +84,13 @@ fastOptElectronApp := {
       "\timportScripts(data + \"../js/webworkerjs-fastopt.js\")"
     } else line
 
-  IO.writeLines(html, sourceHtml.map(changeImportScripts).map(setAppType).filter(_.nonEmpty))
+  IO.writeLines(html, sourceHtml.map(changeImportScripts).map(setAppType).map(removeHtmlCommentLine).filter(_.nonEmpty))
 
   val sourcePackageJSON = IO.readLines(baseDirectory.value / "sourcehtml/package.json")
 
   val packageJSON = baseDirectory.value / "electron/package.json"
 
-  IO.writeLines(packageJSON, sourcePackageJSON)
+  IO.writeLines(packageJSON, sourcePackageJSON.map(changePackageJSONVersion))
 
   IO.copyFile(
     baseDirectory.value / "webworker/.jvm/target/scala-2.12/web-worker.jar",
@@ -136,13 +148,20 @@ fullOptElectronApp := {
       "\timportScripts(data + \"../js/webworkerjs-fastopt.js\")"
     } else line
 
-  IO.writeLines(html, sourceHtml.map(changeImportScripts).map(fastOptToFullOpt).map(setAppType).filter(_.nonEmpty))
+  IO.writeLines(
+    html, sourceHtml
+    .map(changeImportScripts)
+    .map(fastOptToFullOpt)
+    .map(setAppType)
+    .map(removeHtmlCommentLine)
+    .filter(_.nonEmpty)
+  )
 
   val sourcePackageJSON = IO.readLines(baseDirectory.value / "sourcehtml/package.json")
 
   val packageJSON = baseDirectory.value / "electron/package.json"
 
-  IO.writeLines(packageJSON, sourcePackageJSON.map(fastOptToFullOpt))
+  IO.writeLines(packageJSON, sourcePackageJSON.map(fastOptToFullOpt).map(changePackageJSONVersion))
 
   IO.copyFile(
     baseDirectory.value / "webworker/.jvm/target/scala-2.12/web-worker.jar",
@@ -191,7 +210,9 @@ fastOptChangeHtml := {
         if ("""(?<=<!--electron).+(?=electron-->)""".r.findFirstIn(line).isDefined) "" else line
     }
 
-  IO.writeLines(html, sourceHtml.map(replaceBaseDirectory).map(setAppType).filter(_.nonEmpty))
+  IO.writeLines(
+    html, sourceHtml.map(replaceBaseDirectory).map(setAppType).map(removeHtmlCommentLine).filter(_.nonEmpty)
+  )
 
   val sourceIndex = IO.readLines(baseDirectory.value / "sourcehtml/webapp-index.html")
 
@@ -199,7 +220,7 @@ fastOptChangeHtml := {
 
   IO.writeLines(
     index,
-    sourceIndex
+    sourceIndex.map(removeHtmlCommentLine)
   )
 
   IO.copyFile(
@@ -245,7 +266,10 @@ fullOptChangeHtml := {
     }
 
 
-  IO.writeLines(html, sourceHtml.map(replaceBaseDirectory).map(fastOptToFullOpt).map(setAppType).filter(_.nonEmpty))
+  IO.writeLines(
+    html, sourceHtml.map(replaceBaseDirectory).map(fastOptToFullOpt).map(setAppType).map(removeHtmlCommentLine)
+      .filter(_.nonEmpty)
+  )
 
   val sourceIndex = IO.readLines(baseDirectory.value / "sourcehtml/webapp-index.html")
 
@@ -253,7 +277,7 @@ fullOptChangeHtml := {
 
   IO.writeLines(
     index,
-    sourceIndex
+    sourceIndex.map(removeHtmlCommentLine)
   )
 
   IO.copyFile(

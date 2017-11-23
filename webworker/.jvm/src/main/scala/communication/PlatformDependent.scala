@@ -24,7 +24,13 @@ private[communication] object PlatformDependent {
 
   def postMessage(message: Message): Unit = {
     val bytes = Message.encode(message)
-    output.writeBytes("#" + bytes.mkString(",") + "#")
+
+    //output.writeInt(bytes.length)
+    output.writeInt(bytes.length)
+    output.write(bytes)
+
+
+//    output.writeBytes("#" + bytes.mkString(",") + "#")
     Thread.sleep(1)
 
     message match {
