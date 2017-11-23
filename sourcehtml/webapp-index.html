@@ -43,7 +43,7 @@
     </div>
     <p style="font-size: 14px;">
         By clicking on download, you will be redirected to the GitHub website, where Windows, Mac and Linux version of
-        the software are available for downloading
+        the software are available for download
         (<a class="link" href="https://www.java.com/fr/download/">Java required</a>).
     </p>
     <p style="margin-bottom: 10px">
@@ -58,7 +58,7 @@
         <img src="./assets/uniform_30.png" alt="Aztec diamond of order 30" class="col-4">
         <p class="col-8">
             The first example is the tiling of an Aztec Diamond of order 30. The *order* of a Diamond represents the
-            number of rows in the upper half part of region.<br>The tiling is drawn uniformly at random. That means that,
+            number of rows in the upper half part of the region.<br>The tiling is drawn uniformly at random. That means that,
             among all the possible tilings of the Aztec Diamond of order 30, we took one at random, with each of them having
             equal probability of being picked.<br>Although there
             are only two types of dominoes (horizontal and vertical dominoes), we paint the dominoes with four colors, two
@@ -92,7 +92,7 @@
     <div class="row">
         <img src="./assets/hexagon_15x15x15.png" alt="Lozenge tiling of a Hexagon" class="col-4">
         <p class="col-8">
-            An other way to tile a region of the plane is by using lozenges. On the left, we generated a random tiling of a
+            Another way to tile a region of the plane is by using lozenges. On the left, we generated a random tiling of a
             hexagon, tiled with three types of lozenges.<br>By coloring two types in white, and the last in black, we see
             that it can be put in relation with little cubes that we put in the corner of a cubic room.<br><br>The algorithm
             for generating Aztec diamonds may surprisingly be used to generate lozenge tilings. The three types of lozenges
@@ -196,7 +196,7 @@
     <h2>Probability distribution on the set of tilings</h2>
     <p>
         The algorithm allows to generate random tilings of Aztec Diamonds equipped with any weight-based probability
-        distribution. A weight-based probability distribution is defined by assigning to each possible domino a weight.
+        distribution. A weight-based probability distribution is defined by assigning a weight to each possible domino.
         As usual, the weight of a tiling is then given by the product of all the weights of the dominoes of that
         particular tiling.<br>The partition function is the sum over all possible tilings of their weights. The
         probability of one tiling is then its weight divided by the partition function.
@@ -244,7 +244,7 @@
         "Faces", and operations linked to two different Faces are completely independent, allowing to easily parallelise
         the implementation.<br>A more technical aspect is that computing all the weights for diamonds of order 1 to n is
         memory heavy. This implies the possibility of Out of Memory exceptions. An option allows to get rid of out of
-        memory problems, at the expanse of a huge performance loss.
+        memory problems, at the expense of a huge performance loss.
     </p>
     <h2>Counting tilings and computing partition functions</h2>
     <p>
@@ -254,7 +254,7 @@
         tiling. Since all tilings are equi-probable, you directly get the number of tilings.<br>More precisely, you get
         the probability of a tiling T by knowing the probability of the pre-images of T, and the probability that these
         pre-images generate T. By recurrence, you can easily let your computer compute these.<br>The two difficulties
-        are that you need to know explicitly the number of tilings the complementary of your shape, and the second is
+        are that you need to know explicitly the number of tilings the complement of your shape, and the second is
         that, in order to simplify the computations, you need to find a particular tiling T that has the least
         pre-images, otherwise you will run into Out Of Memory issues. The first difficulty can be easily lifted by
         adding extras 0 weights in the complementary, so that the number of tilings is 1.<br>In

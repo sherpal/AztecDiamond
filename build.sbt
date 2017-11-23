@@ -29,11 +29,7 @@ val commonSettings = Seq(
 )
 
 
-def removeHtmlCommentLine(line: String): String = {
-  val newLine = """<!--.+-->""".r.replaceAllIn(line, "")
-
-  if (newLine.trim.isEmpty) "" else newLine
-}
+def removeHtmlCommentLine(line: String): String = """<!--.+-->""".r.replaceAllIn(line, "").trim
 
 def changePackageJSONVersion(line: String): String =
   if (line.contains("version")) """\d+\.\d+\.\d+""".r.replaceAllIn(line, releaseVersion)

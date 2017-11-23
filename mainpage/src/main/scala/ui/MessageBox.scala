@@ -31,12 +31,16 @@ trait MessageBox[CallbackType] {
   messageContentDiv.style.marginTop = "200px"
   messageContentDiv.style.zIndex = "4"
 
+
   div.appendChild(messageContentDiv)
 
   private val messageTitle: html.Heading = dom.document.createElement("h1").asInstanceOf[html.Heading]
   messageContentDiv.appendChild(messageTitle)
 
   private val messageContent: html.Paragraph = dom.document.createElement("p").asInstanceOf[html.Paragraph]
+  messageContent.style.maxHeight = "400px"
+  messageContent.style.overflowY = "auto"
+  messageContent.style.wordWrap = "break-word"
   messageContentDiv.appendChild(messageContent)
 
   private val buttonDiv: html.Div = dom.document.createElement("div").asInstanceOf[html.Div]

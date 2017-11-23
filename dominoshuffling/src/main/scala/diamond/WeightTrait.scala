@@ -400,7 +400,7 @@ object WeightTrait {
         domino.dominoType(order) != WestGoing) ||
         (!isInHexagon(domino.p1, a, b, c) && !isInHexagon(domino.p2, a, b, c))
 
-    Face.activeFaces(order).flatMap(_.dominoes.filter(isWeightOneDomino)).foreach(weights(_) = 1.0)
+    Face.activeFaces(order).flatMap(_.dominoes.filter(isWeightOneDomino)).foreach(weights(_) = QRoot(1, 1))
 
     weights
   }

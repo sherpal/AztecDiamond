@@ -1,7 +1,7 @@
 package mainobject
 
-import diamond.DiamondType._
 import diamond._
+import diamond.diamondtypes.UniformDiamond
 import ui.{ColorPicker, CountingTilingForm, DrawingOptions, GenerateDiamondForm}
 
 /**

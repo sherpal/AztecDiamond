@@ -2,6 +2,7 @@ package ui
 
 import diamond.DiamondType
 import diamond.DiamondType._
+import diamond.diamondtypes.UniformDiamond
 import org.scalajs.dom
 import org.scalajs.dom.html
 import org.scalajs.dom.html.Head

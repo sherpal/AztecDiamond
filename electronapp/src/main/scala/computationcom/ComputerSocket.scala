@@ -8,7 +8,6 @@ import org.scalajs.dom
 import ui.AlertBox
 
 import scala.scalajs.js
-import scala.scalajs.js.JSConverters._
 import scala.scalajs.js.typedarray.{ArrayBuffer, Int8Array}
 
 trait ComputerSocket extends Computer {
@@ -18,13 +17,11 @@ trait ComputerSocket extends Computer {
 
   private var childProcess: Option[ChildProcess] = None
 
-  private var received: String = ""
+//  private var received: String = ""
 
 
   private var bytesToRead: Int = 0
   private val emptyBuffer: Buffer = Buffer.from(new ArrayBuffer(0))
-  private var bytesReceived: Buffer = emptyBuffer
-
   private var bufferingBytes: Int8Array = new Int8Array(emptyBuffer)
 
   private def concat(a: Int8Array, b: Int8Array): Int8Array = {
@@ -56,25 +53,25 @@ trait ComputerSocket extends Computer {
 
   }
 
-  def deserializeMessage(data: String): Unit = {
-    val regex = """#[^#]+#""".r
-
-    received += data
-
-    val messages = regex.findAllIn(received)
-      .map(_.drop(1).dropRight(1))
-      .map(_.split(",").map(_.toByte))
-      .map(Message.decode)
-      .toList
-
-    received = regex.replaceAllIn(received, "")
-
-    if (messages.exists(_.isInstanceOf[DiamondMessage]) || messages.exists(_.isInstanceOf[TilingMessage])) {
-      IPCRenderer.send("flash-window")
-    }
-
-    messages.foreach(receiveMessage)
-  }
+//  def deserializeMessage(data: String): Unit = {
+//    val regex = """#[^#]+#""".r
+//
+//    received += data
+//
+//    val messages = regex.findAllIn(received)
+//      .map(_.drop(1).dropRight(1))
+//      .map(_.split(",").map(_.toByte))
+//      .map(Message.decode)
+//      .toList
+//
+//    received = regex.replaceAllIn(received, "")
+//
+//    if (messages.exists(_.isInstanceOf[DiamondMessage]) || messages.exists(_.isInstanceOf[TilingMessage])) {
+//      IPCRenderer.send("flash-window")
+//    }
+//
+//    messages.foreach(receiveMessage)
+//  }
 
 
   private def connectionCallback(socket: TCPSocket): Unit = {

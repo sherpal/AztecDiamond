@@ -16,7 +16,7 @@ class CustomComputePartitionFunctionWeight(val n: Int)(implicit val tTag: ClassT
     throw new WrongOrderException("Can't compute WeightMap of order 0.")
   else {
 
-    val _0 = 0.0
+    val _0 = QRoot(0, 1)
 
     val newWeights = new CustomComputePartitionFunctionWeight(n - 1)
     Face.activeFaces(n).flatMap(face => {
