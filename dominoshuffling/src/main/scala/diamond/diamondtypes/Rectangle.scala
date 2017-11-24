@@ -40,9 +40,8 @@ case object Rectangle extends DiamondType {
     WeightTrait.rectangleWeightsPartition(args._1, args._2)
 
   def countingTilingDiamond(args: (Int, Int)): Diamond = {
-    val width = args._1
-    val height = args._2
-    val order = WeightTrait.rectangleOrder(width, height)
+    val (width, height) = args
+    val order = diamondOrder(width, height)
     val diamondConstruction = new DiamondConstruction(order)
 
     def fillRectangle(w: Int, h: Int, horizontal: Boolean, center: Point = Point(0, 0)): Unit = {

@@ -23,4 +23,4 @@ The project is implemented in Scala, and uses [Scala.js](https://www.scala-js.or
 - Justin Dekeyser, for his enormous help in HTML and CSS,
 - Tom Claeys, for his valuable comments and remarks, and for encouraging this project from the beginning,
 - Sébastien Doeraene, for his help with Scala and Scala.js in particular
-- Nicolas Radu, for comments and bugs
+- Nicolas Radu and Alban Jago, for comments and bugs

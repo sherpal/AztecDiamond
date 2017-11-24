@@ -20,7 +20,13 @@ trait ComputerWorker extends Computer {
         receiveMessage(WorkerLoaded())
         postMessage(initialMessage)
       case _ =>
-        receiveMessage(Message.decode(event.data.asInstanceOf[scala.scalajs.js.Array[Byte]].toArray))
+        try {
+          receiveMessage(Message.decode(event.data.asInstanceOf[scala.scalajs.js.Array[Byte]].toArray))
+        } catch {
+          case e: Throwable =>
+            println(event.data)
+            throw e
+        }
     }
   }
 

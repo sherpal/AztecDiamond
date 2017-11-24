@@ -119,46 +119,18 @@ class Diamond(val dominoes: Vector[Vector[Option[Domino]]]) {
    */
   def probability(weights: ComputePartitionFunctionWeight): QRoot = {
 
-    val _1 = 1.0
+    val _1 = QRoot(1, 1)
 
     def thisStepProbability(diamond: Diamond, weightTrait: WeightTrait[QRoot]): QRoot =
       diamond.activeFaces.filter(_.dominoes.count(diamond.contains) == 2).flatMap(face => {
         val (alpha, beta, gamma, delta) = face.getFaceWeights(weightTrait)
         if (diamond.contains(face.horizontalDominoes._1)) {
           List(alpha * gamma / (alpha * gamma + beta * delta))
-          //alpha * gamma / (alpha * gamma + beta * delta)
         } else {
           List(beta * delta / (alpha * gamma + beta * delta))
-          //beta * delta / (alpha * gamma + beta * delta)
         }
       }).toList.product
 
-//    def probabilityAcc(diamondsAndCoefficients: List[(Diamond, List[QRoot])],
-//                       weightTrait: WeightTrait[QRoot]): QRoot = {
-//
-//      if (diamondsAndCoefficients.head._1.order == 1) { // all diamonds will be of order 1 at the same time
-//        if (scala.scalajs.LinkingInfo.developmentMode) {
-//          println(s"At the end of the process, there was ${diamondsAndCoefficients.length} diamonds")
-//        }
-//        diamondsAndCoefficients.map({
-//          case (diamond, coefficients) =>
-//            val allCoefficients = thisStepProbability(diamond, weightTrait) +: coefficients
-//            println(s"All fractions were: ${allCoefficients.dropRight(1).mkString(", ")}")
-//            allCoefficients.product
-//        }).sum
-//      } else {
-//        val newDiamonds = diamondsAndCoefficients.foldLeft(List[(Diamond, List[QRoot])]())(
-//          {
-//            case (diamonds, (diamond, coefficients)) =>
-//              val newCoefficient = thisStepProbability(diamond, weightTrait) +: coefficients
-//              diamond.subDiamonds.map((_, newCoefficient)) ++ diamonds
-//          }
-//        )
-//        probabilityAcc(newDiamonds, weightTrait.subWeights)
-//      }
-//    }
-//
-//    probabilityAcc(List((this, List(_1))), weights)
 
     /**
      * Every diamond comes with a list of list of coefficients. The outer list reflects the number of such diamonds,

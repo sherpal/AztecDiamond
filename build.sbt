@@ -20,7 +20,7 @@ val fullCompileElectronMainWindow = taskKey[File]("Return main file")
 lazy val fullOptElectronApp = taskKey[Unit]("Compile in fullOptJS and create all electron files.")
 
 
-val releaseVersion: String = "1.0.0"
+val releaseVersion: String = "1.1.0"
 
 val commonSettings = Seq(
   version := releaseVersion,

@@ -63,50 +63,6 @@ trait WeightTrait[WeightType] {
    * to this weight.
    */
   def subWeights: WeightTrait[WeightType]
-//  /**
-//   * Generates an aztec diamond according to the weights, given an already computed diamond of order diamondOrder - 1.
-//   */
-//  def generateDiamond(subDiamond: Diamond): Diamond = {
-//
-//    val dominoes = Diamond.emptyArrayDominoes(n)
-//
-//    Face.activeFaces(n).foreach(face => {
-//      val newDominoes = face.nextDiamondConstruction(subDiamond, this)
-//      newDominoes.foreach(domino => {
-//        val (x,y) = Domino.changeVerticalCoordinates(domino.p1, n)
-//        dominoes(x)(y) = Some(domino)
-//      })
-//    })
-//
-//    new Diamond(dominoes.map(_.toVector).toVector)
-//  }
-
-
-//  /**
-//   * Generates an aztec diamond of order 1.
-//   */
-//  def generateOrderOneDiamond: Diamond = n match {
-//    case 1 =>
-//      val dominoes = Face(Point(0,0)).randomSquare(this)
-//      val (d1, d2) = (dominoes.head, dominoes.tail.head)
-//      if (d1.isHorizontal) {
-//        new Diamond(
-//          Vector(
-//            Vector(Some(d1), Some(d2)),
-//            Vector(None, None)
-//          )
-//        )
-//      } else {
-//        new Diamond(
-//          Vector(
-//            Vector(Some(d1), None),
-//            Vector(Some(d2), None)
-//          )
-//        )
-//      }
-//    case _ =>
-//      throw new WrongOrderException(s"This WeightMap object is for order $n, not 1.")
-//  }
 
   val n: Int
 
@@ -174,36 +130,6 @@ object WeightTrait {
 
 
 
-//  /**
-//   * Returns the weight necessary to generate uniform random tiling of the set of points that satisfy the predicate. As
-//   * a byproduct, you generate a uniform random tiling of the complement.
-//   *
-//   * The way it does that is simply putting weight 1 on all the dominoes, except the ones on the boundary.
-//   *
-//   * @param n            The order of the embedding diamond.
-//   * @param isInSubGraph A predicate discriminating points inside and outside of the sub graph.
-//   * @return             A WeightMap necessary to generate a random tiling of your graph.
-//   */
-//  def injectSubGraph[WeightType: ClassTag](n: Int, isInSubGraph: (Point) => Boolean)
-//                                          (implicit num: WeightLikeNumber[WeightType]): WeightMap[WeightType] = {
-//    val weights = new WeightMap[WeightType](n)
-//
-//    val _1 = num.one
-//    val _0 = num.zero
-//
-//    Face.activeFaces(n).foreach(face => {
-//      face.dominoes.foreach(domino => {
-//        // is there XOR operator in Scala?
-//        if (isInSubGraph(domino.p1) == isInSubGraph(domino.p2)) {
-//          weights(domino) = _1
-//        } else {
-//          weights(domino) = _0
-//        }
-//      })
-//    })
-//    weights
-//  }
-
   /**
    * Returns the weights necessary to generate a uniformly random tiling of the graph containing the points in the
    * given collection.
@@ -222,19 +148,6 @@ object WeightTrait {
     injectSubGraphQRoot(n, pointsSet.contains(_: Point))
   }
 
-//  /**
-//   * Returns the weights necessary to generate a uniformly random tiling of the graph containing the points in the
-//   * given collection.
-//   *
-//   * @param n                the order of the embedding diamond.
-//   * @param pointsInSubGraph a collection of points in the sub-graph.
-//   * @return                 the weights necessary to generate the graph containing the points.
-//   */
-//  def injectSubGraph[WeightType: ClassTag](n: Int, pointsInSubGraph: Traversable[Point])
-//                                          (implicit num: WeightLikeNumber[WeightType]): WeightMap[WeightType] = {
-//    val pointsSet = pointsInSubGraph.toSet
-//    injectSubGraph(n, pointsSet.contains(_: Point))
-//  }
 
   /**
    * Returns the Weight necessary to generate the sub graph according to the weights defined by the subGraphWeights map.
@@ -292,37 +205,6 @@ object WeightTrait {
   }
 
 
-//  /**
-//   * Returns the Weight necessary to generate the sub graph according to the weights defined by the subGraphWeights map.
-//   *
-//   * @param n               the size of the embedding diamond
-//   * @param subGraphWeights the weights for the dominoes inside the sub graph
-//   * @return                the WeightTrait that will generate the entire diamond.
-//   */
-//  def injectSubGraph[WeightType: ClassTag](n: Int, subGraphWeights: Map[Domino, WeightType])
-//                                          (implicit num: WeightLikeNumber[WeightType]): WeightMap[WeightType] = {
-//    val pointsInGraph: TreeSet[Point] =
-//      subGraphWeights
-//        .keys
-//        .flatMap(d => Seq(d.p1, d.p2))
-//        .foldLeft(TreeSet[Point]())(_ insert _)
-//
-//    val isInSubGraph: (Point) => Boolean = pointsInGraph.contains
-//
-//    val weights = injectSubGraph[WeightType](n, isInSubGraph)
-//
-//    Face.activeFaces(n).foreach(face => {
-//      face.dominoes.foreach(domino => {
-//        subGraphWeights.get(domino) match {
-//          case Some(w) =>
-//            weights(domino) = w
-//          case _ =>
-//        }
-//      })
-//    })
-//
-//    weights
-//  }
 
   def isInHexagon(point: Point, a: Int, b: Int, c: Int): Boolean = {
     val order = 2 * a - 1 + b
@@ -423,13 +305,6 @@ object WeightTrait {
     injectSubGraphQRoot(order, (point: Point) => isInRectangle(point, width, height))
   }
 
-//  /** Returns the WeightMap able to generate a random tiling of a rectangle of width m and height n. */
-//  def rectangleWeights[WeightType: ClassTag](width: Int, height: Int)
-//                                            (implicit num: WeightLikeNumber[WeightType]): WeightMap[WeightType] = {
-//    val order = (width + height - 2 + 1) / 2 // +1 needed in case either m or n in odd
-//    injectSubGraph[WeightType](order, (point: Point) => isInRectangle(point, width, height))
-//  }
-
 
   /** Returns whether the Point point is in the Aztec House of specified width and height. */
   def isInAztecHouse(point: Point, width: Int, height: Int): Boolean =
@@ -443,12 +318,6 @@ object WeightTrait {
 
   def aztecHouseWeightsPartition(width: Int, height: Int): CustomComputePartitionFunctionWeight =
     injectSubGraphQRoot((width + height - 2 + 1) / 2, (point: Point) => isInAztecHouse(point, width, height))
-
-//  /** Returns the WeightMap able to generate a random tiling of an Aztec house. */
-//  def aztecHouseWeights[WeightType: ClassTag](width: Int, height: Int)
-//                                             (implicit num: WeightLikeNumber[WeightType]): WeightMap[WeightType] = {
-//    injectSubGraph[WeightType]((width + height - 2 + 1) / 2, (point: Point) => isInAztecHouse(point, width, height))
-//  }
 
 
 
@@ -513,42 +382,6 @@ object WeightTrait {
   }
 
 
-//  /**
-//   * Returns the WeightMap able to generate a random tiling of a Double Aztec diamond as in
-//   * Adler-Johansson-van Moerbeke.
-//   */
-//  def doubleAztecDiamond[WeightType: ClassTag](order: Int, overlap: Int)
-//                                    (implicit num: WeightLikeNumber[WeightType]): WeightMap[WeightType] = {
-//    val totalOrder = 4 * order - 2 * overlap + 1
-//
-//    // some helper values
-//    val n = order
-//    val l = order - overlap
-//
-////    def isInRightDoubleAztec(point: Point): Boolean =
-////      Diamond.inBoundsPoint(point, Point(n, 0), n) || Diamond.inBoundsPoint(point, Point(n + l + 1, l), n)
-////
-////    def isInLeftDoubleAztec(point: Point): Boolean =
-////      Diamond.inBoundsPoint(point, Point(-n, 0), n) || Diamond.inBoundsPoint(point, Point(-n - 1 - l, l), n)
-//
-//    def oneWeight(domino: Domino): Boolean =
-//      isInRightDoubleAztec(domino.p1, n, l) == isInRightDoubleAztec(domino.p2, n, l) &&
-//        isInLeftDoubleAztec(domino.p1, n, l) == isInLeftDoubleAztec(domino.p2, n, l)
-//
-//    val weights = new WeightMap[WeightType](totalOrder)
-//
-//    val _1 = num.one
-//    val _0 = num.zero
-//
-//    Face.activeFaces(totalOrder).foreach(_.dominoes.foreach(domino => {
-//      weights(domino) = if (oneWeight(domino)) _1 else _0
-//    }))
-//
-//    weights
-//
-//    //injectSubGraph[WeightType](totalOrder, (point: Point) => isInDoubleAztecDiamond(point, order, overlap))
-//  }
-
 
   def isInDiamondRing(point: Point, innerOrder: Int, outerOrder: Int): Boolean = {
     Diamond.inBoundsPoint(point, Point(0,0), outerOrder) && !Diamond.inBoundsPoint(point, Point(0,0), innerOrder)
@@ -575,20 +408,6 @@ object WeightTrait {
     }
   }
 
-//  /**
-//   * Returns the WeightMap necessary to generate an Aztec ring with specified inner and outer order.
-//   *
-//   * Conditions on inner and outer orders for being tileable is shown in [1, Proposition 1].
-//   */
-//  def diamondRing[WeightType: ClassTag](innerOrder: Int, outerOrder: Int)
-//                                       (implicit num: WeightLikeNumber[WeightType]): WeightMap[WeightType] = {
-//    if (outerOrder > innerOrder && ((outerOrder - innerOrder) % 2 == 0 || outerOrder >= 3 * innerOrder - 1)) {
-//      injectSubGraph[WeightType](outerOrder, (point: Point) => isInDiamondRing(point, innerOrder, outerOrder))
-//    } else {
-//      throw new NotTileableException
-//    }
-//  }
-//
 
 
   def twoPeriodicAztecDiamondGeneration(a: Double, b: Double, order: Int): CustomGenerationWeight = {
@@ -618,23 +437,6 @@ object WeightTrait {
   }
 
 
-
-//  /**
-//   * Computes the WeightMap for a double periodic aztec diamond of order order.
-//   * The a weight value starts at the top of the diamond.
-//   */
-//  def twoPeriodicAztecDiamond[WeightType: ClassTag](a: WeightType, b: WeightType, order: Int)
-//                                                      (implicit num: WeightLikeNumber[WeightType]):
-//  WeightMap[WeightType] = {
-//    val weight = new WeightMap[WeightType](order)
-//
-//    val (aFaces, bFaces) = Face.activeFaces(order).partition(face => (face.bottomLeft.y + order) % 2 == 1)
-//
-//    aFaces.flatMap(_.dominoes).foreach(weight(_) = a)
-//    bFaces.flatMap(_.dominoes).foreach(weight(_) = b)
-//
-//    weight
-//  }
 
 
   /**

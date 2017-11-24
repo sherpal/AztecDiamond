@@ -40,14 +40,24 @@ trait TilingCounting extends Computer {
 
         val subGraphPartition = diamondType.totalPartitionFunctionToSubGraph(arguments, partitionFunction)
 
+        val isInteger = subGraphPartition equals QRoot.fromBigInt(subGraphPartition.toBigInt)
+
+        val scientificNotation: String = if (!isInteger) "" else {
+          val stringNbr = subGraphPartition.toBigInt.toString
+          if (stringNbr.length < 6) "" else {
+            " (" + (stringNbr(0) + "." + stringNbr.slice(1,4) + "e+" + (stringNbr.length - 1)) + ")"
+          }
+
+        }
+
         computePartitionInfo.style.color = "black"
         computePartitionInfo.innerHTML =
-          s"Computation completed. It took ${time / 1000.0} s to complete.<br>" +
+          (s"Computation completed. It took ${time / 1000.0} s to complete.<br>" +
             s"The ${if (diamondType.designedForPartitionFunction) "Partition function" else "number of tilings"}" +
             s" for diamonds of type ${diamondType.name} is ${
-              if (subGraphPartition equals QRoot.fromBigInt(subGraphPartition.toBigInt)) subGraphPartition.toBigInt
+              if (isInteger) subGraphPartition.toBigInt
               else subGraphPartition
-            }."
+            }" + scientificNotation + ".")
               .stripMargin
         outerLoopStatusBar.setValue(100)
         outerLoopStatusBar.setColor(0, 255, 0)

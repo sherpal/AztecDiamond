@@ -70,16 +70,6 @@ trait DiamondType {
 
 object DiamondType {
 
-
-
-
-
-
-
-
-
-
-
   def isInteger(d: Double): Boolean = d == math.round(d)
 
 

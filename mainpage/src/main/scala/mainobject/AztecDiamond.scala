@@ -1,6 +1,5 @@
 package mainobject
 
-import diamond._
 import diamond.diamondtypes.UniformDiamond
 import ui.{ColorPicker, CountingTilingForm, DrawingOptions, GenerateDiamondForm}
 
@@ -84,19 +83,13 @@ object AztecDiamond {
 
 
 
-    val width = 3
-    val height = 6
-    //val descendants = Rectangle.countingTilingDiamond((width, height)).allSubDiamonds.groupBy(_.order)
-    //for (j <- 1 to WeightTrait.rectangleOrder(width, height)) println(descendants.getOrElse(j, Nil).size)
-
-
-
-    def probability(diamondType: DiamondType)(arg: diamondType.ArgType): Unit = {
-      println(diamondType.countingTilingDiamond(arg).probability(diamondType.makeComputationWeight(arg)))
-    }
-
-
-
+//    val (a, b, c) = (1, 1, 1)
+//    val descendants: Map[Int, List[Diamond]] =
+//        Hexagon.countingTilingDiamond(a, b, c).allSubDiamonds.groupBy(_.order)
+//
+//    println(descendants(Hexagon.diamondOrder(a, b, c)).head.probability(Hexagon.makeComputationWeight(a, b, c)))
+//
+//
 //    def drawOrder(order: Int): Unit = {
 //      println(order)
 //      val diamonds = descendants(order).distinct
@@ -119,15 +112,17 @@ object AztecDiamond {
 //          }
 //      }
 //    }
+//
+//  for (j <- 1 to descendants.keys.max) drawOrder(j)
 
     //for (j <- 1 to WeightTrait.rectangleOrder(width, height)) drawOrder(j)
 
-//    val div = dom.document.createElement("div").asInstanceOf[html.Div]
+//    val div: html.Div = dom.document.createElement("div").asInstanceOf[html.Div]
 //    dom.document.body.appendChild(div)
 //    div.style.display = "flex"
 //    div.style.asInstanceOf[js.Dynamic].`flex-direction` = "row"
 //
-//    val diamond = Rectangle.countingTilingDiamond((width, height))
+//    val diamond: Diamond = Hexagon.countingTilingDiamond(a, b, c)
 //
 //    scala.scalajs.js.timers.setTimeout(1000) {
 //      val diamondDrawer = DiamondDrawer(diamond)
