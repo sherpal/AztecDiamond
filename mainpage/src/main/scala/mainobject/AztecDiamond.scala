@@ -7,7 +7,7 @@ import ui.{ColorPicker, CountingTilingForm, DrawingOptions, GenerateDiamondForm}
  * Main Object
  *
  * The algorithms implemented in this project are taken from
- * [1] E. Janvresse, T. de la Rue and Y. Velen, "A Note on Domino Shuffling", Electronic Journal of Combinatorics, 13
+ * [1] E. Janvresse, T. de la Rue and Y. Velenik, "A Note on Domino Shuffling", Electronic Journal of Combinatorics, 13
  * (2006).
  */
 object AztecDiamond {

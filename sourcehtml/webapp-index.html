@@ -61,9 +61,10 @@
             number of rows in the upper half part of the region.<br>The tiling is drawn uniformly at random. That means that,
             among all the possible tilings of the Aztec Diamond of order 30, we took one at random, with each of them having
             equal probability of being picked.<br>Although there
-            are only two types of dominoes (horizontal and vertical dominoes), we paint the dominoes with four colors, two
-            colors for each type. These four types of dominoes may seem artificial, but they come very naturally in the
-            study of Aztec Diamonds.
+            are only two types of dominoes (horizontal and vertical dominoes), we paint the dominoes with four colours, two
+            colours for each type. These four types of dominoes may seem artificial, but they come very naturally in the
+            study of Aztec Diamonds. A more precise explanation can be found
+            <a class="link" href="#whyFourColours">below</a>.
         </p>
     </div>
 
@@ -93,7 +94,7 @@
         <img src="./assets/hexagon_15x15x15.png" alt="Lozenge tiling of a Hexagon" class="col-4">
         <p class="col-8">
             Another way to tile a region of the plane is by using lozenges. On the left, we generated a random tiling of a
-            hexagon, tiled with three types of lozenges.<br>By coloring two types in white, and the last in black, we see
+            hexagon, tiled with three types of lozenges.<br>By colouring two types in white, and the last in black, we see
             that it can be put in relation with little cubes that we put in the corner of a cubic room.<br><br>The algorithm
             for generating Aztec diamonds may surprisingly be used to generate lozenge tilings. The three types of lozenges
             are mapped to three of the four types of dominoes, and we forbid the last type to appear.
@@ -114,7 +115,7 @@
         In order to have images that best fit your need, options for plotting are available:
     </p>
     <ul>
-        <li>Change the colors of the dominoes.</li>
+        <li>Change the colours of the dominoes.</li>
         <li>Draw the dominoes with or without a black boundary. If the order of the diamond is bigger than 50, it
         will not draw the border by default.</li>
         <li>See the shape in its enclosing Diamond.</li>
@@ -203,6 +204,11 @@
     </p>
     <h2>Main idea of the algorithm</h2>
     <p>
+        The algorithm was a generalization of an other algorithm introduced by James Propp
+        in <a class="link" href="https://arxiv.org/abs/math/0111034">"Generalized domino-shuffling"</a> in Theoret.
+        Comput. Sci., <span style="font-family: quicksand-bold">303</span> (2-3), 267-301 (2003).<br>The improvement of the new algorithm is
+        that it allows weights on dominoes to be 0, and not only positive real numbers. This may seem anecdotal at first
+        sight, but it is that particular feature which enables the generation of other shapes.<br>
         The algorithm constructs the Aztec Diamond of order n by starting with a diamond of order 1. Then, given a
         diamond of order k, it creates a diamond of order k+1, by moving or destroying some dominoes of the diamond of
         order k, then filling the holes in the diamond of order k+1. The particular geometry of the Aztec Diamond makes
@@ -229,7 +235,8 @@
     </p>
     <h2>Other shapes</h2>
     <p>
-        One very important feature of the algorithm is that it allows for weight to be 0, and not only positive real
+        As mentioned, one very important feature of the algorithm is that it allows for weight to be 0, and not only
+        positive real
         numbers. This feature has two interesting consequences.<br>The first one is that if you have a shape T and an
         Aztec diamond shape D such that both T and D\T are tileable, then you can put 0 weights at the boundary between
         T and D\T and the induced probabilities of the two shapes are then independent. In order to generate a random
@@ -261,6 +268,20 @@
         principle, this technique could be used to
         find explicit and closed formulas for computing the number of tilings of shapes. In practice however, this will
         lead to difficult computations that will not be that easy to simplify.
+    </p>
+    <h2 id="whyFourColours">Why four colours?</h2>
+    <p>
+        The tilings of the Aztec Diamonds are usually painted with four colours, while there are only two types of
+        dominoes. The reason for that comes from the algorithm, and in particular from Phase 2. When going from one
+        diamond to the next one, we first move dominoes according to some rule: some vertical dominoes go one square to
+        the right (east), while the others one square to the left (west). Similarly, some horizontal dominoes go one
+        square to the top (north), and the others one square to the bottom (south). (An additional rule states that if,
+        doing so, two dominoes exchange their positions, they are destroyed instead.)<br>In the drawings, north, south,
+        west and east dominoes are painted respectively in red, blue, yellow and green. Rigorously, it depends on the
+        parity of abscissa of the left square of horizontal dominoes, and the parity of the ordinate of
+        the bottom square of vertical dominoes.<br><br>If one sees the growth of a frozen square as a random process
+        when going from diamond of order n to n+1, then it can be put in bijection with the Totally asymmetric simple
+        exclusion process.
     </p>
 </section>
 <footer>
