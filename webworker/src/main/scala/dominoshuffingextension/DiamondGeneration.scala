@@ -64,25 +64,6 @@ object DiamondGeneration {
 
   def generateDiamondMemoryOptimized(baseWeight: GenerationWeight): Diamond = {
     val totalComputations: Double = (math.pow(baseWeight.n, 2).toInt + baseWeight.n) / 2
-//
-//    def accumulator(diamond: Diamond, weights: List[GenerationWeight]): Diamond =
-//      if (diamond.order == baseWeight.n) diamond
-//      else {
-//        val order = diamond.order + 1
-//        val w = if (weights.nonEmpty) weights else {
-//          computeWeightSliceFrom(order, baseWeight)
-//        }
-//        Communicator.postMessage(
-//          DiamondComputationStatus(
-//            math.round((order * order + order) / 2 / totalComputations * 100).toInt
-//          )
-//        )
-//
-//        accumulator(w.head.generateDiamond(diamond), w.tail)
-//      }
-//
-//    val firstWeights = computeWeightSliceFrom(1, baseWeight)
-//    accumulator(firstWeights.head.generateOrderOneDiamond, firstWeights.tail)
 
     val milestones = computeMilestoneWeights(baseWeight)
 

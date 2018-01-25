@@ -1,9 +1,11 @@
 package diamond
 
 import custommath.{IntegerMethods, QRoot, WeightLikeNumber}
+import exceptions.ShouldNotBeThereException
 import geometry._
 
 import scala.collection.GenSeq
+import scala.util.Random
 
 /**
  * A Diamond represents an Aztec Diamond with its tiling.
@@ -21,7 +23,7 @@ import scala.collection.GenSeq
  * )
  *
  */
-class Diamond(val dominoes: Vector[Vector[Option[Domino]]]) {
+final class Diamond(val dominoes: Vector[Vector[Option[Domino]]]) {
 
   def dominoesNumber: Int = dominoes.map(d => d.count(_.isDefined)).sum
 
@@ -213,7 +215,53 @@ class Diamond(val dominoes: Vector[Vector[Option[Domino]]]) {
 
   def allSubDiamonds: List[Diamond] = this +: subDiamonds.flatMap(_.allSubDiamonds)
 
- // def toJSArray: js.Array[String] = (order.toString +: listOfDominoes.map(_.toString)).toJSArray
+  def randomSubDiamond: Diamond = subDiamonds(Random.nextInt(subDiamonds.length))
+
+  def aRandomSubDiamond: Diamond = subDiamonds.head
+
+  def nonIntersectingPaths: Vector[Vector[Point]] = {
+    def nextPoint(domino: Domino): Point = domino.dominoType(order) match {
+      case SouthGoing => domino.p1 + Point(2, 0) // path: --
+      case EastGoing => domino.p2 + Point(1, -1)  // path: /
+      case WestGoing => domino.p1 + Point(1, 1) // path: \
+      case NorthGoing => throw new ShouldNotBeThereException
+    }
+
+    def followPath(point: Point): Vector[Point] = {
+      def acc(accumulator: List[Point]): List[Point] = {
+        val currentPoint = accumulator.head
+        if (inBoundsPoint(currentPoint)) {
+          val domino = List(
+            Domino(currentPoint, currentPoint + Point(1, 0)),
+            Domino(currentPoint, currentPoint + Point(0, 1)),
+            Domino(currentPoint + Point(0, -1), currentPoint)
+          ).find(contains).get
+
+          acc(nextPoint(domino) +: accumulator)
+        } else accumulator
+      }
+
+      acc(List(point)).reverse.toVector
+    }
+
+    (0 until order).map(j => Point(-order + 1 + j, -j)).toVector.map(followPath)
+  }
+
+  def nonIntersectingPathsSubGraph(isInSubGraph: (Point) => Boolean): Vector[Vector[Point]] = {
+    nonIntersectingPaths.flatMap(points =>
+      points.tail.foldLeft((Vector(Vector(points.head)), isInSubGraph(points.head)))({
+      case ((paths, wasInSubGraph), point) =>
+        if (wasInSubGraph) {
+          ((paths.head :+ point) +: paths.tail, isInSubGraph(point))
+        } else if (isInSubGraph(point)) {
+          (Vector(point) +: paths, true)
+        } else {
+          (paths, false)
+        }
+    })._1).filter(_.length > 1)
+  }
+
+
 
   def toArray: Array[Int] = order +: listOfDominoes.flatMap(domino => {
     List(domino.p1.x, domino.p1.y, domino.p2.x, domino.p2.y)

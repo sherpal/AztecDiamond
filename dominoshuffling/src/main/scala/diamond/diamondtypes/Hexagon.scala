@@ -169,8 +169,8 @@ case object Hexagon extends DiamondType {
     totalPartition / UniformDiamond.theoreticTilingNumber(a - 1) / UniformDiamond.theoreticTilingNumber(c - 1)
   }
 
-  def isInDiamond(args: (Int, Int, Int)): Domino => Boolean =
-    (domino: Domino) => isInHexagon(domino.p1, args._1, args._2, args._3)
+  def isPointInDiamond(args: (Int, Int, Int)): Point => Boolean =
+    (point: Point) => isInHexagon(point, args._1, args._2, args._3)
 
   val argumentNames: List[(String, Double, Double)] =
     List(("First side size", 15, 3), ("Second side size", 15, 3), ("Third side size", 15, 3))

@@ -29,6 +29,9 @@ object Message {
     .addConcreteType[CountingComputationStatus]
     .addConcreteType[CountingComputationStatusSubroutine]
 
+    .addConcreteType[GenerateImageMessage]
+    .addConcreteType[ImageDiamondMessage]
+
 
   def decode(buffer: Array[Byte]): Message =
     Unpickle[Message](messagePickler).fromBytes(ByteBuffer.wrap(buffer))
@@ -111,3 +114,10 @@ final case class CountingComputationStatus(percentage: Int) extends TilingComput
 final case class CountingComputationStatusSubroutine(percentage: Int) extends TilingComputationMessage
 
 
+trait ImageDiamond extends Message
+
+final case class GenerateImageMessage(imageData: Vector[Int], width: Int, height: Int) extends ImageDiamond
+
+final case class ImageDiamondMessage(diamondInfo: List[Int], timeTaken: Long) extends ImageDiamond
+
+final case class WrongImageData(msg: String) extends ImageDiamond

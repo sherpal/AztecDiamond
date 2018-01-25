@@ -101,8 +101,10 @@ case object Rectangle extends DiamondType {
 
   def totalPartitionFunctionToSubGraph(args: (Int, Int), totalPartition: QRoot): QRoot = totalPartition
 
-  def isInDiamond(args: (Int, Int)): Domino => Boolean =
-    (domino: Domino) => WeightTrait.isInRectangle(domino.p1, args._1, args._2)
+  def isPointInDiamond(args: (Int, Int)): Point => Boolean =
+    (point: Point) => WeightTrait.isInRectangle(point, args._1, args._2)
+
+
 
   val argumentNames: List[(String, Double, Double)] = List(("Width", 40, 4), ("Height", 30, 3))
 }

@@ -8,14 +8,17 @@ object DrawingOptions {
   DrawingTransformations
   DominoColorSelector
 
-  val drawOptions: html.Div =dom.document.getElementById("drawOptions").asInstanceOf[html.Div]
+  val drawOptions: html.Div = dom.document.getElementById("drawOptions").asInstanceOf[html.Div]
 
 
+  val drawDominoesCheckBox: html.Input = dom.document.getElementById("drawDominoes").asInstanceOf[html.Input]
+  drawDominoesCheckBox.checked = true
   val inFullAztecCheckBox: html.Input = dom.document.getElementById("inFullAztec").asInstanceOf[html.Input]
   val drawInLozengesCheckBox: html.Input = dom.document.getElementById("drawInLozenges").asInstanceOf[html.Input]
   val dominoesBorderCheckBox: html.Input = dom.document.getElementById("showDominoesBorder").asInstanceOf[html.Input]
   dominoesBorderCheckBox.checked = true
 
+  val drawPathsCheckBox: html.Input = dom.document.getElementById("drawPaths").asInstanceOf[html.Input]
 
   val header: html.Head = drawOptions.getElementsByTagName("header")(0).asInstanceOf[html.Head]
 

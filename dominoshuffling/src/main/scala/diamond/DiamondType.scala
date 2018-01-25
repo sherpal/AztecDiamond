@@ -3,7 +3,7 @@ package diamond
 import custommath.QRoot
 import diamondtypes._
 import exceptions.{NoSuchDiamondType, WrongParameterException}
-import geometry.Domino
+import geometry.{Domino, Point}
 
 import scala.language.implicitConversions
 
@@ -52,10 +52,13 @@ trait DiamondType {
   def totalPartitionFunctionToSubGraph(args: ArgType, totalPartition: QRoot): QRoot
 
   /**
-   * Predicate for knowing what domino is in the sub-graph of this type of Diamond.
+   * Predicate for knowing what point is in the sub-graph of this type of Diamond.
    * Used for drawing.
    */
-  def isInDiamond(args: ArgType): (Domino) => Boolean
+  def isPointInDiamond(args: ArgType): (Point) => Boolean
+
+  def isInDiamond(args: ArgType): (Domino) => Boolean =
+    (domino: Domino) => isPointInDiamond(args)(domino.p1) && isPointInDiamond(args)(domino.p2)
 
   /** A space separated version of the toString of the object. */
   def name: String = """[A-Z][a-z]*""".r.findAllIn(toString).mkString(" ")

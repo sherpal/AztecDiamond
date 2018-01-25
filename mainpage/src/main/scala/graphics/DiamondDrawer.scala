@@ -11,6 +11,11 @@ import geometry._
  */
 class DiamondDrawer private (val diamond: Diamond, isInSubGraph: (Domino) => Boolean) {
 
+  def isPointInSubGraph(point: Point): Boolean = isInSubGraph(Domino(point, point + Point(1, 0))) ||
+    isInSubGraph(Domino(point, point + Point(0, 1))) ||
+    isInSubGraph(Domino(point + Point(-1, 0), point)) ||
+    isInSubGraph(Domino(point + Point(0, -1), point))
+
   val canvas2D: Canvas2D = new Canvas2D
   canvas2D.setSize(2000, 2000)
 
@@ -158,7 +163,76 @@ class DiamondDrawer private (val diamond: Diamond, isInSubGraph: (Domino) => Boo
 
   }
 
+  private lazy val globalPathsSprites: List[PathSprite] = diamond.nonIntersectingPaths.map(new PathSprite(_)).toList
 
+  private lazy val subGraphPathsSprites: List[PathSprite] =
+    diamond.nonIntersectingPathsSubGraph(isPointInSubGraph).map(new PathSprite(_)).toList
+
+  def drawNonIntersectingPaths(
+                                worldCenter: Option[Complex] = None, scaleX: Double = 1, scaleY: Double = 1,
+                                subGraph: Boolean = true
+                              ): Unit = {
+    camera.worldCenter = if (worldCenter.isDefined) worldCenter.get
+    else if (subGraph) subDiamondCenter
+    else diamondCenter
+
+    val (worldWidth, worldHeight) = if (!subGraph) {
+      (
+        (rightMostFullDiamondCoordinate - leftMostFullDiamondCoordinate) / scaleX,
+        (topMostFullDiamondCoordinate - bottomMostFullDiamondCoordinate) / scaleY
+      )
+    } else {
+      val size = math.max(
+        rightMostSubDiamondCoordinate - leftMostSubDiamondCoordinate,
+        topMostSubDiamondCoordinate - bottomMostSubDiamondCoordinate
+      )
+      (size / scaleX, size / scaleY)
+    }
+
+    camera.worldWidth = worldWidth
+    camera.worldHeight = worldHeight
+
+    (if (subGraph) subGraphPathsSprites else globalPathsSprites).foreach(camera.spriteDrawsItself)
+  }
+
+  def tikzCode(unit: Double = 1): String = {
+    val colors: Map[(Double, Double, Double), String] = Map(
+      (1.0,0.0,0.0) -> "red",
+      (0.0,1.0,0.0) -> "green",
+      (0.0,0.0,1.0) -> "blue",
+      (1.0,1.0,0.0) -> "yellow",
+      (1.0,0.0,1.0) -> "purple",
+      (0.0,1.0,1.0) -> "cyan"
+    )
+
+    dominoes.map(domino => {
+      val color = defaultColors(domino)
+      val lowerLeftX = domino.p1.x * unit
+      val lowerLeftY = domino.p1.y * unit
+      val upperRightX = (domino.p2.x + 1) * unit
+      val upperRightY = (domino.p2.y + 1) * unit
+      s"\\draw [fill = ${colors(color)}, draw = black] " +
+        s"($lowerLeftX,$lowerLeftY) rectangle ($upperRightX,$upperRightY);"
+    })
+      .mkString("\n") + "\n" +
+    DiamondDrawer.emptyDiamondTikzCode(diamond.order, unit = unit)
+  }
+
+  def nonIntersectingPathTikzCode(unit: Double = 1, rotationAngle: Double = 0, subGraph: Boolean = false): String = {
+    val paths = if (subGraph) diamond.nonIntersectingPathsSubGraph(isPointInSubGraph) else diamond.nonIntersectingPaths
+
+    val cos = math.cos(rotationAngle)
+    val sin = math.sin(rotationAngle)
+
+    paths
+      .map(points => points.map(point => (point.x * unit, (point.y + 0.5) * unit)))
+      .map(coordinates => {
+        "\\draw " + coordinates
+          .map({ case (x, y) => (x * cos + y * sin, -x * sin + y * cos)})
+          .map({ case (x, y) => s"($x,$y)" }).mkString(" -- ") + ";"
+      })
+      .mkString("\n")
+  }
 
 }
 
@@ -169,6 +243,32 @@ object DiamondDrawer {
     val diamondDrawer = new DiamondDrawer(diamond, isInSubGraph)
 
     if (diamondDrawer.dominoesInSubGraph.isEmpty) None else Some(diamondDrawer)
+  }
+
+  def emptyDiamondTikzCode(order: Int, unit: Double = 1): String = {
+    val lowerRightCornerCoordinates: Vector[Point] =
+      (0 until order)
+        .toVector
+        .flatMap(j => Vector(Point(1 + j, - order + 1 + j), Point(2 + j, - order + 1 + j)))
+        .drop(1)
+
+    val upperRightCornerCoordinates: Vector[Point] =
+      lowerRightCornerCoordinates.map({ case Point(x, y) => Point(x, - y + 2)}).reverse
+
+    val upperLeftCornerCoordinates: Vector[Point] =
+      upperRightCornerCoordinates.map({ case Point(x, y) => Point(-x + 2, y) }).reverse
+
+    val lowerLeftCornerCoordinates: Vector[Point] =
+      lowerRightCornerCoordinates.map({ case Point(x, y) => Point(-x + 2, y) }).reverse
+
+    val allCoordinates =
+      lowerRightCornerCoordinates ++
+      upperRightCornerCoordinates ++
+      upperLeftCornerCoordinates ++
+      lowerLeftCornerCoordinates
+
+    """\draw[thick] """ + allCoordinates
+      .map({ case Point(x, y) => s"(${x * unit},${y * unit})" }).mkString(" -- ") + " -- cycle;"
   }
 
 }

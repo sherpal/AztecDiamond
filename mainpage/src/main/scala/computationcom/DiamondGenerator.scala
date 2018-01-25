@@ -129,27 +129,35 @@ object DiamondGenerator {
     if (drawnDiamond.isDefined) {
       val t = new java.util.Date().getTime
       drawnDiamond.get.canvas2D.clear()
-      if (inFullAztecCheckBox.checked && !drawInLozengesCheckBox.checked) {
-        drawnDiamond.get.draw(
-          border = dominoesBorderCheckBox.checked,
-          colors = DominoColorSelector.dominoColorsDouble
-        )
-      } else if (!drawInLozengesCheckBox.checked) {
-        drawnDiamond.get.drawSubGraph(
-          border = dominoesBorderCheckBox.checked,
-          colors = DominoColorSelector.dominoColorsDouble
-        )
-      } else if (inFullAztecCheckBox.checked) {
-        drawnDiamond.get.drawAsLozenges(
-          border = dominoesBorderCheckBox.checked,
-          colors = DominoColorSelector.dominoColorsDouble
-        )
-      } else {
-        drawnDiamond.get.drawSubGraphAsLozenges(
-          border = dominoesBorderCheckBox.checked,
-          colors = DominoColorSelector.dominoColorsDouble
-        )
+
+      if (drawDominoesCheckBox.checked) {
+        if (inFullAztecCheckBox.checked && !drawInLozengesCheckBox.checked) {
+          drawnDiamond.get.draw(
+            border = dominoesBorderCheckBox.checked,
+            colors = DominoColorSelector.dominoColorsDouble
+          )
+        } else if (!drawInLozengesCheckBox.checked) {
+          drawnDiamond.get.drawSubGraph(
+            border = dominoesBorderCheckBox.checked,
+            colors = DominoColorSelector.dominoColorsDouble
+          )
+        } else if (inFullAztecCheckBox.checked) {
+          drawnDiamond.get.drawAsLozenges(
+            border = dominoesBorderCheckBox.checked,
+            colors = DominoColorSelector.dominoColorsDouble
+          )
+        } else {
+          drawnDiamond.get.drawSubGraphAsLozenges(
+            border = dominoesBorderCheckBox.checked,
+            colors = DominoColorSelector.dominoColorsDouble
+          )
+        }
       }
+
+      if (drawPathsCheckBox.checked) {
+        drawnDiamond.get.drawNonIntersectingPaths(subGraph = !inFullAztecCheckBox.checked)
+      }
+
       val (rotation, zoom) = DrawingTransformations.transformationSettings
       applyTransformation(rotation, zoom, zoom)
       if (scala.scalajs.LinkingInfo.developmentMode) {
@@ -219,29 +227,18 @@ object DiamondGenerator {
     }
   }
 
-  inFullAztecCheckBox.onchange = (_: dom.Event) => {
+  List(
+    drawDominoesCheckBox, inFullAztecCheckBox, drawInLozengesCheckBox, dominoesBorderCheckBox, drawPathsCheckBox
+  ).foreach(_.onchange = (_: dom.Event) => {
     setTimeout(5) {
       drawDrawer()
     }
-  }
+  })
 
-  drawInLozengesCheckBox.onchange = (_: dom.Event) => {
-    setTimeout(5) {
-      drawDrawer()
-    }
-  }
-
-  dominoesBorderCheckBox.onchange = (_: dom.Event) => {
-    setTimeout(5) {
-      drawDrawer()
-    }
-  }
 
   def saveAsPNG(element: html.Anchor): Unit = {
-    canvas2D.canvas.style.borderStyle = "none"
     val dataURL = canvas2D.canvas.toDataURL("image/png")
     element.href = new Regex("^data:image/[^;]").replaceFirstIn(dataURL, "data:application/octet-stream")
-    canvas2D.canvas.style.border = "2px solid black"
   }
 
   private val a: html.Anchor = dom.document.getElementById("savePng").asInstanceOf[html.Anchor]

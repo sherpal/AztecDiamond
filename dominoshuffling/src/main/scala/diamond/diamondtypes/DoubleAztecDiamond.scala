@@ -4,7 +4,7 @@ import custommath.QRoot
 import diamond.DiamondType.isInteger
 import diamond._
 import exceptions.WrongParameterException
-import geometry.Domino
+import geometry.Point
 
 case object DoubleAztecDiamond extends DiamondType {
   type ArgType = (Int, Int)
@@ -39,8 +39,8 @@ case object DoubleAztecDiamond extends DiamondType {
 
   def totalPartitionFunctionToSubGraph(args: (Int, Int), totalPartition: QRoot): QRoot = ???
 
-  def isInDiamond(args: (Int, Int)): Domino => Boolean =
-    (domino: Domino) => WeightTrait.isInRightDoubleAztec(domino.p1, args._1, args._1 - args._2)
+  def isPointInDiamond(args: (Int, Int)): Point => Boolean =
+    (point: Point) => WeightTrait.isInRightDoubleAztec(point, args._1, args._1 - args._2)
 
   val argumentNames: List[(String, Double, Double)] =
     List(("Order of diamonds", 50, 3), ("Overlap", 10, 1))

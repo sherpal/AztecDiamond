@@ -209,6 +209,7 @@ footer {
     color: white;
     margin-left: auto;
     margin-right: auto;
+    margin-top: 40px;
     min-height: 50px;
 }
 
@@ -363,4 +364,50 @@ footer > div > p {
     background-color: #ffcccc;
     max-width: 700px !important;
     padding: 20px;
+}
+
+
+
+/*
+Drag and drop stuff
+*/
+
+.box__dragndrop,
+.box__uploading,
+.box__success,
+.box__error {
+  display: none;
+}
+
+.box {
+    width: 500px;
+    height: 300px;
+}
+
+.box__input {
+    width: 100%;
+    height: 100%;
+}
+
+.box.has-advanced-upload {
+    background-color: #33cccc;
+    outline: 2px dashed black;
+    outline-offset: -10px;
+}
+
+.box.has-advanced-upload .box__dragndrop {
+    display: inline;
+}
+
+.box.is-dragover {
+    background-color: grey;
+}
+
+.box__input > * {
+    margin: auto;
+    margin-top: 20px;
+}
+
+#userInputImg {
+    display: none;
 }

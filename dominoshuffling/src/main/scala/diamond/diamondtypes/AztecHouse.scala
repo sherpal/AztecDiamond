@@ -4,7 +4,7 @@ import custommath.QRoot
 import diamond.DiamondType.isInteger
 import diamond._
 import exceptions.WrongParameterException
-import geometry.Domino
+import geometry.{Domino, Point}
 
 case object AztecHouse extends DiamondType {
   type ArgType = (Int, Int)
@@ -41,8 +41,8 @@ case object AztecHouse extends DiamondType {
 
   def totalPartitionFunctionToSubGraph(args: (Int, Int), totalPartition: QRoot): QRoot = totalPartition
 
-  def isInDiamond(args: (Int, Int)): Domino => Boolean =
-    (domino: Domino) => WeightTrait.isInAztecHouse(domino.p1, args._1, args._2)
+  def isPointInDiamond(args: (Int, Int)): Point => Boolean =
+    (point: Point) => WeightTrait.isInAztecHouse(point, args._1, args._2)
 
   val argumentNames: List[(String, Double, Double)] = List(("Aztec n", 30, 5), ("Aztec h", 30, 5))
 }

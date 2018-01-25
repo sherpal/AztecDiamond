@@ -70,6 +70,10 @@ class Camera(canvas2D: Canvas2D) {
     sprite.draw(canvas2D, x, y, width, height)
   }
 
+  def spriteDrawsItself(sprite: Sprite): Unit = {
+    sprite.drawWithCamera(canvas2D, this)
+  }
+
 
 
 }

@@ -245,7 +245,7 @@ object Face {
   /**
    * Returns a Traversable of all the ActiveFaces of a diamond of order n.
    *
-   * Since we are using scala.js, we can't parallelize this traversable. However, all operations on faces are
+   * Since we are using scala.js, we can't parallelise this traversable. However, all operations on faces are
    * independent are were we to use scala with the JVM, we could speed up the algorithm by using toParArray.
    */
   def activeFaces(n: Int): GenSeq[Face] = toParIfPossible(for {

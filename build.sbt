@@ -36,6 +36,8 @@ def changePackageJSONVersion(line: String): String =
   else line
 
 
+
+
 fastOptElectronApp := {
 
   val mainProcessDirectory = (fastCompileElectronMainProcess in `electronMainProcess`).value

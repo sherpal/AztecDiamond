@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <!--web<script async src="https://www.googletagmanager.com/gtag/js?id=UA-111874504-1"></script>web-->
+    <!--web<script>web-->
+        <!--webwindow.dataLayer = window.dataLayer || [];web-->
+        <!--webfunction gtag(){dataLayer.push(arguments);}web-->
+        <!--webgtag('js', new Date());web-->
+        <!-- -->
+        <!--webgtag('config', 'UA-111874504-1');web-->
+    <!--web</script>web-->
     <meta charset="UTF-8">
     <title>Aztec Diamond</title>
     <!--web<link rel="icon" href="./assets/aztec-diamond.ico">web-->
@@ -32,6 +41,7 @@
 <div class="tab">
     <button id="diamondGenerationTab" class="tabLinks">Diamond Generation</button>
     <button id="tilingNumberTab" class="tabLinks">Count Tiling Number</button>
+    <!--tron<button id="pictureDiamondTab" class="tabLinks">Picture in Diamond</button>electron-->
 </div>
 
 
@@ -58,17 +68,31 @@
     <div id="drawOptions" class="sectionContainer" style="padding-bottom: 0px">
         <header style="cursor: pointer"><h1>Plotting Options</h1></header>
         <div class="slidingContent" style="display: none">
-            <div id="divInFullAztec">
-                <label>Show in full Aztec Diamond</label>
-                <input id="inFullAztec" type="checkbox">
+            <div id="dominoDrawingSettings">
+                <h4 style="padding: 2px; margin-bottom: 2px; margin-top: 5px">Domino plotting options</h4>
+                <div id="divDrawDominoes">
+                    <label>Draw dominoes</label>
+                    <input id="drawDominoes" type="checkbox">
+                </div>
+                <div id="divInFullAztec">
+                    <label>Show in full Aztec Diamond</label>
+                    <input id="inFullAztec" type="checkbox">
+                </div>
+                <div id="divDrawInLozenges">
+                    <label>Draw dominoes as lozenges</label>
+                    <input id="drawInLozenges" type="checkbox">
+                </div>
+                <div id="divShowDominoesBorder">
+                    <label>Show border of dominoes</label>
+                    <input id="showDominoesBorder" type="checkbox">
+                </div>
             </div>
-            <div id="divDrawInLozenges">
-                <label>Draw dominoes as lozenges</label>
-                <input id="drawInLozenges" type="checkbox">
-            </div>
-            <div id="divShowDominoesBorder">
-                <label>Show border of dominoes</label>
-                <input id="showDominoesBorder" type="checkbox">
+            <div id="nonIntersectingPathSettings">
+                <h4 style="padding: 2px; margin-bottom: 2px; margin-top: 5px">Draw non-intersecting paths options</h4>
+                <div id="divDrawPaths">
+                    <label>Draw non intersecting paths</label>
+                    <input id="drawPaths" type="checkbox">
+                </div>
             </div>
             <div id="dominoColors">
                 <h4 style="padding: 2px; margin-bottom: 2px; margin-top: 5px">Chose colors for the dominoes</h4>
@@ -146,6 +170,20 @@
 
     <div id="countingStatusBarContainer"></div>
 
+</div>
+
+<div id="pictureDiamondDiv" class="tabContent">
+    <form class="box" method="post" action="" enctype="multipart/form-data">
+        <div class="box__input">
+            <input class="box__file" type="file" name="files[]" id="file" data-multiple-caption="{count} files selected" multiple />
+            <label for="file"><strong>Choose a file</strong><span class="box__dragndrop"> or drag it here</span>.</label>
+            <button class="box__button" type="submit">Upload</button>
+        </div>
+        <div class="box__uploading">Uploading&hellip;</div>
+        <div class="box__success">Done!</div>
+        <div class="box__error">Error! <span></span>.</div>
+    </form>
+    <img src="#" id="userInputImg">
 </div>
 
 

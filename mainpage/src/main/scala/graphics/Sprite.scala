@@ -21,6 +21,8 @@ trait Sprite {
    */
   def draw(canvas2D: Canvas2D, x: Double, y: Double, width: Double, height: Double): Unit
 
+  def drawWithCamera(canvas2D: Canvas2D, camera: Camera): Unit = {}
+
   /**
    * The World position of the Sprite must be the center of the BoundingBox.
    */

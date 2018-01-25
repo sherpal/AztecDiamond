@@ -71,8 +71,8 @@ case object AztecRing extends DiamondType {
   def totalPartitionFunctionToSubGraph(args: (Int, Int), totalPartition: QRoot): QRoot =
     totalPartition / UniformDiamond.theoreticTilingNumber(args._1)
 
-  def isInDiamond(args: (Int, Int)): Domino => Boolean =
-    (domino: Domino) => WeightTrait.isInDiamondRing(domino.p1, args._1, args._2)
+  def isPointInDiamond(args: (Int, Int)): Point => Boolean =
+    (point: Point) => WeightTrait.isInDiamondRing(point, args._1, args._2)
 
   val argumentNames: List[(String, Double, Double)] = List(("Inner order", 20, 3), ("Outer order", 40, 8))
 }

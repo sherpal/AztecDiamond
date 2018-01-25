@@ -1,7 +1,7 @@
 package communication
 
 import custommath.{NotRational, QRoot, Rational}
-import diamond.{ComputePartitionFunctionWeight, Diamond, GenerationWeight}
+import diamond.{ComputePartitionFunctionWeight, CustomGenerationWeight, Diamond, GenerationWeight}
 import diamond.DiamondType.DiamondTypeFromString
 import dominoshuffingextension.{DiamondGeneration, TilingNumberCounting}
 import exceptions.WrongParameterException
@@ -88,6 +88,31 @@ object Communicator {
           postMessage(NotImplementedTilingCounting(diamondTypeString))
         case e: Throwable =>
           throw e
+      }
+    case GenerateImageMessage(imageData, width, height) =>
+      if (imageData.length != width * height * 4) {
+        postMessage(WrongImageData(s"Length of image data (${imageData.length}) must be " +
+          s"4 * w * h (${4 * width * height})"))
+      } else {
+        val startTime = new java.util.Date().getTime
+
+        val heightCutImageData = if (height % 2 == 1) imageData.dropRight(width) else imageData
+        val transformedImageData = if (width % 2 == 0) heightCutImageData else {
+          val idxToRemove = (0 until height).map(width * _)
+
+          imageData.zipWithIndex.filter(elem => idxToRemove.contains(elem._2 / 4)).unzip._1
+        }
+        val weight = CustomGenerationWeight.fromImageData(
+          transformedImageData, width, height
+        )
+
+        val allWeights = DiamondGeneration.computeAllWeights(weight)
+
+        postMessage(WeightsAreComputed())
+
+        val diamond = DiamondGeneration.generateDiamond(allWeights)
+
+        postMessage(ImageDiamondMessage(diamond.toArray.toList, new java.util.Date().getTime - startTime))
       }
     case _ =>
       println(message.toString)

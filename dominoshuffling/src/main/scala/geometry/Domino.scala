@@ -25,6 +25,7 @@ case class Domino(p1: Point, p2: Point) extends Ordered[Domino] {
     case (false, false) => WestGoing
   }
 
+  def points: List[Point] = List(p1, p2)
 
 }
 

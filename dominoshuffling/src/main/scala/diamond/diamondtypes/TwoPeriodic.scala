@@ -4,7 +4,7 @@ import custommath.QRoot
 import diamond.DiamondType.isInteger
 import diamond._
 import exceptions.WrongParameterException
-import geometry.Domino
+import geometry.{Domino, Point}
 
 case object TwoPeriodic extends DiamondType {
   type ArgType = (Int, Double, Double)
@@ -43,7 +43,7 @@ case object TwoPeriodic extends DiamondType {
 
   def countingTilingDiamond(args: (Int, Double, Double)): Diamond = Diamond.fullHorizontalDiamond(args._1)
 
-  def isInDiamond(args: (Int, Double, Double)): Domino => Boolean = (_: Domino) => true
+  def isPointInDiamond(args: (Int, Double, Double)): Point => Boolean = (_: Point) => true
 
   def totalPartitionFunctionToSubGraph(args: (Int, Double, Double), totalPartition: QRoot): QRoot = totalPartition
 

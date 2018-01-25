@@ -4,7 +4,7 @@ import custommath.QRoot
 import diamond.DiamondType.isInteger
 import diamond.{Diamond, DiamondType, UniformWeightGeneration, UniformWeightPartition}
 import exceptions.WrongParameterException
-import geometry.Domino
+import geometry.{Domino, Point}
 
 case object UniformDiamond extends DiamondType {
   type ArgType = Int
@@ -32,7 +32,7 @@ case object UniformDiamond extends DiamondType {
 
   def totalPartitionFunctionToSubGraph(args: Int, totalPartition: QRoot): QRoot = totalPartition
 
-  def isInDiamond(args: Int): Domino => Boolean = (_: Domino) => true
+  def isPointInDiamond(args: Int): Point => Boolean = (_: Point) => true
 
   def theoreticTilingNumber(order: Int): QRoot = QRoot(BigInt(2) pow (order * (order + 1) / 2), 1)
 

@@ -27,11 +27,10 @@ object TabManager {
     }
   }
 
-  List(
-    "diamondGenerationTab", "tilingNumberTab"
-  )
-    .map(dom.document.getElementById)
-    .map(_.asInstanceOf[html.Button])
+  private val tabButtons = dom.document.getElementsByClassName("tab")(0).asInstanceOf[html.Div].children
+
+  (for (j <- 0 until tabButtons.length) yield tabButtons(j).asInstanceOf[html.Button])
     .foreach(button => button.onclick = (_: dom.MouseEvent) => openTab(button))
+
 
 }

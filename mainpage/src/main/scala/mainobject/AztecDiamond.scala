@@ -1,7 +1,7 @@
 package mainobject
 
 import diamond.diamondtypes.UniformDiamond
-import ui.{ColorPicker, CountingTilingForm, DrawingOptions, GenerateDiamondForm}
+import ui._
 
 /**
  * Main Object
@@ -22,7 +22,31 @@ object AztecDiamond {
     GenerateDiamondForm.switchForm(UniformDiamond)
     CountingTilingForm.switchForm(UniformDiamond)
     TabManager
+    //DragAndDrop
 
+
+
+//    val drawer1 = DiamondDrawer(Diamond.uniformDiamond(3)).get
+//
+//    val p1 = dom.document.createElement("p").asInstanceOf[html.Paragraph]
+//    dom.document.body.appendChild(p1)
+//    p1.textContent = drawer1.tikzCode() + drawer1.nonIntersectingPathTikzCode() + DiamondDrawer.emptyDiamondTikzCode(3)
+
+
+//    val drawer2 = DiamondDrawer(
+//        Diamond.generateDiamond(WeightTrait.computeAllWeights[Double, CustomGenerationWeight](
+//            AztecRing.makeGenerationWeight(10, 20)
+//        )),
+//        AztecRing.isInDiamond(10,20)
+//    ).get
+//
+////  val drawer2 = DiamondDrawer(
+////    AztecRing.countingTilingDiamond(2, 6), AztecRing.isInDiamond(2, 6)
+////  ).get
+//
+//    val p2 = dom.document.createElement("p").asInstanceOf[html.Paragraph]
+//    dom.document.body.appendChild(p2)
+//    p2.textContent = drawer2.tikzCode() + drawer2.nonIntersectingPathTikzCode(subGraph = true)
 
 
 //    for {
@@ -147,6 +171,72 @@ object AztecDiamond {
 //    }
 
 
+//    val canvas: html.Canvas = dom.document.createElement("canvas").asInstanceOf[html.Canvas]
+//    canvas.width = 200 * 720 / 960
+//    canvas.height = 200
+//    val ctx: CanvasRenderingContext2D = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
+//
+//    val image: html.Image = dom.document.createElement("img").asInstanceOf[html.Image]
+//    image.src = "./nico.jpg"
+//
+//    image.setAttribute("crossOrigin", "anonymous")
+//
+//    image.onload = (_: dom.Event) => {
+//        val canvas2 = dom.document.createElement("canvas").asInstanceOf[html.Canvas]
+//        canvas2.width = canvas.width
+//        canvas2.height = canvas.height
+//        val ctx2 = canvas2.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
+//
+//        ctx.drawImage(image, 0, 0, canvas.width, canvas.height)
+//
+//        val imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+//        val data = imageData.data
+//
+//        data
+//          .grouped(4)
+//          .flatMap(arr => {
+//              val mean = arr.take(3).sum / 3
+//              js.Array[Int](mean, mean, mean, arr(3))
+//          })
+//          .zipWithIndex
+//          .foreach({ case (pixel, idx) => data(idx) = pixel })
+//
+//
+//        ctx2.putImageData(imageData, 0, 0)
+//
+//        dom.document.body.appendChild(canvas2)
+//
+//        println("coucou")
+//
+//        js.timers.setTimeout(500) {
+//            val diamond = Diamond.generateDiamond(
+//                WeightTrait.computeAllWeights[Double, CustomGenerationWeight](
+//                    CustomGenerationWeight.fromImageData(
+//                        ctx.getImageData(0, 0, canvas.width, canvas.height).data.toVector,
+//                        canvas.width, canvas.height
+//                    )
+//                )
+//            )
+//            println("diamond computed")
+//
+//            val drawer = DiamondDrawer(diamond).get
+//            drawer.draw(
+//                colors = (domino: Domino) => if (domino.isHorizontal) (1,1,1) else (0,0,0)
+//            )
+//
+//            val diamondCanvas = dom.document.createElement("canvas").asInstanceOf[html.Canvas]
+//            diamondCanvas.width = 3 * canvas.width
+//            diamondCanvas.height = 3 * canvas.height
+//            diamondCanvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
+//              .drawImage(drawer.canvas2D.canvas, 0, 0, diamondCanvas.width, diamondCanvas.height)
+//
+//            dom.document.body.appendChild(diamondCanvas)
+//        }
+//
+//
+//    }
+//
+//    dom.document.body.appendChild(canvas)
 
 
 }
