@@ -3,6 +3,8 @@ package mainobject
 import diamond.diamondtypes.UniformDiamond
 import ui._
 
+import scala.scalajs.js.timers.setTimeout
+
 /**
  * Main Object
  *
@@ -15,14 +17,27 @@ object AztecDiamond {
   /**
    * We're currently doing testing so the main method is garbage.
    */
-    println("Welcome to AztecDiamond drawing!")
+  println("Welcome to AztecDiamond drawing!")
 
-    ColorPicker
-    DrawingOptions
-    GenerateDiamondForm.switchForm(UniformDiamond)
-    CountingTilingForm.switchForm(UniformDiamond)
-    TabManager
-    //DragAndDrop
+  private val timeBetweenLoads: Long = 1000
+
+  def load(args: Seq[() => Any]): Unit = {
+    args.zipWithIndex.foreach({ case (obj, idx) => setTimeout((idx + 1) * timeBetweenLoads) {
+      if (scala.scalajs.LinkingInfo.developmentMode) {
+        println(s"loading ... $idx")
+      }
+      obj.apply()
+    } })
+  }
+
+  load(List(
+    () => TabManager,
+    () => GenerateDiamondForm.switchForm(UniformDiamond),
+    () => CountingTilingForm.switchForm(UniformDiamond),
+    () => DrawingOptions,
+    () => ColorPicker
+  ))
+  //DragAndDrop
 
 
 

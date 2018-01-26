@@ -1,6 +1,7 @@
 package ui
 
 import custommath.Complex
+import mainobject.Loader
 import org.scalajs.dom
 import org.scalajs.dom.html
 import org.scalajs.dom.raw._
@@ -67,18 +68,15 @@ object ColorPicker {
   }
 
   private val numberOfTurns: Int = 8
-  for {
+  private val pixelPositions = (for {
     radius <- 1 to totalRadius
     t <- 0 to 360 * numberOfTurns
-  } {
+  } yield {
     val angle = t / numberOfTurns.toDouble
-
-    ctx.fillStyle = s"hsl(${angle.toInt},100%,${luminosityFromRadius(radius)}%)"
-
     val z = radius * Complex.rotation(angle / 360.0 * 2 * math.Pi) + Complex(canvas.width / 2, canvas.height / 2)
 
-    ctx.fillRect(z.re, z.im, 1, 1)
-  }
+    (radius, angle, z)
+  }).grouped(1000).toList
 
   ctx.beginPath()
   ctx.moveTo(canvas.width / 2 + totalRadius, canvas.height / 2)
@@ -87,6 +85,21 @@ object ColorPicker {
   ctx.lineWidth = 2
   ctx.strokeStyle = "black"
   ctx.stroke()
+
+
+  Loader.load(pixelPositions.map(list => () => list.foreach({ case (radius, angle, z) =>
+    ctx.fillStyle = s"hsl(${angle.toInt},100%,${luminosityFromRadius(radius)}%)"
+    ctx.fillRect(z.re, z.im, 1, 1)
+  })) :+ (() => {
+    ctx.beginPath()
+    ctx.moveTo(canvas.width / 2 + totalRadius, canvas.height / 2)
+    ctx.arc(canvas.width / 2, canvas.height / 2, totalRadius, 0, 2 * math.Pi)
+    ctx.closePath()
+    ctx.lineWidth = 2
+    ctx.strokeStyle = "black"
+    ctx.stroke()
+  }), rate = 1)
+
 
 
   private val colorDiv: html.Div = dom.document.getElementById("chosenColor").asInstanceOf[html.Div]
