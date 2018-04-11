@@ -20,7 +20,7 @@ private[communication] object PlatformDependent {
       try {
         event.data match {
           case data: String =>
-            self.postMessage(js.Array[String]("test", data))
+            self.postMessage("test: " + data)
           case data:js.Array[_] if data(0).isInstanceOf[Byte] =>
             val message = Message.decode(data.asInstanceOf[js.Array[Byte]].toArray)
 

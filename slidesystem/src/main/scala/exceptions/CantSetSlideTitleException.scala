@@ -1,0 +1,3 @@
+package exceptions
+
+class CantSetSlideTitleException extends Throwable

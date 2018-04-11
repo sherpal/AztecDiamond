@@ -1,5 +1,6 @@
 package mainobject
 
+import computationcom.ComputerWorker
 import diamond.diamondtypes.UniformDiamond
 import ui._
 
@@ -20,6 +21,8 @@ object AztecDiamond {
   println("Welcome to AztecDiamond drawing!")
 
   private val timeBetweenLoads: Long = 1000
+
+  ComputerWorker.setFileName("domino-shuffling-implementation.html")
 
   def load(args: Seq[() => Any]): Unit = {
     args.zipWithIndex.foreach({ case (obj, idx) => setTimeout((idx + 1) * timeBetweenLoads) {

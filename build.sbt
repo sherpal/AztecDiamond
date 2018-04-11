@@ -19,6 +19,11 @@ val fullCompileElectronMainProcess = taskKey[File]("Return main file")
 val fullCompileElectronMainWindow = taskKey[File]("Return main file")
 lazy val fullOptElectronApp = taskKey[Unit]("Compile in fullOptJS and create all electron files.")
 
+val fastCompileSlides = taskKey[File]("Return main file")
+lazy val fastCompileMakeSlides = taskKey[Unit]("Compile the slides in fastOptJS and create the file.")
+
+val fullCompileSlides = taskKey[File]("Return main file")
+lazy val fullCompileMakeSlides = taskKey[Unit]("Compile the slides in fullOptJS and create the file.")
 
 val releaseVersion: String = "1.1.0"
 
@@ -34,8 +39,6 @@ def removeHtmlCommentLine(line: String): String = """<!--.+-->""".r.replaceAllIn
 def changePackageJSONVersion(line: String): String =
   if (line.contains("version")) """\d+\.\d+\.\d+""".r.replaceAllIn(line, releaseVersion)
   else line
-
-
 
 
 fastOptElectronApp := {
@@ -173,6 +176,46 @@ fullOptElectronApp := {
 
 }
 
+
+fastCompileMakeSlides := {
+
+  val slideDirectory = (fastCompileSlides in slideSystem).value
+  val webWorkerDirectory = (fastCompileWebWorker in webWorkerJS).value
+
+  val sourceHtml = IO.readLines(baseDirectory.value / "slides/aztec-slide.html")
+
+  val html = baseDirectory.value / "slides/compiled-aztec-slide.html"
+
+  IO.writeLines(
+    html,
+    sourceHtml.flatMap({
+      case "//##workercode" => IO.readLines(webWorkerDirectory)
+      case "//##slidecode" => IO.readLines(slideDirectory)
+      case line => List(line)
+    })
+  )
+
+}
+
+fullCompileMakeSlides := {
+
+  val slideDirectory = (fullCompileSlides in slideSystem).value
+  val webWorkerDirectory = (fullCompileWebWorker in webWorkerJS).value
+
+  val sourceHtml = IO.readLines(baseDirectory.value / "slides/aztec-slide.html")
+
+  val html = baseDirectory.value / "slides/compiled-aztec-slide.html"
+
+  IO.writeLines(
+    html,
+    sourceHtml.flatMap({
+      case "//##workercode" => IO.readLines(webWorkerDirectory)
+      case "//##slidecode" => IO.readLines(slideDirectory)
+      case line => List(line)
+    })
+  )
+
+}
 
 fastOptChangeHtml := {
 
@@ -378,6 +421,30 @@ lazy val `webApp` = project.in(file("./webapp"))
   .dependsOn(renderer)
   .disablePlugins(sbtassembly.AssemblyPlugin)
 
+
+/**
+ * This project is intended to be used with Justin Dekeyser's Html/CSS Slide system.
+ * It can also work with plain Html/CSS environment, but you might need to add a little CSS for it to be nice looking.
+ */
+lazy val `slideSystem` = project.in(file("./slidesystem"))
+  .enablePlugins(JSDependenciesPlugin)
+  .enablePlugins(ScalaJSPlugin)
+  .settings(commonSettings)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-js" %%% "scalajs-dom" % "0.9.3"//,
+      //"org.scalatest" %%% "scalatest" % "3.0.1" % "test"
+    ),
+    scalaJSUseMainModuleInitializer := true,
+    fastCompileSlides := {
+      (fastOptJS in Compile).value.data
+    },
+    fullCompileSlides := {
+      (fullOptJS in Compile).value.data
+    }
+  )
+  .dependsOn(renderer)
+  .disablePlugins(sbtassembly.AssemblyPlugin)
 
 lazy val `webWorker` = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pure).in(file("./webworker"))
   .settings(commonSettings)

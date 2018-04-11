@@ -1,3 +1,3 @@
 package exceptions
 
-class NoSuchDiamondType(str: String) extends Throwable
+class NoSuchDiamondType(val diamondType: String) extends Throwable

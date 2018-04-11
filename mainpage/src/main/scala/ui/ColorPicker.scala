@@ -10,7 +10,8 @@ import org.scalajs.dom.raw._
 object ColorPicker {
 
 
-  val colorPickerBackground: html.Div = dom.document.getElementById("colorPickerBackground").asInstanceOf[html.Div]
+  val colorPickerBackground: html.Div =
+    dom.document.getElementById("colorPickerBackground").asInstanceOf[html.Div]
 
   colorPickerBackground.onclick = (_: dom.MouseEvent) => hide()
 

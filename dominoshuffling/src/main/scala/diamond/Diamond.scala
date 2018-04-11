@@ -213,11 +213,46 @@ final class Diamond(val dominoes: Vector[Vector[Option[Domino]]]) {
 
   }
 
+  def aSubDiamond: Option[Diamond] = if (order == 1) None else {
+    val dominoes = Diamond.emptyArrayDominoes(order - 1)
+
+    def fillPossibilities(dominoesToFill: Traversable[Domino], dominoes: Array[Array[Option[Domino]]]): Unit = {
+      dominoesToFill.foreach(domino => {
+        val (x, y) = Domino.changeVerticalCoordinates(domino.p1, order - 1)
+        dominoes(x)(y) = Some(domino)
+      })
+    }
+
+    activeFaces.foreach(face => {
+      fillPossibilities(face.previousDiamondConstruction(this).head, dominoes)
+    })
+
+    Some(new Diamond(dominoes.toVector.map(_.toVector)))
+  }
+
   def allSubDiamonds: List[Diamond] = this +: subDiamonds.flatMap(_.allSubDiamonds)
 
-  def randomSubDiamond: Diamond = subDiamonds(Random.nextInt(subDiamonds.length))
+  def randomSubDiamond: Option[Diamond] = if (order == 1) None else {
+    val dominoes = Diamond.emptyArrayDominoes(order - 1)
 
-  def aRandomSubDiamond: Diamond = subDiamonds.head
+    def fillPossibilities(dominoesToFill: Traversable[Domino], dominoes: Array[Array[Option[Domino]]]): Unit = {
+      dominoesToFill.foreach(domino => {
+        val (x, y) = Domino.changeVerticalCoordinates(domino.p1, order - 1)
+        dominoes(x)(y) = Some(domino)
+      })
+    }
+
+    activeFaces.foreach(face => {
+      val previous = face.previousDiamondConstruction(this).toList
+      fillPossibilities(previous(Random.nextInt(previous.length)), dominoes)
+    })
+
+    Some(new Diamond(dominoes.toVector.map(_.toVector)))
+  }
+
+  def aRandomSubDiamond: Diamond = subDiamonds(Random.nextInt(subDiamonds.length))
+
+  def firstSubDiamond: Diamond = subDiamonds.head
 
   def nonIntersectingPaths: Vector[Vector[Point]] = {
     def nextPoint(domino: Domino): Point = domino.dominoType(order) match {

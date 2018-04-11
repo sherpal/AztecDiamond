@@ -3,20 +3,29 @@ package graphics
 import custommath.Complex
 import diamond.Diamond
 import geometry._
+import org.scalajs.dom.html
+import org.scalajs.dom.raw.CanvasRenderingContext2D
 
 /**
  * Class helper for drawing Diamond on a canvas.
  * @param diamond      the diamond to draw
  * @param isInSubGraph function indicating which dominoes have to be drawn.
  */
-class DiamondDrawer private (val diamond: Diamond, isInSubGraph: (Domino) => Boolean) {
+class DiamondDrawer private (
+                              val diamond: Diamond,
+                              isInSubGraph: (Domino) => Boolean,
+                              canvas: Option[(html.Canvas, CanvasRenderingContext2D)]
+                            ) {
 
   def isPointInSubGraph(point: Point): Boolean = isInSubGraph(Domino(point, point + Point(1, 0))) ||
     isInSubGraph(Domino(point, point + Point(0, 1))) ||
     isInSubGraph(Domino(point + Point(-1, 0), point)) ||
     isInSubGraph(Domino(point + Point(0, -1), point))
 
-  val canvas2D: Canvas2D = new Canvas2D
+  val canvas2D: Canvas2D = canvas match {
+    case Some((c, ctx)) => new Canvas2D(c, ctx)
+    case None => new Canvas2D
+  }
   canvas2D.setSize(2000, 2000)
 
   val topMostFullDiamondCoordinate: Int = diamond.order + 1
@@ -29,9 +38,9 @@ class DiamondDrawer private (val diamond: Diamond, isInSubGraph: (Domino) => Boo
     (topMostFullDiamondCoordinate + bottomMostFullDiamondCoordinate) / 2.0
   )
 
-  val dominoes: Traversable[Domino] = diamond.listOfDominoes
+  def dominoes: Traversable[Domino] = diamond.listOfDominoes
 
-  val dominoesInSubGraph: Traversable[Domino] = dominoes.filter(isInSubGraph)
+  def dominoesInSubGraph: Traversable[Domino] = dominoes.filter(isInSubGraph)
 
 
   val topMostSubDiamondCoordinate: Int = dominoesInSubGraph
@@ -65,9 +74,10 @@ class DiamondDrawer private (val diamond: Diamond, isInSubGraph: (Domino) => Boo
   )
 
 
-  private lazy val dominoSprites: List[DominoSprite] = dominoes.map(new DominoSprite(_)).toList
+  private def dominoSprites: List[DominoSprite] = dominoes.map(new DominoSprite(_)).toList
 
-  private lazy val emptyDominoSprites: List[EmptyDominoSprite] = dominoes.map(new EmptyDominoSprite(_)).toList
+  private def emptyDominoSprites: List[EmptyDominoSprite] =
+    dominoes.map(new EmptyDominoSprite(_, canvas2D.width * 5 / 2000)).toList
 
   private def defaultColors(domino: Domino): (Double, Double, Double) = domino.dominoType(diamond.order) match {
     case NorthGoing => (1,0,0)
@@ -120,10 +130,10 @@ class DiamondDrawer private (val diamond: Diamond, isInSubGraph: (Domino) => Boo
     rawDraw(worldCenter, scaleX, scaleY, colors, isInSubGraph, fullDiamond = false, border = border)
   }
 
-  private lazy val lozengeSprites: List[LozengeSprite] = dominoes.map(new LozengeSprite(_, diamond.order)).toList
+  private def lozengeSprites: List[LozengeSprite] = dominoes.map(new LozengeSprite(_, diamond.order)).toList
 
-  private lazy val emptyLozengeSprites: List[EmptyLozengeSprite] = dominoes
-    .map(new EmptyLozengeSprite(_, diamond.order)).toList
+  private def emptyLozengeSprites: List[EmptyLozengeSprite] = dominoes
+    .map(new EmptyLozengeSprite(_, diamond.order, canvas2D.width * 5 / 2000)).toList
 
   def drawAsLozenges(worldCenter: Complex = diamondCenter, scaleX: Double = 1, scaleY: Double = 1,
                      border: Boolean = false,
@@ -163,9 +173,9 @@ class DiamondDrawer private (val diamond: Diamond, isInSubGraph: (Domino) => Boo
 
   }
 
-  private lazy val globalPathsSprites: List[PathSprite] = diamond.nonIntersectingPaths.map(new PathSprite(_)).toList
+  private def globalPathsSprites: List[PathSprite] = diamond.nonIntersectingPaths.map(new PathSprite(_)).toList
 
-  private lazy val subGraphPathsSprites: List[PathSprite] =
+  private def subGraphPathsSprites: List[PathSprite] =
     diamond.nonIntersectingPathsSubGraph(isPointInSubGraph).map(new PathSprite(_)).toList
 
   def drawNonIntersectingPaths(
@@ -239,8 +249,12 @@ class DiamondDrawer private (val diamond: Diamond, isInSubGraph: (Domino) => Boo
 
 object DiamondDrawer {
 
-  def apply(diamond: Diamond, isInSubGraph: (Domino) => Boolean = (_: Domino) => true): Option[DiamondDrawer] = {
-    val diamondDrawer = new DiamondDrawer(diamond, isInSubGraph)
+  def apply(
+             diamond: Diamond,
+             isInSubGraph: (Domino) => Boolean = (_: Domino) => true,
+             canvas: Option[(html.Canvas, CanvasRenderingContext2D)] = None
+           ): Option[DiamondDrawer] = {
+    val diamondDrawer = new DiamondDrawer(diamond, isInSubGraph, canvas)
 
     if (diamondDrawer.dominoesInSubGraph.isEmpty) None else Some(diamondDrawer)
   }

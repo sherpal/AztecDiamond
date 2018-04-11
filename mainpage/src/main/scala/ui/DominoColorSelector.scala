@@ -1,6 +1,6 @@
 package ui
 
-import computationcom.{DiamondGenerationWorker, DiamondGenerator}
+import computationcom.DiamondGenerator
 import geometry._
 import org.scalajs.dom
 import org.scalajs.dom.html
@@ -12,7 +12,7 @@ import org.scalajs.dom.html
  *                             First element: a String describing what kind of dominoes are involved (i.e., North Going)
  *                             Second element: a predicate determining what dominoes are involved.
  */
-class DominoColorSelector(
+final class DominoColorSelector(
                            enclosingDiv: html.Div,
                            dominoesDescriptions: List[(String, (Domino) => Boolean, (Int, Int, Int))]
                          ) {
@@ -56,11 +56,11 @@ class DominoColorSelector(
 
   def dominoColors: (Domino) => (Int, Int, Int) = {
     val colors: Map[html.Div, (Int, Int, Int)] = colorSelectors.map(_._1)
-          .map(div => div -> {
-            val colors = """\d+""".r.findAllIn(div.style.backgroundColor).toVector.map(_.toInt)
-            (colors(0), colors(1), colors(2))
-          })
-          .toMap
+      .map(div => div -> {
+        val colors = """\d+""".r.findAllIn(div.style.backgroundColor).toVector.map(_.toInt)
+        (colors(0), colors(1), colors(2))
+      })
+      .toMap
 
     (domino: Domino) =>
       colorSelectors.find(_._2.apply(domino)) match {
@@ -181,7 +181,8 @@ object DominoColorSelector {
     }
   }
 
-  private val applyColors: html.Input = dom.document.getElementById("applyColorSettings").asInstanceOf[html.Input]
+  private val applyColors: html.Input =
+    dom.document.getElementById("applyColorSettings").asInstanceOf[html.Input]
 
   applyColors.onclick = (_: dom.MouseEvent) => DiamondGenerator.drawDrawer()
 

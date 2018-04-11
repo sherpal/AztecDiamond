@@ -1,4 +1,4 @@
-package ui
+package slidegenerator
 
 import org.scalajs.dom
 import org.scalajs.dom.html
@@ -6,11 +6,11 @@ import org.scalajs.dom.html
 final class InputNumberDiv(labelString: String, defaultGenerationValue: Double) {
 
   private val div: html.Div = dom.document.createElement("div").asInstanceOf[html.Div]
-  div.style.width = "201px"
+  div.style.width = "401px"
   div.style.marginTop = "2px"
 
   private val labelDiv: html.Div = dom.document.createElement("div").asInstanceOf[html.Div]
-  labelDiv.style.width = "150px"
+  labelDiv.style.width = "350px"
   labelDiv.style.display = "inline-block"
   private val label: html.Label = dom.document.createElement("label").asInstanceOf[html.Label]
   label.textContent = labelString

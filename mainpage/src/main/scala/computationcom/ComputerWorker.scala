@@ -9,7 +9,7 @@ import ui.AlertBox
 import scala.scalajs.js.JSConverters._
 
 trait ComputerWorker extends Computer {
-  private val worker = new Worker(URL.createObjectURL(DiamondGenerationWorker.blob))
+  private val worker = new Worker(URL.createObjectURL(BlobMaker.blob))
 
   worker.onmessage = (event: dom.MessageEvent) => {
     event.data match {
@@ -50,9 +50,27 @@ trait ComputerWorker extends Computer {
   {
     val url = dom.window.location
     val href = url.href
-    val index = href.indexOf("domino-shuffling-implementation.html")
+    val index = href.indexOf(ComputerWorker._fileName)
     val finalUrl = if (index != -1) href.substring(0, index) else href
     worker.postMessage(finalUrl)
+  }
+
+}
+
+object ComputerWorker {
+
+  private var _fileName: String = _
+
+  private var _fileNameSet: Boolean = false
+
+  def setFileName(fileName: String): Unit = {
+    if (_fileNameSet) {
+      throw new NoSuchMethodException()
+    } else {
+      _fileNameSet = true
+      _fileName = fileName
+    }
+
   }
 
 }
