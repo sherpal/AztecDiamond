@@ -9,6 +9,7 @@ import org.scalajs.dom
 import org.scalajs.dom.ext.Color
 import org.scalajs.dom.html
 import popups.Alert
+import slidesystem.events.{EventEmitter, SwitchSlideEvent}
 
 import scala.scalajs.js
 
@@ -34,17 +35,21 @@ trait GeneratorRequest {
     throw new NotASlideElementException(slide.className)
   }
 
-    try {
-      if (modifySlideTitle) {
-        slide.firstElementChild.asInstanceOf[html.Heading].textContent = diamondType.name + " Generator"
-      }
-      slide.firstElementChild.asInstanceOf[html.Heading].style.marginBottom = "2vh"
-    } catch {
-      case _: Throwable =>
-        throw new CantSetSlideTitleException
+  try {
+    if (modifySlideTitle) {
+      slide.firstElementChild.asInstanceOf[html.Heading].textContent = diamondType.name + " Generator"
     }
+    slide.firstElementChild.asInstanceOf[html.Heading].style.marginBottom = "2vh"
+  } catch {
+    case _: Throwable =>
+      throw new CantSetSlideTitleException
+  }
 
 
+  private val slideName: String = if (slide.hasAttribute("data-name")) slide.getAttribute("data-name")
+  else slideId
+
+  slide.setAttribute("data-name", slideName)
 
   private val defaultColors: List[Option[Color]] = try {
     colors.toList.map(arr => if (arr.isEmpty) None else Some(Color(arr(0), arr(1), arr(2))))
@@ -179,6 +184,17 @@ trait GeneratorRequest {
   def order: Int
 
   def setDiamond(diamond: Diamond, isInSubGraph: (Domino) => Boolean): Unit
+
+  def clear(): Unit
+
+  new EventEmitter()
+    .addEventListener("slide-change",
+      (event: SwitchSlideEvent) => {
+        if (!event.hasName || event.slideName != slideName) {
+          clear()
+        }
+      }
+    )
 
 
 }

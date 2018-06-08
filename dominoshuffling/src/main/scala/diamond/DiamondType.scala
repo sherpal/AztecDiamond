@@ -77,7 +77,7 @@ object DiamondType {
 
 
   val diamondTypes: List[DiamondType] = List(
-    UniformDiamond, AztecHouse, AztecRing, Rectangle, TwoPeriodic, DoubleAztecDiamond, Hexagon
+    UniformDiamond, AztecHouse, AztecRing, Rectangle, TwoPeriodic, DoubleAztecDiamond, Hexagon, TwoPeriodicRectangle
   )
 
   implicit def fromString(str: String): DiamondType = diamondTypes.indexWhere(_.toString == str) match {

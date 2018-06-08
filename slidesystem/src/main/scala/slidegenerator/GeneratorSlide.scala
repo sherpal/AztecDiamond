@@ -120,7 +120,11 @@ final class GeneratorSlide private (
 
 
       canvas2D.clear()
-      canvas2D.drawCanvas(drawnDiamond.get.canvas2D.canvas, 0, canvas2D.width, canvas2D.height)
+      canvas2D.withTransformationMatrix(
+        canvas2D.rotate(0, info.angle)
+      ) {
+        canvas2D.drawCanvas(drawnDiamond.get.canvas2D.canvas, 0, canvas2D.width, canvas2D.height)
+      }
       if (scala.scalajs.LinkingInfo.developmentMode) {
         println(s"It took ${new java.util.Date().getTime - t} ms to draw the diamond.")
       }
@@ -135,6 +139,8 @@ final class GeneratorSlide private (
   def setDiamond(diamond: Diamond, isInSubGraph: (Domino) => Boolean): Unit = {
     setDrawnDiamond(DiamondDrawer(diamond, isInSubGraph).get)
   }
+
+  def clear(): Unit = {}
 
   private def setDrawnDiamond(diamondDrawer: DiamondDrawer): Unit = {
     drawnDiamond = Some(diamondDrawer)

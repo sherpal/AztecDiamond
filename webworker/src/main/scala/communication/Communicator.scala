@@ -19,6 +19,9 @@ object Communicator {
 
   def receiveMessage(message: Message): Unit = message match {
     case GenerateDiamondMessage(diamondTypeString, arg, memoryOptimized) =>
+
+      postMessage(TestMessage(diamondTypeString))
+
       val diamondType = diamondTypeString.toDiamondType
 
       val t = new java.util.Date().getTime

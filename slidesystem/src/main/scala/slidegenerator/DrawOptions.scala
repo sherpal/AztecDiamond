@@ -251,7 +251,8 @@ final class DrawOptions(generatorRequest: GeneratorRequest, defaultColors: List[
     drawInLozenges.checked,
     dominoBorders.checked,
     drawNonIntersectingPaths.checked,
-    dominoColorsDouble
+    dominoColorsDouble,
+    generatorRequest.diamondType.defaultRotation * 2 * math.Pi / 360
   )
 
 }
@@ -264,7 +265,8 @@ object DrawOptions {
                             drawDominoesAsLozenge: Boolean,
                             showBorderOfDominoes: Boolean,
                             drawNonIntersectingPaths: Boolean,
-                            dominoColors: (Domino) => (Double, Double, Double)
+                            dominoColors: (Domino) => (Double, Double, Double),
+                            angle: Double
                            )
 
 }

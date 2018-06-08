@@ -4,7 +4,7 @@ import custommath.QRoot
 import diamond.DiamondType.isInteger
 import diamond._
 import exceptions.WrongParameterException
-import geometry.{Domino, Point}
+import geometry.Point
 
 case object TwoPeriodic extends DiamondType {
   type ArgType = (Int, Double, Double)

@@ -28,13 +28,19 @@ final class MovieMakerSlide private (
     diamondMovieMaker = Some(new DiamondMovieMaker(diamond))
   }
 
+  def clear(): Unit = {
+    diamondMovieMaker = None
+    stopPlaying()
+    rangeDiv.style.display = "none"
+  }
+
   def order: Int = diamondMovieMaker.get.currentOrder
 
   def drawDiamond(): Unit = {
     val drawnDiamond = diamondMovieMaker.map(_.currentDrawer)
 
     if (drawnDiamond.isDefined) {
-      rangeDiv.style.display = "block"
+      rangeDiv.style.display = "flex"
       range.value = order.toString
 
       val t = new java.util.Date().getTime
@@ -74,7 +80,11 @@ final class MovieMakerSlide private (
 
 
       canvas2D.clear()
-      canvas2D.drawCanvas(drawnDiamond.get.canvas2D.canvas, 0, canvas2D.width, canvas2D.height)
+      canvas2D.withTransformationMatrix(
+        canvas2D.rotate(0, info.angle) * canvas2D.scale(0, 1, 1)
+      ) {
+        canvas2D.drawCanvas(drawnDiamond.get.canvas2D.canvas, 0, canvas2D.width, canvas2D.height)
+      }
       if (scala.scalajs.LinkingInfo.developmentMode) {
         println(s"It took ${new java.util.Date().getTime - t} ms to draw the diamond.")
       }
@@ -86,7 +96,6 @@ final class MovieMakerSlide private (
   private val rangeDiv: html.Div = dom.document.createElement("div").asInstanceOf[html.Div]
   rangeDiv.style.width = "50vh"
   rangeDiv.style.height = "5vh"
-  rangeDiv.style.backgroundColor = "red"
   rangeDiv.style.marginLeft = "auto"
   rangeDiv.style.marginRight = "auto"
   rangeDiv.style.marginTop = "0px"
@@ -119,6 +128,7 @@ final class MovieMakerSlide private (
 
     List(prev, pP, range, next).foreach(elem => {
       elem.style.height = "100%"
+      elem.style.display = "inline-block"
       rangeDiv.appendChild(elem)
     })
 
@@ -161,6 +171,9 @@ final class MovieMakerSlide private (
   }
 
   private def startPlaying(): Unit = {
+    if (order == diamondMovieMaker.get.order) {
+      changeDrawer(1)
+    }
     playing = true
     nextButton.disabled = true
     range.disabled = true
