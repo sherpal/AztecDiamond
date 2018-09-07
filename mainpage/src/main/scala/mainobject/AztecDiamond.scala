@@ -1,7 +1,11 @@
 package mainobject
 
 import computationcom.ComputerWorker
-import diamond.diamondtypes.UniformDiamond
+import diamond.DiamondType
+import diamond.diamondtypes.{Trapezoidal, UniformDiamond}
+import geometry.Face
+import graphics.WeightDrawer
+import org.scalajs.dom
 import ui._
 
 import scala.scalajs.js.timers.setTimeout
@@ -43,6 +47,12 @@ object AztecDiamond {
   //DragAndDrop
 
 
+//  val drawer: WeightDrawer = new WeightDrawer(
+//    Trapezoidal.makeComputationWeight({})
+//  )
+//  drawer.draw()
+//  dom.document.body.appendChild(drawer.canvas2D.canvas)
+  //println(DiamondType.generateDiamond(Trapezoidal)({}).listOfDominoes.mkString("\n"))
 
 //    val drawer1 = DiamondDrawer(Diamond.uniformDiamond(3)).get
 //

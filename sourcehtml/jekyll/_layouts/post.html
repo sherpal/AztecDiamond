@@ -1,0 +1,73 @@
+---
+layout: default
+---
+
+{% assign seminars = site.posts | where: "category", "seminar" %}
+{% assign events = site.posts | where: "category", "event" %}
+
+{% assign all_events = seminars | concat: events | sort: "date" | reverse %}
+
+<!-- finding next and previous all_events -->
+{% for seminar in all_events %}{% if seminar.url == page.url %}
+	{% assign this_index = forloop.index | minus: 1 %}
+	
+	{% unless forloop.first %}
+		{% assign next_index = this_index | minus: 1 %}
+		{% assign next_seminar = all_events[next_index] %}
+	{% endunless %}
+	
+	{% unless forloop.last %}
+		{% assign prev_index = this_index | plus: 1 %}
+		{% assign prev_seminar = all_events[prev_index] %}
+	{% endunless %}
+{% endif %}{% endfor %}
+
+
+{% assign wrap_title = page.category | capitalize %}
+{% include wrap.html wrap_title = wrap_title %}
+
+
+<div class="container mtb">
+    <div class="row">
+        <div class="col-md-12">
+            <a href="{{ page.url | prepend: site.baseurl }}"><h3 class="ctitle">{{ page.title }}</h3></a>
+          {% case page.category %}
+          {% when "seminar" %}
+            <h5>by {{ page.speaker }} ({{ page.institution }})</h5>
+          {% when "event" %}
+            <h5>organized by {{ page.organizer }}
+          {% else %}
+            This should never happen. Did you forget to set the category, or spelled it wrong?
+          {% endcase %}
+            <p>
+              Location: {{ page.venue }}, {{ page.city }}<br>
+              Time: {{ page.date | date: "%A %B %-d, %Y" }} at {% include custom_functions/time_formatting.html time = page.time %}<br>
+              {% if page.category == "event" %}
+                <a href="{{ page.link }}">Event direct link</a>
+              {% endif %}
+            </p>
+            {{ content }}
+          
+          
+          
+            <div class="spacing"></div>
+            <nav>
+						
+                <ul class="pager">
+                    {% if prev_index %}
+                    <li class="previous"><a href="{{ prev_seminar.url | prepend: site.baseurl }}"
+                                            title="{{ prev_seminar.title }}">&larr; Previous</a></li>
+                    {% else %}
+                    <li class="previous disabled"><a>&larr; Previous</a></li>
+                    {% endif %}
+                    {% if next_index %}
+                    <li class="next"><a href="{{ next_seminar.url | prepend: site.baseurl }}"
+                                        title="{{ next_seminar.title }}">Next &rarr;</a></li>
+                    {% else %}
+                    <li class="next disabled"><a>Next &rarr;</a>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>

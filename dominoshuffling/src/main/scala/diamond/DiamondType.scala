@@ -77,7 +77,8 @@ object DiamondType {
 
 
   val diamondTypes: List[DiamondType] = List(
-    UniformDiamond, AztecHouse, AztecRing, Rectangle, TwoPeriodic, DoubleAztecDiamond, Hexagon, TwoPeriodicRectangle
+    UniformDiamond, AztecHouse, AztecRing, Rectangle, TwoPeriodic, DoubleAztecDiamond, Hexagon, TwoPeriodicRectangle,
+    Trapezoidal
   )
 
   implicit def fromString(str: String): DiamondType = diamondTypes.indexWhere(_.toString == str) match {
@@ -87,6 +88,15 @@ object DiamondType {
 
   implicit class DiamondTypeFromString(str: String) {
     def toDiamondType: DiamondType = fromString(str)
+  }
+
+
+  def generateDiamond(diamondType: DiamondType)(args: diamondType.ArgType): Diamond = {
+    val weights = WeightTrait.computeAllWeights[Double, GenerationWeight](
+      diamondType.makeGenerationWeight(args)
+    )
+
+    Diamond.generateDiamond(weights)
   }
 
 }

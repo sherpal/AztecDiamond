@@ -1,0 +1,4 @@
+{% assign hour = include.time | slice: 0, 2 %}
+{% assign minutes = include.time | slice: 2, 4 %}
+{{ hour }}:{{ minutes }}
+

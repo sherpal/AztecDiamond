@@ -1,0 +1,17 @@
+
+<script type="text/javascript">
+
+var page_info = {
+	title: "{{ page.title }}"
+}
+
+</script>
+
+{% assign js_files = site.data.resources.js_files | sort: "order" %}
+
+{% for js_file in js_files %}
+  <script type="text/javascript" src="{{ site.baseurl }}/assets/js/{{ js_file.filename }}.js"></script>
+{% endfor %}
+
+
+

@@ -1,3 +1,3 @@
 package exceptions
 
-class CantSetSlideTitleException extends Throwable
+final class CantSetSlideTitleException extends Throwable

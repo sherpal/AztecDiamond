@@ -1,0 +1,51 @@
+---
+title: Aztec diamonds examples
+layout: blog
+---
+
+<div class="row">
+    <img src="{{ '/assets/img/diamonds/uniform_30.png' | prepend: site.baseurl }}" alt="Aztec diamond of order 30" class="col-lg-4">
+    <p class="col-lg-8">
+        The first example is the tiling of an Aztec Diamond of order 30. The *order* of a Diamond represents the
+        number of rows in the upper half part of the region.<br>The tiling is drawn uniformly at random. That means that,
+        among all the possible tilings of the Aztec Diamond of order 30, we took one at random, with each of them having
+        equal probability of being picked.<br>Although there
+        are only two types of dominoes (horizontal and vertical dominoes), we paint the dominoes with four colours, two
+        colours for each type. These four types of dominoes may seem artificial, but they come very naturally in the
+        study of Aztec Diamonds. A more precise explanation can be found
+        <a class="link" href="#whyFourColours">below</a>.
+    </p>
+</div>
+
+<div class="row">
+    <img src="{{ '/assets/img/diamonds/rectangle40x30.png' | prepend: site.baseurl }}" width="300" height="227" alt="40 by 30 rectangle" class="col-lg-4">
+    <p class="col-lg-8">
+        The second is an example of the tiling of a 40 by 30 rectangle. It is drawn uniformly among all the tilings
+        of such a rectangle.<br>Although apparently much simpler than the Aztec Diamond, the formula giving the number
+        of tilings is much more complicated.
+    </p>
+</div>
+
+<div class="row">
+    <img src="{{ '/assets/img/diamonds/uniform_1000.png' | prepend: site.baseurl }}" alt="Aztec diamond of order 1000" class="col-lg-4">
+    <p class="col-lg-8">
+        Next is an Aztec Diamond of order 1000 drawn uniformly. The number of such diamonds is way bigger than the
+        number of particles in the universe. Yet, the algorithm is able to generate one uniformly at random, by reducing
+        the problem to generating (a reasonable amount of) Bernoulli independent random variables.<br>If these
+        Bernoulli's are independent, it is proven that the result of the algorithm is a random tiling drawn uniformly.
+        You just need to trust that your computer is capable of that.<br><br>In the picture, we can witness the
+        phenomenon of the Arctic Circle. The dominoes outside of the inscribed circle are frozen into only one of the
+        four types of dominoes.
+    </p>
+</div>
+
+<div class="row">
+    <img src="{{ '/assets/img/diamonds/hexagon_15x15x15.png' | prepend: site.baseurl }}" alt="Lozenge tiling of a Hexagon" class="col-lg-4">
+    <p class="col-lg-8">
+        Another way to tile a region of the plane is by using lozenges. On the left, we generated a random tiling of a
+        hexagon, tiled with three types of lozenges.<br>By colouring two types in white, and the last in black, we see
+        that it can be put in relation with little cubes that we put in the corner of a cubic room.<br><br>The algorithm
+        for generating Aztec diamonds may surprisingly be used to generate lozenge tilings. The three types of lozenges
+        are mapped to three of the four types of dominoes, and we forbid the last type to appear.
+    </p>
+</div>

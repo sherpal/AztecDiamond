@@ -1,3 +1,3 @@
 package exceptions
 
-class NoSuchSlideException(val slideId: String) extends Throwable
+final class NoSuchSlideException(val slideId: String) extends Throwable

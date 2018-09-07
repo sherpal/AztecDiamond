@@ -1,0 +1,92 @@
+---
+title: Available shapes
+layout: blog
+---
+
+<p>
+    The software offers to generate various types of shapes. The description of each of them, as well as an example,
+    can be found below.<br>In order to generate the shapes, we always need to generate a bigger enclosing Aztec
+    Diamond. In the online version of the software, a typical computer will generate diamond up to order 100 quite
+    rapidly. The desktop application is up to 10 times faster.
+</p>
+<h2>Plotting Options</h2>
+<p>
+    In order to have images that best fit your needs, options for plotting are available:
+</p>
+<ul>
+    <li>Change the colours of the dominoes.</li>
+    <li>Draw the dominoes with or without a black boundary. If the order of the diamond is bigger than 50, it
+    will not draw the border by default.</li>
+    <li>See the shape in its enclosing Diamond.</li>
+    <li>See the non-intersecting paths the diamonds are in bijection with.</li>
+    <li>Draw the dominoes as lozenges. This is activated by default for Hexagon tiling.</li>
+    <li>Rotate the Shape and zoom.</li>
+</ul>
+<h2>Shapes</h2>
+<div class="row">
+    <img src="{{ '/assets/img/diamonds/uniform_30.png' | prepend: site.baseurl }}" alt="Aztec diamond of order 30" class="col-lg-2">
+    <p class="col-lg-10">
+        Uniformly distributed diamonds.
+    </p>
+</div>
+
+<div class="row">
+    <img src="{{ '/assets/img/diamonds/rectangle40x30.png' | prepend: site.baseurl }}" alt="Rectangle" class="col-lg-2">
+    <p class="col-lg-10">
+        Uniformly distributed rectangles.
+    </p>
+</div>
+
+<div class="row">
+    <img src="{{ '/assets/img/diamonds/aztec-ring_i15_o31.png' | prepend: site.baseurl }}" alt="Aztec Ring" class="col-lg-2">
+    <p class="col-lg-10">
+        Uniformly distributed Aztec Rings. An Aztec Ring is obtained by removing an Aztec diamond from a bigger Aztec
+        Diamond. In <a class="link" href="http://www.combinatorics.org/ojs/index.php/eljc/article/view/v13i1r30">A note on Domino Shuffling</a>,
+        it was proven that if the difference between the outer and the inner order is either even, or satisfy outer >=
+        inner-1, then the shape is tileable.
+    </p>
+</div>
+
+<div class="row">
+    <img src="{{ '/assets/img/diamonds/double-aztec_order25_overlap5.png' | prepend: site.baseurl }}" alt="Double Aztec" class="col-lg-2">
+    <p class="col-lg-10">
+        Uniformly distributed Double Aztec Diamonds. Two Aztec Diamonds that slightly overlap. In
+        <a class="link" href="https://arxiv.org/abs/1112.5532">Double Aztec Diamonds and the Tacnode Process</a>, it was
+        proven that the Tacnode determinantal point process appears when the size of the dominoes go to infinity such
+        that the overlapping growth at a particular rate.
+    </p>
+</div>
+
+<div class="row">
+    <img src="{{ '/assets/img/diamonds/aztec-house_n30_h30.png' | prepend: site.baseurl }}" alt="Aztec House" class="col-lg-2">
+    <p class="col-lg-10">
+        Uniformly distributed Aztec houses. A Triangle on top of a Rectangle.
+    </p>
+</div>
+
+<div class="row">
+    <img src="{{ '/assets/img/diamonds/two-periodic_200_a1_b3.png' | prepend: site.baseurl }}" alt="Two Periodic Diamond" class="col-lg-2">
+    <p class="col-lg-10">
+        Two periodic Aztec Diamonds. These are Aztec Diamonds with a non uniform probability distribution. The name
+        "Two periodic" comes from the way the weights are put on the dominoes. It was introduced in
+        <a class="link" href="https://arxiv.org/abs/1302.0615">Coupling Functions for Domino tilings of Aztec diamonds</a>
+        by Chhita and Young. The special feature of Two Periodic Aztec Diamond is the appearance of a new phase beside
+        the solid and liquid phase. This phase appears in the middle, and starts to appear clearly with diamonds of
+        order 250.
+    </p>
+</div>
+
+<div class="row">
+    <img src="{{ '/assets/img/diamonds/two_periodic_rectangle.png' | prepend: site.baseurl }}" alt="Two Periodic Rectangle" class="col-lg-2">
+    <p class="col-lg-10">
+        Two periodic Rectangles. This is similar to Two periodic Aztec Diamonds, except it is the tiling of a
+        rectangle. The weights on the dominoes are put in the same way as the Two Periodic Aztec Diamond.
+    </p>
+</div>
+
+<div class="row">
+    <img src="{{ '/assets/img/diamonds/hexagon_15x15x15.png' | prepend: site.baseurl }}" alt="Hexagon" class="col-lg-2">
+    <p class="col-lg-10">
+        Uniformly distributed lozenge tilings of hexagons.
+    </p>
+</div>

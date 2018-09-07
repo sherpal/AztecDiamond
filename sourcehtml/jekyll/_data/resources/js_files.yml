@@ -1,0 +1,8 @@
+- filename: jquery.min
+  order: 2
+  
+- filename: bootstrap.min
+  order: 3
+
+- filename: custom
+  order: 6

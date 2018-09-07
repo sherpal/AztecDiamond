@@ -63,6 +63,9 @@ case class Face(bottomLeft: Point) {
     val crossProduct = topBottom + leftRight
 
     if (crossProduct.toDouble == 0.0) {
+      println(alpha, beta, gamma, delta)
+      println("Cross product is 0")
+      println("weights of order " + weights.n)
       throw new NotTileableException
     } else {
       if (alpha.toDouble == 0.0 || gamma.toDouble == 0.0) List(v1, v2)

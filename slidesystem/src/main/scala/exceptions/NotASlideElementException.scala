@@ -1,3 +1,3 @@
 package exceptions
 
-class NotASlideElementException(val className: String) extends Throwable
+final class NotASlideElementException(val className: String) extends Throwable

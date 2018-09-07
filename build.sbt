@@ -221,24 +221,31 @@ fastOptChangeHtml := {
 
   import scala.collection.JavaConversions._
 
+  IO.delete(baseDirectory.value / "compiled/jekyll")
+  IO.copyDirectory(
+    baseDirectory.value / "sourcehtml/jekyll",
+    baseDirectory.value / "compiled/jekyll",
+    overwrite = true
+  )
+
   val rendererDirectory = (fastCompileRenderer in `webApp`).value
   val webWorkerDirectory = (fastCompileWebWorker in webWorkerJS).value
 
-  IO.delete(baseDirectory.value / "compiled/js")
+  //IO.delete(baseDirectory.value / "compiled/js")
   IO.copyDirectory(
     rendererDirectory.getParentFile,
-    baseDirectory.value / "compiled/js",
+    baseDirectory.value / "compiled/jekyll/js",
     overwrite = true
   )
   IO.copyDirectory(
     webWorkerDirectory.getParentFile,
-    baseDirectory.value / "compiled/js",
+    baseDirectory.value / "compiled/jekyll/js",
     overwrite = true
   )
 
   val sourceHtml = IO.readLines(baseDirectory.value / "sourcehtml/domino-shuffling-implementation.html")
 
-  val html = baseDirectory.value / "compiled/domino-shuffling-implementation.html"
+  val html = baseDirectory.value / "compiled/jekyll/domino-shuffling-implementation.html"
 
   def replaceBaseDirectory(line: String): String =
     new Regex("baseDirectory").replaceAllIn(line, baseDirectory.value.toPath.iterator().toList.mkString("/"))
@@ -255,18 +262,18 @@ fastOptChangeHtml := {
     html, sourceHtml.map(replaceBaseDirectory).map(setAppType).map(removeHtmlCommentLine).filter(_.nonEmpty)
   )
 
-  val sourceIndex = IO.readLines(baseDirectory.value / "sourcehtml/webapp-index.html")
-
-  val index = baseDirectory.value / "compiled/index.html"
-
-  IO.writeLines(
-    index,
-    sourceIndex.map(removeHtmlCommentLine)
-  )
+//  val sourceIndex = IO.readLines(baseDirectory.value / "sourcehtml/webapp-index.html")
+//
+//  val index = baseDirectory.value / "compiled/index.html"
+//
+//  IO.writeLines(
+//    index,
+//    sourceIndex.map(removeHtmlCommentLine)
+//  )
 
   IO.copyFile(
     baseDirectory.value / "sourcehtml/style.css",
-    baseDirectory.value / "compiled/style.css"
+    baseDirectory.value / "compiled/jekyll/style.css"
   )
 }
 

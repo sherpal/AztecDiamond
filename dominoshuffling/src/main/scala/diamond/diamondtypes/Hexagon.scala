@@ -75,12 +75,12 @@ case object Hexagon extends DiamondType {
    *     ._._.
    * (each weight on the existing edges is then 1.0)
    *
-   * The embedding is done simply by putting the sub graph at the right of the Aztec Diamond. Then, you wan show that
+   * The embedding is done simply by putting the sub graph at the right of the Aztec Diamond. Then, you can show that
    * if embedded in a diamond of order 2 * a - 1 + b, both the hexagon and its complement are tileable.
    *
-   * @param args ._1: size of the top right and bottom left sides of the hexagon
-   *             ._2: size of the top and bottom sides of the hexagon (those parallel to the horizontal axis)
-   *             ._3: size of the top left and bottom right sides of the hexagon
+   * @param args ._1: (a) size of the top right and bottom left sides of the hexagon
+   *             ._2: (b) size of the top and bottom sides of the hexagon (those parallel to the horizontal axis)
+   *             ._3: (c) size of the top left and bottom right sides of the hexagon
    * @return  the CustomGenerationWeight needed to generate a random tiling.
    */
   def makeGenerationWeight(args: (Int, Int, Int)): CustomGenerationWeight = {
@@ -140,7 +140,7 @@ case object Hexagon extends DiamondType {
       .foreach(diamondConstruction.update)
 
     /**
-     * Next, we fill two full horiztonal diamonds above and below the vertical dominoes we just filled
+     * Next, we fill two full horizontal diamonds above and below the vertical dominoes we just filled
      */
     diamondConstruction.insertDiamond(
       Diamond.fullHorizontalDiamond(a - 1),
