@@ -19,9 +19,8 @@ trait ComputerSocket extends Computer {
 
 //  private var received: String = ""
 
-
   private var bytesToRead: Int = 0
-  private val emptyBuffer: Buffer = Buffer.from(new ArrayBuffer(0))
+  private val emptyBuffer: ArrayBuffer = new ArrayBuffer(0)
   private var bufferingBytes: Int8Array = new Int8Array(emptyBuffer)
 
   private def concat(a: Int8Array, b: Int8Array): Int8Array = {
@@ -32,9 +31,9 @@ trait ComputerSocket extends Computer {
     c
   }
 
-  def deserializeMessage(data: Buffer = emptyBuffer): Unit = {
+  def deserializeMessage(data: ArrayBuffer = emptyBuffer): Unit = {
 
-    bufferingBytes = concat(bufferingBytes, new Int8Array(data.buffer))
+    bufferingBytes = concat(bufferingBytes, new Int8Array(data))
 
     if (bytesToRead == 0 && bufferingBytes.length >= 4) {
       bytesToRead = Buffer.from(bufferingBytes.buffer.slice(0, 4)).readInt32BE()
@@ -73,91 +72,118 @@ trait ComputerSocket extends Computer {
 //    messages.foreach(receiveMessage)
 //  }
 
-
   private def connectionCallback(socket: TCPSocket): Unit = {
     println("A socket connected")
 
-    socket.on("data", (data: Buffer) => {
-      if (data.toString() == "loaded") {
-        if (scala.scalajs.LinkingInfo.developmentMode) {
-          println(data.toString())
+    socket.on(
+      "data",
+      (data: Buffer) => {
+        if (data.toString() == "loaded") {
+          if (scala.scalajs.LinkingInfo.developmentMode) {
+            println(data.toString())
+          }
+          receiveMessage(WorkerLoaded())
+        } else if (active) {
+          deserializeMessage(data.buffer)
         }
-        receiveMessage(WorkerLoaded())
-      } else if (active) {
-        deserializeMessage(data)
       }
-    })
+    )
   }
 
   server.on("connection", (socket: TCPSocket) => connectionCallback(socket))
 
-  server.listen(0, "localhost", () => {
+  server.listen(
+    0,
+    "localhost",
+    () => {
 
-    if (scala.scalajs.LinkingInfo.developmentMode) {
-      println(s"server is bound to ${server.address().address}:${server.address().port} (${server.address().family})")
-    }
+      if (scala.scalajs.LinkingInfo.developmentMode) {
+        println(
+          s"server is bound to ${server.address().address}:${server.address().port} (${server.address().family})"
+        )
+      }
 
-    val directory = Path.join(ElectronGlobals.__dirname, "../scala/web-worker.jar")
+      val directory =
+        Path.join(ElectronGlobals.__dirname, "../scala/web-worker.jar")
 
-    childProcess = Some(ChildProcess.spawn(
-      "java", js.Array[String](
-        "-jar", directory, server.address().port.toString, Message.encode(initialMessage).mkString(",")
+      childProcess = Some(
+        ChildProcess.spawn(
+          "java",
+          js.Array[String](
+            "-jar",
+            directory,
+            server.address().port.toString,
+            Message.encode(initialMessage).mkString(",")
+          )
+        )
       )
-    ))
 
-    childProcess.get.stderr.on("data", (data: Any) => {
-      if (scala.scalajs.LinkingInfo.developmentMode) {
-        println("stderr -> " + data)
-      }
-      if (active) {
-        end()
-        if (data.toString.toLowerCase.contains("outofmemory")) {
-          AlertBox(
-            "Out Of Memory",
-            "The program assigned to compute apparently ran into an Out Of Memory exception. This is probabibly " +
-              "due to asking a too greedy computation.<br>" +
-              "You can try with smaller parameters" +
-              (if (this.isInstanceOf[DiamondGenerationSocket]) " or check the Optimize Memory button" else "") +
-              ".",
-            () => {}
-          )
-        } else {
-          AlertBox(
-            "Fatal Error",
-            "Wow... Something went really wrong. The program that was assigned to compute crashed.<br>" +
-              "See below the error message. Don't hesitate to ask for help.<br>" +
-              s"Error message:<br>$data",
-            () => {
-              dom.console.error("Something went wrong in computer")
+      childProcess.get.stderr.on(
+        "data",
+        (data: Any) => {
+          if (scala.scalajs.LinkingInfo.developmentMode) {
+            println("stderr -> " + data)
+          }
+          if (active) {
+            end()
+            if (data.toString.toLowerCase.contains("outofmemory")) {
+              AlertBox(
+                "Out Of Memory",
+                "The program assigned to compute apparently ran into an Out Of Memory exception. This is probabibly " +
+                  "due to asking a too greedy computation.<br>" +
+                  "You can try with smaller parameters" +
+                  (if (this.isInstanceOf[DiamondGenerationSocket])
+                     " or check the Optimize Memory button"
+                   else "") +
+                  ".",
+                () => {}
+              )
+            } else {
+              AlertBox(
+                "Fatal Error",
+                "Wow... Something went really wrong. The program that was assigned to compute crashed.<br>" +
+                  "See below the error message. Don't hesitate to ask for help.<br>" +
+                  s"Error message:<br>$data",
+                () => {
+                  dom.console.error("Something went wrong in computer")
+                }
+              )
             }
-          )
+          }
+
+          active = false
         }
-      }
+      )
 
-      active = false
-    })
+      childProcess.get.stdout.on(
+        "data",
+        (data: Any) => {
+          if (scala.scalajs.LinkingInfo.developmentMode) {
+            println("stdout -> " + data)
+          }
+        }
+      )
 
-    childProcess.get.stdout.on("data", (data: Any) => {
-      if (scala.scalajs.LinkingInfo.developmentMode) {
-        println("stdout -> " + data)
-      }
-    })
+      childProcess.get.on(
+        "exit",
+        (code: Int) => {
+          if (scala.scalajs.LinkingInfo.developmentMode) {
+            println(s"Child exitted with code $code.")
+          }
+        }
+      )
 
-    childProcess.get.on("exit", (code: Int) => {
-      if (scala.scalajs.LinkingInfo.developmentMode) {
-        println(s"Child exitted with code $code.")
-      }
-    })
-
-  })
-
+    }
+  )
 
   if (scala.scalajs.LinkingInfo.developmentMode) {
-    server.on("close", (_: Any) => {
-      println("server closed")
-    })
+    server.on(
+      "close",
+      (_: Any) => {
+        println("server closed")
+      }
+    )
   }
-
 
   def terminateGenerator(): Unit = {
     server.close()
@@ -169,6 +195,8 @@ trait ComputerSocket extends Computer {
     }
   }
 
-  def postMessage(message: Message): Unit = {} // nothing to do here, we pass the message in the exec
+  def postMessage(
+      message: Message
+  ): Unit = {} // nothing to do here, we pass the message in the exec
 
 }

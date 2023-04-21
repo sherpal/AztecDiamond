@@ -10,18 +10,16 @@ import ui._
 
 import scala.scalajs.js.timers.setTimeout
 
-/**
- * Main Object
- *
- * The algorithms implemented in this project are taken from
- * [1] E. Janvresse, T. de la Rue and Y. Velenik, "A Note on Domino Shuffling", Electronic Journal of Combinatorics, 13
- * (2006).
- */
+/** Main Object
+  *
+  * The algorithms implemented in this project are taken from [1] E. Janvresse,
+  * T. de la Rue and Y. Velenik, "A Note on Domino Shuffling", Electronic
+  * Journal of Combinatorics, 13 (2006).
+  */
 object AztecDiamond {
 
-  /**
-   * We're currently doing testing so the main method is garbage.
-   */
+  /** We're currently doing testing so the main method is garbage.
+    */
   println("Welcome to AztecDiamond drawing!")
 
   private val timeBetweenLoads: Long = 1000
@@ -29,37 +27,39 @@ object AztecDiamond {
   ComputerWorker.setFileName("domino-shuffling-implementation.html")
 
   def load(args: Seq[() => Any]): Unit = {
-    args.zipWithIndex.foreach({ case (obj, idx) => setTimeout((idx + 1) * timeBetweenLoads) {
-      if (scala.scalajs.LinkingInfo.developmentMode) {
-        println(s"loading ... $idx")
+    args.zipWithIndex.foreach({ case (obj, idx) =>
+      setTimeout(((idx + 1) * timeBetweenLoads).toDouble) {
+        if (scala.scalajs.LinkingInfo.developmentMode) {
+          println(s"loading ... $idx")
+        }
+        obj.apply()
       }
-      obj.apply()
-    } })
+    })
   }
 
-  load(List(
-    () => TabManager,
-    () => GenerateDiamondForm.switchForm(UniformDiamond),
-    () => CountingTilingForm.switchForm(UniformDiamond),
-    () => DrawingOptions,
-    () => ColorPicker
-  ))
-  //DragAndDrop
-
+  load(
+    List(
+      () => TabManager,
+      () => GenerateDiamondForm.switchForm(UniformDiamond),
+      () => CountingTilingForm.switchForm(UniformDiamond),
+      () => DrawingOptions,
+      () => ColorPicker
+    )
+  )
+  // DragAndDrop
 
 //  val drawer: WeightDrawer = new WeightDrawer(
 //    Trapezoidal.makeComputationWeight({})
 //  )
 //  drawer.draw()
 //  dom.document.body.appendChild(drawer.canvas2D.canvas)
-  //println(DiamondType.generateDiamond(Trapezoidal)({}).listOfDominoes.mkString("\n"))
+  // println(DiamondType.generateDiamond(Trapezoidal)({}).listOfDominoes.mkString("\n"))
 
 //    val drawer1 = DiamondDrawer(Diamond.uniformDiamond(3)).get
 //
 //    val p1 = dom.document.createElement("p").asInstanceOf[html.Paragraph]
 //    dom.document.body.appendChild(p1)
 //    p1.textContent = drawer1.tikzCode() + drawer1.nonIntersectingPathTikzCode() + DiamondDrawer.emptyDiamondTikzCode(3)
-
 
 //    val drawer2 = DiamondDrawer(
 //        Diamond.generateDiamond(WeightTrait.computeAllWeights[Double, CustomGenerationWeight](
@@ -75,7 +75,6 @@ object AztecDiamond {
 //    val p2 = dom.document.createElement("p").asInstanceOf[html.Paragraph]
 //    dom.document.body.appendChild(p2)
 //    p2.textContent = drawer2.tikzCode() + drawer2.nonIntersectingPathTikzCode(subGraph = true)
-
 
 //    for {
 //      h <- List(2)
@@ -111,7 +110,6 @@ object AztecDiamond {
 //        })
 //    }
 
-
 //    val weight = WeightTrait.diamondRingPartition(2, 6)
 //    val container = dom.document.createElement("div").asInstanceOf[html.Div]
 //    container.style.display = "flex"
@@ -130,10 +128,6 @@ object AztecDiamond {
 //      .foreach(canvas => {
 //        container.appendChild(canvas)
 //      })
-
-
-
-
 
 //    val (a, b, c) = (1, 1, 1)
 //    val descendants: Map[Int, List[Diamond]] =
@@ -167,7 +161,7 @@ object AztecDiamond {
 //
 //  for (j <- 1 to descendants.keys.max) drawOrder(j)
 
-    //for (j <- 1 to WeightTrait.rectangleOrder(width, height)) drawOrder(j)
+  // for (j <- 1 to WeightTrait.rectangleOrder(width, height)) drawOrder(j)
 
 //    val div: html.Div = dom.document.createElement("div").asInstanceOf[html.Div]
 //    dom.document.body.appendChild(div)
@@ -185,9 +179,6 @@ object AztecDiamond {
 //      canvas2D.drawCanvas(diamondDrawer.get.canvas2D.canvas, 0, 500, 500)
 //    }
 
-
-
-
 //    scala.scalajs.js.timers.setInterval(1000) {
 //      val fileInput = dom.document.getElementById("file-input").asInstanceOf[html.Input]
 //
@@ -197,7 +188,6 @@ object AztecDiamond {
 //        fr.onload = (event: dom.Event) => println(event.target.asInstanceOf[js.Dynamic].result)
 //      }
 //    }
-
 
 //    val canvas: html.Canvas = dom.document.createElement("canvas").asInstanceOf[html.Canvas]
 //    canvas.width = 200 * 720 / 960
@@ -265,6 +255,5 @@ object AztecDiamond {
 //    }
 //
 //    dom.document.body.appendChild(canvas)
-
 
 }

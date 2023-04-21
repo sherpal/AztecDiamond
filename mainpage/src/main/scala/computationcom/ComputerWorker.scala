@@ -3,8 +3,8 @@ package computationcom
 import exceptions.NoSuchDiamondType
 import messages.{Message, WorkerLoaded}
 import org.scalajs.dom
-import org.scalajs.dom.raw.URL
-import org.scalajs.dom.webworkers.Worker
+import org.scalajs.dom.URL
+import org.scalajs.dom.Worker
 import ui.AlertBox
 
 import scala.scalajs.js.JSConverters._
@@ -24,7 +24,11 @@ trait ComputerWorker extends Computer {
         postMessage(initialMessage)
       case _ =>
         try {
-          receiveMessage(Message.decode(event.data.asInstanceOf[scala.scalajs.js.Array[Byte]].toArray))
+          receiveMessage(
+            Message.decode(
+              event.data.asInstanceOf[scala.scalajs.js.Array[Byte]].toArray
+            )
+          )
         } catch {
           case e: NoSuchDiamondType =>
             println(s"No such diamond type: ${e.diamondType}")

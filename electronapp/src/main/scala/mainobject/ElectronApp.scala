@@ -1,6 +1,11 @@
 package mainobject
 
-import computationcom.{DiamondGenerationSocket, DiamondGenerationWorker, TilingNumberCountingSocket, TilingNumberCountingWorker}
+import computationcom.{
+  DiamondGenerationSocket,
+  DiamondGenerationWorker,
+  TilingNumberCountingSocket,
+  TilingNumberCountingWorker
+}
 import electron.Shell
 import globalvariables.{AppVersion, DataStorage}
 import nodejs.ChildProcess
@@ -11,15 +16,16 @@ import ui.{AlertBox, ConfirmBox}
 
 import scala.scalajs.js
 
-
 object ElectronApp {
 
-  private case class JavaVersion(major: Int, minor: Int) extends Ordered[JavaVersion] {
+  private case class JavaVersion(major: Int, minor: Int)
+      extends Ordered[JavaVersion] {
 
-    override def compare(that: JavaVersion): Int = if (this.major != that.major) this.major - that.major
+    override def compare(that: JavaVersion): Int = if (this.major != that.major)
+      this.major - that.major
     else this.minor - that.minor
 
-    override def toString: String = major + "." + minor
+    override def toString: String = s"$major.$minor"
 
   }
 
@@ -36,13 +42,12 @@ object ElectronApp {
     TilingNumberCountingSocket
     DiamondGenerationSocket
 
-    def openJavaDownloadPage(): Unit = Shell.openExternal("https://java.com/en/download/")
+    def openJavaDownloadPage(): Unit =
+      Shell.openExternal("https://java.com/en/download/")
 
-
-    /**
-     * Checks if Java is installed on the computer by using the java -version command.
-     * Also checks if the version is at least 1.8.
-     */
+    /** Checks if Java is installed on the computer by using the java -version
+      * command. Also checks if the version is at least 1.8.
+      */
     ChildProcess.exec(
       "java -version",
       (error, _, stderr) => {
@@ -50,10 +55,10 @@ object ElectronApp {
           AlertBox(
             "Java not installed",
             "You do not seem to have Java installed on your machine. You need to install it " +
-            "in order to use Aztec Diamond desktop app. We will try to open a web Browser for you at the page " +
-            "where you can download it. It may take a little while...<br>" +
-            "We will use the online technology instead. Restart the app when Java is installed.<br>" +
-            s"",//Error:<br>$error",
+              "in order to use Aztec Diamond desktop app. We will try to open a web Browser for you at the page " +
+              "where you can download it. It may take a little while...<br>" +
+              "We will use the online technology instead. Restart the app when Java is installed.<br>" +
+              s"", // Error:<br>$error",
             () => openJavaDownloadPage()
           )
           TilingNumberCountingWorker
@@ -63,10 +68,11 @@ object ElectronApp {
             println(stderr)
           }
 
-
           try {
-            val versionNumbers = """\d+\.\d+""".r.findFirstIn(stderr.toString).get.split("""\.""")
-            val version = JavaVersion(versionNumbers(0).toInt, versionNumbers(1).toInt)
+            val versionNumbers =
+              """\d+\.\d+""".r.findFirstIn(stderr.toString).get.split("""\.""")
+            val version =
+              JavaVersion(versionNumbers(0).toInt, versionNumbers(1).toInt)
 
             val requiredVersion = JavaVersion(1, 8)
 
@@ -77,9 +83,10 @@ object ElectronApp {
                   s"$requiredVersion to work.<br>" +
                   "We will use the online technology instead. Restart the app when Java is installed.<br>" +
                   s"You would like us to open the Java download page in your browser?",
-                (answer: Boolean) => if (answer) {
-                  openJavaDownloadPage()
-                }
+                (answer: Boolean) =>
+                  if (answer) {
+                    openJavaDownloadPage()
+                  }
               )
               TilingNumberCountingWorker
               DiamondGenerationWorker
@@ -100,12 +107,11 @@ object ElectronApp {
       }
     )
 
-
-    /**
-     * Change the href of anchors by Shell.openExternal.
-     */
+    /** Change the href of anchors by Shell.openExternal.
+      */
     val linkList = dom.document.getElementsByClassName("link")
-    val linkListElements = (for (j <- 0 until linkList.length) yield linkList(j).asInstanceOf[html.Anchor]).toList
+    val linkListElements = (for (j <- 0 until linkList.length)
+      yield linkList(j).asInstanceOf[html.Anchor]).toList
 
     linkListElements.foreach(anchor => {
       val href = anchor.href
@@ -121,33 +127,46 @@ object ElectronApp {
       }
     })
 
-
-    /**
-     * Checks whether this version of the application is the latest one.
-     */
+    /** Checks whether this version of the application is the latest one.
+      */
     try {
-      HTTPS.get("https://sites.uclouvain.be/aztecdiamond/version.txt", (response: ServerResponse) => {
-        var received: String = ""
+      HTTPS.get(
+        "https://sites.uclouvain.be/aztecdiamond/version.txt",
+        (response: ServerResponse) => {
+          var received: String = ""
 
-        response.on("data", (data: js.Any) => received += data)
-        response.on("end", () => {
-          val officialVersion = AppVersion.fromString(
-            """version: #\d+\.\d+\.\d+#""".r.findFirstIn(received).get.drop("version: #".length).dropRight(1)
-          )
+          response.on("data", (data: js.Any) => received += data)
+          response.on(
+            "end",
+            () => {
+              val officialVersion = AppVersion.fromString(
+                """version: #\d+\.\d+\.\d+#""".r
+                  .findFirstIn(received)
+                  .get
+                  .drop("version: #".length)
+                  .dropRight(1)
+              )
 
-          val appVersion = DataStorage.retrieveGlobalValue("appVersion").asInstanceOf[AppVersion]
+              val appVersion = DataStorage
+                .retrieveGlobalValue("appVersion")
+                .asInstanceOf[AppVersion]
 
-          if (appVersion < officialVersion) {
-            ConfirmBox(
-              "New version",
-              "A new version of the program is available. Would you like to be redirected to the GitHub website?",
-              (answer: Boolean) => if (answer) {
-                Shell.openExternal("https://github.com/sherpal/AztecDiamond/releases")
+              if (appVersion < officialVersion) {
+                ConfirmBox(
+                  "New version",
+                  "A new version of the program is available. Would you like to be redirected to the GitHub website?",
+                  (answer: Boolean) =>
+                    if (answer) {
+                      Shell.openExternal(
+                        "https://github.com/sherpal/AztecDiamond/releases"
+                      )
+                    }
+                )
               }
-            )
-          }
-        })
-      })
+            }
+          )
+        }
+      )
     } catch {
       case e: Throwable =>
         if (scala.scalajs.LinkingInfo.developmentMode) {
@@ -155,7 +174,6 @@ object ElectronApp {
           e.printStackTrace()
         }
     }
-
 
 //
 //    val message = DiamondMessage("UniformDiamond", 10, Vector(5.0), List(1,4,2))

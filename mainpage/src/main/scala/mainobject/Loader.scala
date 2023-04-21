@@ -6,7 +6,7 @@ object Loader {
     items.head.apply()
 
     if (items.tail.nonEmpty) {
-      scala.scalajs.js.timers.setTimeout(rate) {
+      scala.scalajs.js.timers.setTimeout(rate.toDouble) {
         load(items.tail, rate)
       }
     }

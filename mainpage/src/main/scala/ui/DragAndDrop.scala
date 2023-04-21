@@ -2,7 +2,7 @@ package ui
 
 import org.scalajs.dom
 import org.scalajs.dom.{File, html}
-import org.scalajs.dom.raw.URL
+import org.scalajs.dom.URL
 
 import scala.scalajs.js.timers.{SetIntervalHandle, setInterval, clearInterval}
 
@@ -10,9 +10,11 @@ object DragAndDrop {
 
   println("Loading Drag and Drop")
 
-  private val form = dom.document.getElementsByClassName("box")(0).asInstanceOf[html.Form]
+  private val form =
+    dom.document.getElementsByClassName("box")(0).asInstanceOf[html.Form]
 
-  private val fileInput = dom.document.getElementById("file").asInstanceOf[html.Input]
+  private val fileInput =
+    dom.document.getElementById("file").asInstanceOf[html.Input]
 
   private var droppedFile: Option[File] = None
 
@@ -23,7 +25,8 @@ object DragAndDrop {
     droppedFile = Some(file)
   }
 
-  private val userImg = dom.document.getElementById("userInputImg").asInstanceOf[html.Image]
+  private val userImg =
+    dom.document.getElementById("userInputImg").asInstanceOf[html.Image]
 
   form.addClass("has-advanced-upload")
 
@@ -49,21 +52,24 @@ object DragAndDrop {
     }
   )
 
-  form.addEventListener("drop", (event: dom.DragEvent) => {
-    val fileList = event.dataTransfer.files
+  form.addEventListener(
+    "drop",
+    (event: dom.DragEvent) => {
+      val fileList = event.dataTransfer.files
 
-    val length: Int = fileList.length
+      val length: Int = fileList.length
 
-    println(s"length: $length")
+      println(s"length: $length")
 
-    for (j <- 0 until length) {
-      println(fileList(j).name)
+      for (j <- 0 until length) {
+        println(fileList(j).name)
+      }
+
+      if (length > 0) {
+        fileChanged(fileList(0))
+      }
     }
-
-    if (length > 0) {
-      fileChanged(fileList(0))
-    }
-  })
+  )
 
   scala.scalajs.js.timers.setInterval(1000) {
     println(dom.document.getElementById("file").asInstanceOf[html.Input].value)
@@ -92,9 +98,13 @@ object DragAndDrop {
 
     def addClass(className: String): Unit = elem.className += " " + className
 
-    def removeClass(className: String): Unit = elem.className = (" " + className).r.replaceAllIn(elem.className, "")
+    def removeClass(className: String): Unit = elem.className =
+      (" " + className).r.replaceAllIn(elem.className, "")
 
-    def on(eventNames: Traversable[String], handler: (dom.Event) => Unit): html.Element = {
+    def on(
+        eventNames: Iterable[String],
+        handler: (dom.Event) => Unit
+    ): html.Element = {
       eventNames.foreach(
         elem.addEventListener(_, handler)
       )
