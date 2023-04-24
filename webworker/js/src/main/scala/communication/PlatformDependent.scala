@@ -2,11 +2,10 @@ package communication
 
 import messages.Message
 import org.scalajs.dom
-import org.scalajs.dom.raw.DedicatedWorkerGlobalScope._
+import org.scalajs.dom.DedicatedWorkerGlobalScope._
 
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters._
-
 
 private[communication] object PlatformDependent {
 
@@ -21,8 +20,9 @@ private[communication] object PlatformDependent {
         event.data match {
           case data: String =>
             self.postMessage("test: " + data)
-          case data:js.Array[_] if data(0).isInstanceOf[Byte] =>
-            val message = Message.decode(data.asInstanceOf[js.Array[Byte]].toArray)
+          case data: js.Array[_] if data(0).isInstanceOf[Byte] =>
+            val message =
+              Message.decode(data.asInstanceOf[js.Array[Byte]].toArray)
 
             Communicator.receiveMessage(message)
         }

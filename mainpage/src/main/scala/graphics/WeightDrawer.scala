@@ -16,10 +16,10 @@ class WeightDrawer(weights: WeightTrait[QRoot]) {
 
   private val camera: Camera = new Camera(canvas2D)
 
-  val topMost: Int = weights.n + 1
-  val rightMost: Int = weights.n + 1
+  val topMost: Int    = weights.n + 1
+  val rightMost: Int  = weights.n + 1
   val bottomMost: Int = -weights.n + 1
-  val leftMost: Int = -weights.n + 1
+  val leftMost: Int   = -weights.n + 1
 
   val center: Complex = Complex(
     (rightMost + leftMost) / 2.0,
@@ -38,7 +38,7 @@ class WeightDrawer(weights: WeightTrait[QRoot]) {
     .map(d => WeightSprite(d, weights(d)))
 
   private val activeFaces: Seq[ActiveFaceSprite] =
-    Face.activeFaces(weights.n).map(ActiveFaceSprite)
+    Face.activeFaces(weights.n).map(ActiveFaceSprite.apply)
   private val activeFacesColor: Vec4 =
     if (weights.n % 2 == 0) Vec4(1, 0, 0, 0.2) else Vec4(0, 1, 0, 0.2)
 
@@ -101,16 +101,12 @@ object WeightDrawer {
         y: Double,
         width: Double,
         height: Double
-    ): Unit = {
-
+    ): Unit =
       canvas2D.drawRectangle(x + y * i, width, height, color)
-
-    }
 
   }
 
-  final private case class WeightSprite(domino: Domino, weight: QRoot)
-      extends Sprite {
+  final private case class WeightSprite(domino: Domino, weight: QRoot) extends Sprite {
 
     setWorldSize(
       if (domino.isHorizontal) 2 else 1,

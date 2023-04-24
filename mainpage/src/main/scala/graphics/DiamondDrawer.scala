@@ -24,11 +24,14 @@ class DiamondDrawer private (
       isInSubGraph(Domino(point + Point(-1, 0), point)) ||
       isInSubGraph(Domino(point + Point(0, -1), point))
 
-  val canvas2D: Canvas2D = canvas match {
-    case Some((c, ctx)) => new Canvas2D(c, ctx)
-    case None           => new Canvas2D
+  lazy val canvas2D: Canvas2D = {
+    val c = canvas match {
+      case Some((c, ctx)) => new Canvas2D(c, ctx)
+      case None           => new Canvas2D
+    }
+    c.setSize(2000, 2000)
+    c
   }
-  canvas2D.setSize(2000, 2000)
 
   val topMostFullDiamondCoordinate: Int = diamond.order + 1
   val rightMostFullDiamondCoordinate: Int = diamond.order + 1
@@ -196,7 +199,7 @@ class DiamondDrawer private (
       scaleX: Double = 1,
       scaleY: Double = 1,
       border: Boolean = false,
-      colors: (Domino) => (Double, Double, Double) = defaultColors
+      colors: Domino => (Double, Double, Double) = defaultColors
   ): Unit = {
     camera.worldCenter =
       Complex(worldCenter.re / 2, worldCenter.im * math.sqrt(3.0) / 2)
@@ -283,6 +286,54 @@ class DiamondDrawer private (
       })
       .mkString("\n") + "\n" +
       DiamondDrawer.emptyDiamondTikzCode(diamond.order, unit = unit)
+  }
+
+  def svgCode(
+      colors: Domino => (Double, Double, Double),
+      withBorder: Boolean
+  ): String = {
+    val width =
+      200 max (2 * diamond.order)
+    val height =
+      200 max (2 * diamond.order)
+
+    val unit = width / (2 * diamond.order)
+
+    def colorString(red: Double, green: Double, blue: Double): String = {
+      def to0_255Range(x: Double): Int = (255 * ((x max 0) min 1)).toInt
+
+      s"rgb(${to0_255Range(red)}, ${to0_255Range(green)}, ${to0_255Range(blue)})"
+    }
+
+    def colorForDomino(domino: Domino): String = {
+      val (red, green, blue) = colors(domino)
+      colorString(red, green, blue)
+    }
+
+    val rectanglesByColor = dominoes
+      .groupBy(colorForDomino)
+      .map { case (color, group) =>
+        val rectangles = group
+          .map { domino =>
+            val lowerLeftX = domino.p1.x * unit + diamond.order - 1
+            val lowerLeftY = domino.p1.y * unit + diamond.order - 1
+            val (dominoWidth, dominoHeight) =
+              if (domino.isHorizontal) (2 * unit, unit) else (unit, 2 * unit)
+            s"""<rect x="$lowerLeftX" y="$lowerLeftY" width="$dominoWidth" height="$dominoHeight" />"""
+          }
+          .mkString("\n")
+        val stroke =
+          if (withBorder) """stroke="black" stroke-width="1"""" else ""
+        s"""<g fill="$color" $stroke>
+           |$rectangles
+           |</g>
+           |""".stripMargin
+      }
+      .mkString("\n")
+
+    s"""<svg xmlns="http://www.w3.org/2000/svg" width="$width" height="$height">
+    $rectanglesByColor
+  </svg>"""
   }
 
   def nonIntersectingPathTikzCode(

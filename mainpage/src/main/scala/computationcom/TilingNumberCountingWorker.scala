@@ -3,13 +3,13 @@ package computationcom
 import messages.Message
 import org.scalajs.dom
 import org.scalajs.dom.html
-import org.scalajs.dom.raw.URL
-import org.scalajs.dom.webworkers.Worker
+import org.scalajs.dom.URL
+import org.scalajs.dom.Worker
 
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters._
 
-class TilingNumberCountingWorker(val initialMessage: Message) extends TilingCounting  with ComputerWorker {
+class TilingNumberCountingWorker(val initialMessage: Message) extends TilingCounting with ComputerWorker {
 
 //  private val worker = new Worker(URL.createObjectURL(DiamondGenerationWorker.blob))
 //

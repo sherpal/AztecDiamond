@@ -2,24 +2,17 @@ package geometry
 
 import custommath.{NotRational, QRoot}
 import diamond._
-import exceptions.{
-  ImpossibleDiamondException,
-  NotTileableException,
-  ShouldNotBeThereException
-}
+import exceptions.{ImpossibleDiamondException, NotTileableException, ShouldNotBeThereException}
 
 import scala.language.implicitConversions
 
-/** A Face is 4 points that form a square, and is represented by its bottom left
-  * point on the lattice.
+/** A Face is 4 points that form a square, and is represented by its bottom left point on the lattice.
   *
-  * Faces are at the core of the domino shuffling algorithm, as every step is
-  * decomposed around them. Among all faces, the "active faces" play a prominent
-  * role, hence the Face object has a way to generate active faces of an aztec
+  * Faces are at the core of the domino shuffling algorithm, as every step is decomposed around them. Among all faces,
+  * the "active faces" play a prominent role, hence the Face object has a way to generate active faces of an aztec
   * diamond of any order.
   *
-  * Faces operates with Weights on Dominoes to create diamond of the next order,
-  * or to find pre-images of a diamond.
+  * Faces operates with Weights on Dominoes to create diamond of the next order, or to find pre-images of a diamond.
   *
   * Note that there is no "diamond-order" dependence in a Face.
   */
@@ -58,10 +51,10 @@ case class Face(bottomLeft: Point) {
   ): (WeightType, WeightType, WeightType, WeightType) = {
     val (h1, h2) = horizontalDominoes
     val (v1, v2) = verticalDominoes
-    val alpha = weights(h2)
-    val beta = weights(v2)
-    val gamma = weights(h1)
-    val delta = weights(v1)
+    val alpha    = weights(h2)
+    val beta     = weights(v2)
+    val gamma    = weights(h1)
+    val delta    = weights(v1)
     (alpha, beta, gamma, delta)
   }
 
@@ -74,14 +67,14 @@ case class Face(bottomLeft: Point) {
 
     val (alpha, beta, gamma, delta) = getFaceWeights[Double](weights)
 
-    val topBottom = alpha * gamma
-    val leftRight = beta * delta
+    val topBottom    = alpha * gamma
+    val leftRight    = beta * delta
     val crossProduct = topBottom + leftRight
 
     if (crossProduct.toDouble == 0.0) {
-      println(alpha, beta, gamma, delta)
+      println((alpha, beta, gamma, delta))
       println("Cross product is 0")
-      println("weights of order " + weights.n)
+      println("weights of order " ++ weights.n.toString)
       throw new NotTileableException
     } else {
       if (alpha.toDouble == 0.0 || gamma.toDouble == 0.0) List(v1, v2)
@@ -92,14 +85,11 @@ case class Face(bottomLeft: Point) {
     }
   }
 
-  /** Returns the possibilities of the sub dominoes that can generate this
-    * domino, at that face.
+  /** Returns the possibilities of the sub dominoes that can generate this domino, at that face.
     *
-    * This the "inverse" operation of the one in nextDiamondConstruction below.
-    * It the case of empty faces, two pre- images are generated. When computing
-    * probabilities, this step should be avoided in order to gain huge speed up
-    * and memory uses. Note that there is no randomness in the deconstruction
-    * algorithm.
+    * This the "inverse" operation of the one in nextDiamondConstruction below. It the case of empty faces, two pre-
+    * images are generated. When computing probabilities, this step should be avoided in order to gain huge speed up and
+    * memory uses. Note that there is no randomness in the deconstruction algorithm.
     */
   def previousDiamondConstruction(
       diamond: Diamond
@@ -127,8 +117,7 @@ case class Face(bottomLeft: Point) {
     }
   }
 
-  /** We put the dominoes for the next diamond, given the dominoes of the sub
-    * diamond and the weights.
+  /** We put the dominoes for the next diamond, given the dominoes of the sub diamond and the weights.
     *
     * The rule is as follows: ._. . . . . ---> ._. (with all symmetric cases)
     *
@@ -163,13 +152,11 @@ case class Face(bottomLeft: Point) {
     }
   }
 
-  /** Computes the weights for the diamond of one order less by applying Step 1
-    * & 2 described in [1].
+  /** Computes the weights for the diamond of one order less by applying Step 1 & 2 described in [1].
     * @param weights
     *   the weights for this order n Diamond
     * @return
-    *   the weights of this Face for the order n - 1 Diamond, and possible other
-    *   zeroes to add.
+    *   the weights of this Face for the order n - 1 Diamond, and possible other zeroes to add.
     */
   def doubleSubWeights(
       weights: CustomGenerationWeight
@@ -247,13 +234,11 @@ case class Face(bottomLeft: Point) {
     )
   }
 
-  /** Computes the weights for the diamond of one order less by applying Step 1
-    * & 2 described in [1].
+  /** Computes the weights for the diamond of one order less by applying Step 1 & 2 described in [1].
     * @param weights
     *   the weights for this order n Diamond
     * @return
-    *   the weights of this Face for the order n - 1 Diamond, and possible other
-    *   zeroes to add.
+    *   the weights of this Face for the order n - 1 Diamond, and possible other zeroes to add.
     */
   def qRootSubWeights(
       weights: CustomComputePartitionFunctionWeight
@@ -339,17 +324,15 @@ object Face {
 
   /** Returns a Iterable of all the ActiveFaces of a diamond of order n.
     *
-    * Since we are using scala.js, we can't parallelise this Iterable. However,
-    * all operations on faces are independent are were we to use scala with the
-    * JVM, we could speed up the algorithm by using toParArray.
+    * Since we are using scala.js, we can't parallelise this Iterable. However, all operations on faces are independent
+    * are were we to use scala with the JVM, we could speed up the algorithm by using toParArray.
     */
   def activeFaces(n: Int): Seq[Face] = toParIfPossible(for {
     j <- 0 to (-n + 1) by -1
     k <- 0 until n
   } yield Face(Point(j + k, -n + 1 - j + k)))
 
-  private def toParIfPossible[A](iterable: Iterable[A]): Seq[A] = {
+  private def toParIfPossible[A](iterable: Iterable[A]): Seq[A] =
     PlatformDependent.toPar(iterable)
-  }
 
 }

@@ -39,11 +39,9 @@ it so that the hole in the diamond of order k+1 is a disjoint union of 2 by 2 sq
 
 #### First phase: computation of the weights
 
-In order to get a diamond of order n, we need a diamond of order n-1 that was generated according to some probability distribution. This probability distribution obviously has to depend on the probability distribution
-of the Aztec Diamond of order n.
+In order to get a diamond of order n, we need a diamond of order n-1 that was generated according to some probability distribution. This probability distribution obviously has to depend on the probability distribution of the Aztec Diamond of order n.
 
-Given the weights of order n, the first phase of the algorithm consists in
-computing all the weights for order 1, 2, ..., n. These weights are designed in such a way that if a diamond of order k is generated following the weights of order k, then the procedure of the second phase will generate a diamond of order k+1 following the weights of order k+1.
+Given the weights of order n, the first phase of the algorithm consists in computing all the weights for order 1, 2, ..., n. These weights are designed in such a way that if a diamond of order k is generated following the weights of order k, then the procedure of the second phase will generate a diamond of order k+1 following the weights of order k+1.
 
 
 #### Second phase: Diamond construction
@@ -90,13 +88,11 @@ In principle, this technique could be used to find explicit and closed formulas 
 
 #### Why four colours?
 
-The tilings of the Aztec Diamonds are usually painted with four colours, while there are only two types of dominoes. The reason for that comes from the algorithm, and in particular from Phase 2. When going from one diamond to the next one, we first move dominoes according to some rule: some vertical dominoes go one square to
-the right (east), while the others one square to the left (west). Similarly, some horizontal dominoes go one square to the top (north), and the others one square to the bottom (south). (An additional rule states that if, doing so, two dominoes exchange their positions, they are destroyed instead.)
+The tilings of the Aztec Diamonds are usually painted with four colours, while there are only two types of dominoes. The reason for that comes from the algorithm, and in particular from Phase 2. When going from one diamond to the next one, we first move dominoes according to some rule: some vertical dominoes go one square to the right (east), while the others one square to the left (west). Similarly, some horizontal dominoes go one square to the top (north), and the others one square to the bottom (south). (An additional rule states that if, doing so, two dominoes exchange their positions, they are destroyed instead.)
 
 
 In the drawings, north, south, west and east dominoes are painted respectively in red, blue, yellow and green. Rigorously, the colouring of the dominoes depends on the parity of abscissa of the left square of horizontal dominoes, and the parity of the ordinate of the bottom square of vertical dominoes.
 
 
 
-If one sees the growth of a frozen corner as a random process when going from diamond of order n to n+1, then it can be put in bijection with the Totally asymmetric
-simple exclusion process.
+If one sees the growth of a frozen corner as a random process when going from diamond of order n to n+1, then it can be put in bijection with the Totally asymmetric simple exclusion process.
