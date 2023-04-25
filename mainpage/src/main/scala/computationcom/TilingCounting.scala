@@ -20,8 +20,7 @@ trait TilingCounting extends Computer {
 
     message match {
       case WorkerLoaded() =>
-        computePartitionInfo.textContent =
-          "Worker loaded, starting computation..."
+        computePartitionInfo.textContent = "Worker loaded, starting computation..."
       case _: DiamondGenerationMessage =>
         dom.console.warn("We are in tiling counting")
         dom.console.warn(message.toString)
@@ -38,10 +37,10 @@ trait TilingCounting extends Computer {
             probabilityInfo
           ) =>
         val diamondType = diamondTypeString.toDiamondType
-        val arguments = diamondType.transformArguments(args)
+        val arguments   = diamondType.transformArguments(args).toTry.get
 
         val probability = probabilityInfo.toQRoot
-        val weight = weightInfo.toQRoot
+        val weight      = weightInfo.toQRoot
 
         val partitionFunction = weight / probability
 
@@ -68,12 +67,15 @@ trait TilingCounting extends Computer {
           }
 
         computePartitionInfo.style.color = "black"
-        computePartitionInfo.innerHTML =
-          (s"Computation completed. It took ${time / 1000.0} s to complete.<br>" +
-            s"The ${if (diamondType.designedForPartitionFunction) "Partition function"
-              else "number of tilings"}" +
-            s" for diamonds of type ${diamondType.name} is ${if (isInteger) subGraphPartition.toBigInt
-              else subGraphPartition}" + scientificNotation + ".").stripMargin
+        computePartitionInfo.innerHTML = (s"Computation completed. It took ${time / 1000.0} s to complete.<br>" +
+          s"The ${
+              if (diamondType.designedForPartitionFunction) "Partition function"
+              else "number of tilings"
+            }" +
+          s" for diamonds of type ${diamondType.name} is ${
+              if (isInteger) subGraphPartition.toBigInt
+              else subGraphPartition
+            }" + scientificNotation + ".").stripMargin
         outerLoopStatusBar.setValue(100)
         outerLoopStatusBar.setColor(0, 255, 0)
         innerLoopStatusBar.setValue(100)
@@ -138,18 +140,15 @@ object TilingCounting {
       .getElementById("computePartitionInfo")
       .asInstanceOf[html.Paragraph]
 
-  private def endOfGenerator(): Unit = {
+  private def endOfGenerator(): Unit =
     if (workingComputer.isDefined) {
       workingComputer.get.kill()
       workingComputer = None
       cancelButton.disabled = true
       startCountingButton.disabled = false
     }
-  }
 
-  cancelButton.onclick = (_: dom.MouseEvent) => {
-    endOfGenerator()
-  }
+  cancelButton.onclick = (_: dom.MouseEvent) => endOfGenerator()
 
   val outerLoopStatusBar: StatusBar = StatusBar(0, 100, 200, 20)
   outerLoopStatusBar.setWithText(enabled = true)
@@ -171,7 +170,7 @@ object TilingCounting {
 
   private[computationcom] def compute(
       computer: (Message) => TilingCounting
-  ): Unit = {
+  ): Unit =
     CountingTilingForm.args match {
       case Some(arguments) =>
         startCountingButton.disabled = true
@@ -200,7 +199,5 @@ object TilingCounting {
           dom.console.error("Malformed number arguments.")
         }
     }
-
-  }
 
 }

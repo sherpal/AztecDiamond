@@ -17,20 +17,22 @@ case object TwoPeriodic extends DiamondType {
 
   def diamondOrder(args: (Int, Double, Double)): Int = args._1
 
-  def transformArguments(args: Vector[Double]): (Int, Double, Double) = {
+  def transformArguments(args: Seq[Double]): Either[WrongParameterException, (Int, Double, Double)] = {
     val order = args(0).toInt
-    val a = args(1)
-    val b = args(2)
-    if (isInteger(args(0)) && order > 0 && a > 0 && b > 0) {
-      (order, a, b)
-    } else {
-      throw new WrongParameterException(
+    val a     = args(1)
+    val b     = args(2)
+    Either.cond(
+      isInteger(args(0)) && order > 0 && a > 0 && b > 0,
+      (order, a, b),
+      new WrongParameterException(
         s"For the shape to be tileable, Order must be a positive integer, and a and b must be positive real " +
           s"numbers. Received: " +
           s"(${args(0)}, ${args(1)}, ${args(2)})."
       )
-    }
+    )
   }
+
+  def transformArgumentsBack(arg: ArgType): Seq[Double] = List(arg._1.toDouble, arg._2.toDouble, arg._3.toDouble)
 
   def makeGenerationWeight(args: ArgType): CustomGenerationWeight =
     WeightTrait.twoPeriodicAztecDiamondGeneration(args._2, args._3, args._1)
@@ -47,6 +49,10 @@ case object TwoPeriodic extends DiamondType {
 
   def totalPartitionFunctionToSubGraph(args: (Int, Double, Double), totalPartition: QRoot): QRoot = totalPartition
 
-  val argumentNames: List[(String, Double, Double)] =
-    List(("Diamond Order", 100, 5), ("Weight a", 0.5, 0.5), ("Weight b", 1, 1))
+  val argumentNames: List[DiamondType.ArgumentName] =
+    List(
+      DiamondType.ArgumentName("Diamond Order", 100, 5),
+      DiamondType.ArgumentName("Weight a", 0.5, 0.5),
+      DiamondType.ArgumentName("Weight b", 1, 1)
+    )
 }

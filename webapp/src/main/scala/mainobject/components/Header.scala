@@ -20,13 +20,14 @@ object Header {
     height  := "60px",
     a(className := "navbar-brand", "Aztec Diamond"),
     div(
-      routes.map { route =>
+      routes.filterNot(_.title == "Home").map { route =>
         val title = route.title
         a(
           className := (if title == selectedPage then "active" else ""),
           className := "navbar-brand",
-          title,
-          href := route.path
+          title.toUpperCase(),
+          fontSize := "14px",
+          href     := route.path
         )
       }
     )

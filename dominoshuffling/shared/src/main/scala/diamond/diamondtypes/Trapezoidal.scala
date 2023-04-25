@@ -3,6 +3,7 @@ package diamond.diamondtypes
 import custommath.QRoot
 import diamond.{CustomComputePartitionFunctionWeight, CustomGenerationWeight, Diamond, DiamondType}
 import geometry.{Domino, Face, Point, WestGoing}
+import exceptions.WrongParameterException
 
 case object Trapezoidal extends DiamondType {
 
@@ -30,15 +31,17 @@ case object Trapezoidal extends DiamondType {
 
   private val startLeftX: Int = n - a_n + 1
 
-  type ArgType = Unit
+  type ArgType = EmptyTuple
 
   val lozengeTiling: Boolean = true
 
   val defaultRotation: Int = 0
 
-  def diamondOrder(args: Unit): Int = Hexagon.diamondOrder((a, b, c))
+  def diamondOrder(args: EmptyTuple): Int = Hexagon.diamondOrder((a, b, c))
 
-  def transformArguments(args: Vector[Double]): Unit = {}
+  def transformArguments(args: Seq[Double]): Right[WrongParameterException, EmptyTuple] = Right(EmptyTuple)
+
+  def transformArgumentsBack(arg: ArgType): Seq[Double] = List()
 
   private def isInHexagon(point: Point): Boolean = {
     def xMin(y: Int): Int = {
@@ -60,7 +63,7 @@ case object Trapezoidal extends DiamondType {
       domino.dominoType(order) != WestGoing) ||
       (!isInHexagon(domino.p1) && !isInHexagon(domino.p2))
 
-  def makeGenerationWeight(args: Unit): CustomGenerationWeight = {
+  def makeGenerationWeight(args: EmptyTuple): CustomGenerationWeight = {
     val weights = new CustomGenerationWeight(order)
 
     // putting zero weights at the Hexagon boundary
@@ -91,7 +94,7 @@ case object Trapezoidal extends DiamondType {
     weights
   }
 
-  def makeComputationWeight(args: Unit): CustomComputePartitionFunctionWeight = {
+  def makeComputationWeight(args: EmptyTuple): CustomComputePartitionFunctionWeight = {
 
     val weights = new CustomComputePartitionFunctionWeight(order)
 
@@ -125,7 +128,7 @@ case object Trapezoidal extends DiamondType {
     weights
   }
 
-  def isPointInDiamond(args: Unit): Point => Boolean =
+  def isPointInDiamond(args: EmptyTuple): Point => Boolean =
     (point: Point) =>
       Hexagon.isPointInDiamond((a, b, c))(
         point
@@ -133,10 +136,10 @@ case object Trapezoidal extends DiamondType {
         (point.x + 2 - startLeftX) / 2
       ))
 
-  def countingTilingDiamond(args: Unit): Diamond = ???
+  def countingTilingDiamond(args: EmptyTuple): Diamond = ???
 
-  def totalPartitionFunctionToSubGraph(args: Unit, totalPartition: QRoot): QRoot = ???
+  def totalPartitionFunctionToSubGraph(args: EmptyTuple, totalPartition: QRoot): QRoot = ???
 
-  val argumentNames: List[(String, Double, Double)] = Nil
+  val argumentNames: List[DiamondType.ArgumentName] = Nil
 
 }

@@ -14,6 +14,15 @@
 <body>
         <div id="root"></div>
         <%- script %>
+
+
 </body>
+<script type="text/js-worker" id="scriptWorker">
+        self.onmessage = function(e) {
+                const data = e.data
+                console.log(data)
+                importScripts("http://127.0.0.1:5173/aztec-diamond-generator/js/webworker-fastopt/main.js")
+        }
+</script>
 
 </html>

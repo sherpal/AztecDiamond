@@ -4,6 +4,7 @@ import com.raquo.laminar.api.L.*
 import urldsl.language.dummyErrorImpl.*
 import urldsl.language.PathSegment
 import org.scalajs.dom
+import mainobject.pages.playground.Playground
 
 final case class Route(segment: PathSegment[Unit, _], component: () => HtmlElement, title: String) {
   def path: String = "/" ++ segment.createPart()
@@ -24,7 +25,7 @@ object Route {
     Route(shapesRoute, () => Shapes(), "Shapes"),
     Route(examplesRoute, () => Examples(), "Examples"),
     Route(algorithmRoute, () => Algorithm(), "Algorithm"),
-    Route(generatorRoute, () => div(h1("todo")), "Playground")
+    Route(generatorRoute, () => Playground(), "Playground")
   )
 
   private val path                   = dom.document.location.pathname.stripPrefix("/")

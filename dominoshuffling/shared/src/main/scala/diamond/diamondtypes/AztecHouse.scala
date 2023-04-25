@@ -15,21 +15,22 @@ case object AztecHouse extends DiamondType {
 
   def diamondOrder(args: (Int, Int)): Int = (args._1 + args._2 - 2 + 1) / 2
 
-  /**
-   * Arguments are of the form (n, h), but ArgType is (width, height), so there's an extra transformation here.
-   */
-  def transformArguments(args: Vector[Double]): (Int, Int) = {
-    val width = args(0).toInt * 2
+  /** Arguments are of the form (n, h), but ArgType is (width, height), so there's an extra transformation here.
+    */
+  def transformArguments(args: Seq[Double]): Either[WrongParameterException, (Int, Int)] = {
+    val width  = args(0).toInt * 2
     val height = args(1).toInt + 1
-    if (args.forall(isInteger) && width > 0 && height > 0) {
-      (width, height)
-    } else {
-      throw new WrongParameterException(
+    Either.cond(
+      args.forall(isInteger) && width > 0 && height > 0,
+      (width, height),
+      new WrongParameterException(
         s"For the shape to be tileable, n must be a positive integer, and h must be a non negative integer " +
           s"(received: (${args(0)}, ${args(1)}))."
       )
-    }
+    )
   }
+
+  def transformArgumentsBack(arg: ArgType): Seq[Double] = List(arg._1.toDouble, arg._2.toDouble)
 
   def makeGenerationWeight(args: (Int, Int)): CustomGenerationWeight =
     WeightTrait.aztecHouseWeightsGeneration(args._1, args._2)
@@ -44,5 +45,6 @@ case object AztecHouse extends DiamondType {
   def isPointInDiamond(args: (Int, Int)): Point => Boolean =
     (point: Point) => WeightTrait.isInAztecHouse(point, args._1, args._2)
 
-  val argumentNames: List[(String, Double, Double)] = List(("Aztec n", 30, 5), ("Aztec h", 30, 5))
+  val argumentNames: List[DiamondType.ArgumentName] =
+    List(DiamondType.ArgumentName("Aztec n", 30, 5), DiamondType.ArgumentName("Aztec h", 30, 5))
 }

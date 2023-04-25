@@ -1,3 +1,4 @@
+import org.scalajs.linker.interface.ESVersion
 import scala.util.matching.Regex
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 import sbt.Keys._
@@ -37,7 +38,9 @@ lazy val `renderer` = project
   .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
-      "org.scala-js" %%% "scalajs-dom" % "2.4.0"
+      "com.raquo"   %%% "laminar"            % laminarVersion,
+      "be.doeraene" %%% "web-components-ui5" % "1.10.0",
+      "be.doeraene" %%% "url-dsl"            % "0.6.0"
     )
   )
   .dependsOn(dominoShufflingAlgorithm.js)
@@ -103,9 +106,6 @@ lazy val `webApp` = project
   .settings(commonSettings)
   .settings(
     libraryDependencies ++= List(
-      "com.raquo"   %%% "laminar"            % laminarVersion,
-      "be.doeraene" %%% "web-components-ui5" % "1.10.0",
-      "be.doeraene" %%% "url-dsl"            % "0.6.0"
     ),
     scalaJSLinkerConfig ~= {
       _.withModuleKind(ModuleKind.ESModule)
@@ -122,7 +122,8 @@ lazy val `webWorker` = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       "org.scala-js" %%% "scalajs-dom" % "2.4.0"
     ),
-    scalaJSUseMainModuleInitializer := true
+    scalaJSUseMainModuleInitializer := true,
+    scalaJSLinkerConfig ~= { _.withESFeatures(_.withESVersion(ESVersion.ES2018)) }
     // Compile / fastLinkJS / scalaJSLinkerOutputDirectory := file("./webapp") / "public" / "js" / "gen"
   )
   .jvmSettings(
@@ -134,9 +135,6 @@ lazy val `webWorker` = crossProject(JSPlatform, JVMPlatform)
   .settings(
   )
   .dependsOn(dominoShufflingAlgorithm)
-
-lazy val webWorkerJS  = `webWorker`.js.settings(name := "webWorkerJS")
-lazy val webWorkerJVM = `webWorker`.jvm.settings(name := "webWorkerJVM")
 
 lazy val `dominoShufflingAlgorithm` = crossProject(JSPlatform, JVMPlatform)
   .in(file("./dominoshuffling"))

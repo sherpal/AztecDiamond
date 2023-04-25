@@ -9,30 +9,32 @@ import messages._
 
 object Communicator {
 
-  def apply(args: Array[String]): Unit = {
+  def apply(args: Array[String]): Unit =
     PlatformDependent.startReceiveMessages(args)
-  }
 
-  def postMessage(message: Message): Unit = {
+  def postMessage(message: Message): Unit =
     PlatformDependent.postMessage(message)
-  }
 
   def receiveMessage(message: Message): Unit = message match {
     case GenerateDiamondMessage(diamondTypeString, arg, memoryOptimized) =>
-
       postMessage(TestMessage(diamondTypeString))
 
       val diamondType = diamondTypeString.toDiamondType
 
       val t = new java.util.Date().getTime
       try {
-        val diamondArguments = diamondType.transformArguments(arg)
+        val diamondArguments = diamondType.transformArguments(arg).toTry.get
 
         def sendDiamond(diamond: Diamond): Unit = {
           postMessage(DiamondIsComputed())
-          postMessage(DiamondMessage(
-            diamondType.toString, new java.util.Date().getTime - t, arg, diamond.toArray.toList
-          ))
+          postMessage(
+            DiamondMessage(
+              diamondType.toString,
+              new java.util.Date().getTime - t,
+              arg,
+              diamond.toArray.toList
+            )
+          )
         }
 
         if (memoryOptimized) {
@@ -60,7 +62,7 @@ object Communicator {
       try {
         val diamondType = diamondTypeString.toDiamondType
 
-        val arg: diamondType.ArgType = diamondType.transformArguments(arguments)
+        val arg: diamondType.ArgType = diamondType.transformArguments(arguments).toTry.get
 
         val weights: ComputePartitionFunctionWeight = diamondType.makeComputationWeight(arg)
 
@@ -77,12 +79,18 @@ object Communicator {
             QRootMessage("NotRational", q.numerators.mkString(","), q.denominators.mkString(","))
         }
 
-        val probabilityInfo = qRootToInfo(probability)
+        val probabilityInfo   = qRootToInfo(probability)
         val diamondWeightInfo = qRootToInfo(diamondWeight)
 
-        postMessage(TilingMessage(
-          diamondTypeString, new java.util.Date().getTime - t, arguments, diamondWeightInfo, probabilityInfo
-        ))
+        postMessage(
+          TilingMessage(
+            diamondTypeString,
+            new java.util.Date().getTime - t,
+            arguments,
+            diamondWeightInfo,
+            probabilityInfo
+          )
+        )
 
       } catch {
         case wrongParams: WrongParameterException =>
@@ -94,19 +102,27 @@ object Communicator {
       }
     case GenerateImageMessage(imageData, width, height) =>
       if (imageData.length != width * height * 4) {
-        postMessage(WrongImageData(s"Length of image data (${imageData.length}) must be " +
-          s"4 * w * h (${4 * width * height})"))
+        postMessage(
+          WrongImageData(
+            s"Length of image data (${imageData.length}) must be " +
+              s"4 * w * h (${4 * width * height})"
+          )
+        )
       } else {
         val startTime = new java.util.Date().getTime
 
         val heightCutImageData = if (height % 2 == 1) imageData.dropRight(width) else imageData
-        val transformedImageData = if (width % 2 == 0) heightCutImageData else {
-          val idxToRemove = (0 until height).map(width * _)
+        val transformedImageData =
+          if (width % 2 == 0) heightCutImageData
+          else {
+            val idxToRemove = (0 until height).map(width * _)
 
-          imageData.zipWithIndex.filter(elem => idxToRemove.contains(elem._2 / 4)).unzip._1
-        }
+            imageData.zipWithIndex.filter(elem => idxToRemove.contains(elem._2 / 4)).unzip._1
+          }
         val weight = CustomGenerationWeight.fromImageData(
-          transformedImageData, width, height
+          transformedImageData,
+          width,
+          height
         )
 
         val allWeights = DiamondGeneration.computeAllWeights(weight)

@@ -53,6 +53,7 @@ object WebApp {
     render(
       dom.document.getElementById("root"),
       div(
+        className := "ui5-content-density-compact",
         Header(Route.currentTitle, Route.routes),
         div(
           marginTop := "76px",

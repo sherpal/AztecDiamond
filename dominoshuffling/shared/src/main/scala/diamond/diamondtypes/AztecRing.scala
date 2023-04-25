@@ -15,24 +15,31 @@ case object AztecRing extends DiamondType {
 
   def diamondOrder(args: (Int, Int)): Int = args._2
 
-  def transformArguments(args: Vector[Double]): (Int, Int) = {
+  def transformArguments(args: Seq[Double]): Either[WrongParameterException, (Int, Int)] = {
     val inner = args(0).toInt
     val outer = args(1).toInt
-    if (args.forall(isInteger) && inner > 0 && outer >= inner) {
-      if ((outer - inner) % 2 == 0 || outer >= 3 * inner - 1)
-        (inner, outer)
-      else
-        throw new WrongParameterException(
+
+    for {
+      _ <- Either.cond(
+        args.forall(isInteger) && inner > 0 && outer >= inner,
+        (),
+        new WrongParameterException(
+          s"For the shape to be tileable, Inner and outer orders must be positive integers satisfying inner <= outer " +
+            s"(received: (${args(0)}, ${args(1)}))."
+        )
+      )
+      _ <- Either.cond(
+        (outer - inner) % 2 == 0 || outer >= 3 * inner - 1,
+        (),
+        new WrongParameterException(
           s"For the shape to be tileable, Inner and outer orders must satisfy (outerOrder - innerOrder) mod 2 == 0" +
             s" or outerOrder >= 3 * innerOrder - 1."
         )
-    } else {
-      throw new WrongParameterException(
-        s"For the shape to be tileable, Inner and outer orders must be positive integers satisfying inner <= outer " +
-          s"(received: (${args(0)}, ${args(1)}))."
       )
-    }
+    } yield (inner, outer)
   }
+
+  def transformArgumentsBack(arg: ArgType): Seq[Double] = List(arg._1.toDouble, arg._2.toDouble)
 
   def makeGenerationWeight(args: (Int, Int)): CustomGenerationWeight =
     WeightTrait.diamondRingGeneration(args._1, args._2)
@@ -47,22 +54,19 @@ case object AztecRing extends DiamondType {
     diamondConstruction.insertDiamond(Diamond.fullHorizontalDiamond(args._1))
 
     /** Filling outer layers to go back to the outer = 3 * inner - 1 case */
-    def fillLayer(diamondLayerOrder: Int): Unit = {
+    def fillLayer(diamondLayerOrder: Int): Unit =
       (for {
         y <- 1 to diamondLayerOrder
         x <- List(-diamondLayerOrder + y, diamondLayerOrder - y)
-      } yield List(Point(x, y), Point(x, -y + 1)))
-        .flatten
+      } yield List(Point(x, y), Point(x, -y + 1))).flatten
         .map(p => Domino(p, p + Point(1, 0)))
         .foreach(diamondConstruction() = _)
-    }
 
     for (layer <- 3 * args._1 + 1 to args._2 by 2) fillLayer(layer)
 
     List(Point(args._1, args._1), Point(args._1, -args._1), Point(-args._1, args._1), Point(-args._1, -args._1))
       .map((Diamond.fullHorizontalDiamond(args._1 - 1), _))
-      .foreach({ case (diamond, center) => diamondConstruction.insertDiamond(diamond, center) })
-
+      .foreach { case (diamond, center) => diamondConstruction.insertDiamond(diamond, center) }
 
     diamondConstruction.fillForcedDominoes()
     diamondConstruction.toDiamond
@@ -74,5 +78,6 @@ case object AztecRing extends DiamondType {
   def isPointInDiamond(args: (Int, Int)): Point => Boolean =
     (point: Point) => WeightTrait.isInDiamondRing(point, args._1, args._2)
 
-  val argumentNames: List[(String, Double, Double)] = List(("Inner order", 20, 3), ("Outer order", 40, 8))
+  val argumentNames: List[DiamondType.ArgumentName] =
+    List(DiamondType.ArgumentName("Inner order", 20, 3), DiamondType.ArgumentName("Outer order", 40, 8))
 }

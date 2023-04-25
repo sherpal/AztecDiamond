@@ -11,7 +11,6 @@ import ui._
 import scala.scalajs.js.timers.setTimeout
 import scala.util.matching.Regex
 
-
 /** A DiamondGenerator is the Computer that will communicate for generating diamonds. */
 trait DiamondGenerator extends Computer {
   import computationcom.DiamondGenerator._
@@ -47,7 +46,7 @@ trait DiamondGenerator extends Computer {
           println(s"It took $time ms to generate the diamond of type $diamondType in the web worker.")
         }
 
-        val arg = diamondType.transformArguments(args)
+        val arg = diamondType.transformArguments(args).toTry.get
 
         val t = new java.util.Date().getTime
 
@@ -93,7 +92,6 @@ trait DiamondGenerator extends Computer {
 
 }
 
-
 object DiamondGenerator {
   private var drawnDiamond: Option[DiamondDrawer] = None
 
@@ -103,7 +101,8 @@ object DiamondGenerator {
 
   val generationInfo: html.Paragraph = dom.document.getElementById("generationInfo").asInstanceOf[html.Paragraph]
 
-  val memoryOptimizeCheckbox: html.Input = dom.document.getElementById("memoryOptimizeGeneration")
+  val memoryOptimizeCheckbox: html.Input = dom.document
+    .getElementById("memoryOptimizeGeneration")
     .asInstanceOf[html.Input]
 
   val timeTaken: html.Paragraph = dom.document.getElementById("timeTaken").asInstanceOf[html.Paragraph]
@@ -125,7 +124,7 @@ object DiamondGenerator {
     }
   }
 
-  def drawDrawer(): Unit = {
+  def drawDrawer(): Unit =
     if (drawnDiamond.isDefined) {
       val t = new java.util.Date().getTime
       drawnDiamond.get.canvas2D.clear()
@@ -164,16 +163,15 @@ object DiamondGenerator {
         println(s"It took ${new java.util.Date().getTime - t} ms to draw the diamond.")
       }
     }
-  }
 
   val weightGenerationStatusBar: StatusBar = StatusBar(0, 100, 200, 20)
   weightGenerationStatusBar.setParent(dom.document.getElementById("statusBarContainer").asInstanceOf[html.Div])
-  weightGenerationStatusBar.setColor(255,69,0)
+  weightGenerationStatusBar.setColor(255, 69, 0)
   weightGenerationStatusBar.setWithText(enabled = true)
 
   val diamondComputationStatusBar: StatusBar = StatusBar(0, 100, 200, 20)
   diamondComputationStatusBar.setParent(dom.document.getElementById("statusBarContainer").asInstanceOf[html.Div])
-  diamondComputationStatusBar.setColor(255,69,0)
+  diamondComputationStatusBar.setColor(255, 69, 0)
   diamondComputationStatusBar.setWithText(enabled = true)
 
   val computationPhase: html.Paragraph = dom.document.getElementById("computationPhase").asInstanceOf[html.Paragraph]
@@ -181,60 +179,62 @@ object DiamondGenerator {
   private var workingGenerator: Option[DiamondGenerator] = None
 
   val generateButton: html.Input = dom.document.getElementById("diamondGenerationStart").asInstanceOf[html.Input]
-  val cancelButton: html.Input = dom.document.getElementById("diamondGenerationCancel").asInstanceOf[html.Input]
+  val cancelButton: html.Input   = dom.document.getElementById("diamondGenerationCancel").asInstanceOf[html.Input]
 
   cancelButton.disabled = true
 
-  private def endOfGenerator(crashed: Boolean = false): Unit = {
+  private def endOfGenerator(crashed: Boolean = false): Unit =
     if (workingGenerator.isDefined) {
       workingGenerator.get.kill(crashed)
       workingGenerator = None
       cancelButton.disabled = true
       generateButton.disabled = false
     }
-  }
 
-  cancelButton.onclick = (_: dom.Event) => {
-    endOfGenerator()
-  }
+  cancelButton.onclick = (_: dom.Event) => endOfGenerator()
 
-  private[computationcom] def generate(generator: (Message) => DiamondGenerator): Unit = {
+  private[computationcom] def generate(generator: (Message) => DiamondGenerator): Unit =
     GenerateDiamondForm.args match {
       case Some(arguments) =>
         generateButton.disabled = true
         cancelButton.disabled = false
 
-        workingGenerator = Some(generator(
-          GenerateDiamondMessage(
-            GenerateDiamondForm.diamondType.toString,
-            arguments.toVector,
-            memoryOptimized = memoryOptimizeCheckbox.checked
+        workingGenerator = Some(
+          generator(
+            GenerateDiamondMessage(
+              GenerateDiamondForm.diamondType.toString,
+              arguments.toVector,
+              memoryOptimized = memoryOptimizeCheckbox.checked
+            )
           )
-        ))
+        )
 
         generationInfo.textContent = "Starting diamond generation..."
         generationInfo.style.color = "black"
 
         weightGenerationStatusBar.setValue(0)
-        weightGenerationStatusBar.setColor(255,69,0)
+        weightGenerationStatusBar.setColor(255, 69, 0)
         diamondComputationStatusBar.setValue(0)
-        diamondComputationStatusBar.setColor(255,69,0)
+        diamondComputationStatusBar.setColor(255, 69, 0)
         computationPhase.textContent = "Loading worker..."
       case None =>
         generationInfo.textContent = "Malformed number arguments."
         generationInfo.style.color = "red"
         dom.console.error("Malformed number arguments.")
     }
-  }
 
   List(
-    drawDominoesCheckBox, inFullAztecCheckBox, drawInLozengesCheckBox, dominoesBorderCheckBox, drawPathsCheckBox
-  ).foreach(_.onchange = (_: dom.Event) => {
-    setTimeout(5) {
-      drawDrawer()
-    }
-  })
-
+    drawDominoesCheckBox,
+    inFullAztecCheckBox,
+    drawInLozengesCheckBox,
+    dominoesBorderCheckBox,
+    drawPathsCheckBox
+  ).foreach(_.onchange =
+    (_: dom.Event) =>
+      setTimeout(5) {
+        drawDrawer()
+      }
+  )
 
   def saveAsPNG(element: html.Anchor): Unit = {
     val dataURL = canvas2D.canvas.toDataURL("image/png")
@@ -242,8 +242,6 @@ object DiamondGenerator {
   }
 
   private val a: html.Anchor = dom.document.getElementById("savePng").asInstanceOf[html.Anchor]
-  a.addEventListener("click", (_: dom.MouseEvent) => {
-    saveAsPNG(a)
-  })
+  a.addEventListener("click", (_: dom.MouseEvent) => saveAsPNG(a))
 
 }

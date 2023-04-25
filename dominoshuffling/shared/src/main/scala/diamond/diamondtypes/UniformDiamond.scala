@@ -7,34 +7,36 @@ import exceptions.WrongParameterException
 import geometry.{Domino, Point}
 
 case object UniformDiamond extends DiamondType {
-  type ArgType = Int
+  type ArgType = Int *: EmptyTuple
 
   val lozengeTiling: Boolean = false
 
   val defaultRotation: Int = 0
 
-  def diamondOrder(args: Int): Int = args
+  def diamondOrder(args: Int *: EmptyTuple): Int = args._1
 
-  def transformArguments(args: Vector[Double]): Int = {
+  def transformArguments(args: Seq[Double]): Either[WrongParameterException, Int *: EmptyTuple] = {
     val order = args(0).toInt
-    if (isInteger(args(0)) && order >= 1) {
-      order
-    } else {
-      throw new WrongParameterException(s"Order of diamond must be a positive integer (received: ${args(0)}).")
-    }
+    Either.cond(
+      isInteger(args(0)) && order >= 1,
+      order *: EmptyTuple,
+      new WrongParameterException(s"Order of diamond must be a positive integer (received: ${args(0)}).")
+    )
   }
 
-  def makeGenerationWeight(args: Int): UniformWeightGeneration = new UniformWeightGeneration(args)
+  def transformArgumentsBack(arg: ArgType): Seq[Double] = List(arg._1.toDouble)
 
-  def makeComputationWeight(args: Int): UniformWeightPartition = new UniformWeightPartition(args)
+  def makeGenerationWeight(args: Int *: EmptyTuple): UniformWeightGeneration = new UniformWeightGeneration(args._1)
 
-  def countingTilingDiamond(args: Int): Diamond = Diamond.fullHorizontalDiamond(args)
+  def makeComputationWeight(args: Int *: EmptyTuple): UniformWeightPartition = new UniformWeightPartition(args._1)
 
-  def totalPartitionFunctionToSubGraph(args: Int, totalPartition: QRoot): QRoot = totalPartition
+  def countingTilingDiamond(args: Int *: EmptyTuple): Diamond = Diamond.fullHorizontalDiamond(args._1)
 
-  def isPointInDiamond(args: Int): Point => Boolean = (_: Point) => true
+  def totalPartitionFunctionToSubGraph(args: Int *: EmptyTuple, totalPartition: QRoot): QRoot = totalPartition
+
+  def isPointInDiamond(args: Int *: EmptyTuple): Point => Boolean = (_: Point) => true
 
   def theoreticTilingNumber(order: Int): QRoot = QRoot(BigInt(2) pow (order * (order + 1) / 2), 1)
 
-  val argumentNames: List[(String, Double, Double)] = List(("Diamond Order", 100, 5))
+  val argumentNames: List[DiamondType.ArgumentName] = List(DiamondType.ArgumentName("Diamond Order", 100, 5))
 }

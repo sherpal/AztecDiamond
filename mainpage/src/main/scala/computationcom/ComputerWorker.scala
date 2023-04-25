@@ -7,13 +7,13 @@ import org.scalajs.dom.URL
 import org.scalajs.dom.Worker
 import ui.AlertBox
 
-import scala.scalajs.js.JSConverters._
+import scala.scalajs.js.JSConverters.*
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 
 trait ComputerWorker extends Computer {
   private val worker = new Worker(URL.createObjectURL(BlobMaker.blob))
 
-  worker.onmessage = (event: dom.MessageEvent) => {
+  worker.onmessage = (event: dom.MessageEvent) =>
     event.data match {
       case s: String =>
         if (scala.scalajs.LinkingInfo.developmentMode) {
@@ -23,13 +23,13 @@ trait ComputerWorker extends Computer {
         receiveMessage(WorkerLoaded())
         postMessage(initialMessage)
       case _ =>
-        try {
+        try
           receiveMessage(
             Message.decode(
               event.data.asInstanceOf[scala.scalajs.js.Array[Byte]].toArray
             )
           )
-        } catch {
+        catch {
           case e: NoSuchDiamondType =>
             println(s"No such diamond type: ${e.diamondType}")
             throw e
@@ -38,7 +38,6 @@ trait ComputerWorker extends Computer {
             throw e
         }
     }
-  }
 
   def postMessage(message: Message): Unit =
     worker.postMessage(Message.encode(message).toJSArray)
@@ -46,21 +45,20 @@ trait ComputerWorker extends Computer {
   protected def terminateGenerator(): Unit =
     worker.terminate()
 
-  override protected def crashHandler(): Unit = {
+  override protected def crashHandler(): Unit =
     AlertBox(
       "Fatal Error",
       "The Web Worker crashed. This may be due to Out of Memory issue, when numbers are too big.<br>" +
         "Consider using the desktop application.",
       () => {}
     )
-  }
 
   worker.onerror = (event: dom.ErrorEvent) => println(event.message)
 
   {
-    val url = dom.window.location
-    val href = url.href
-    val index = href.indexOf(ComputerWorker._fileName)
+    val url      = dom.window.location
+    val href     = url.href
+    val index    = href.indexOf(ComputerWorker._fileName)
     val finalUrl = if (index != -1) href.substring(0, index) else href
     worker.postMessage(finalUrl)
   }
@@ -75,14 +73,12 @@ object ComputerWorker {
   private var _fileNameSet: Boolean = false
 
   @JSExport("setFileName")
-  def setFileName(fileName: String): Unit = {
+  def setFileName(fileName: String): Unit =
     if (_fileNameSet) {
       throw new NoSuchMethodException()
     } else {
       _fileNameSet = true
       _fileName = fileName
     }
-
-  }
 
 }
