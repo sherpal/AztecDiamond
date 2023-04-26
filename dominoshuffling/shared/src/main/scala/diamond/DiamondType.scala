@@ -32,6 +32,8 @@ trait DiamondType {
     */
   def transformArguments(args: Seq[Double]): Either[WrongParameterException, ArgType]
 
+  final def unsafeTransformArguments(args: Seq[Double]): ArgType = transformArguments(args).toTry.get
+
   def transformArgumentsBack(arg: ArgType): Seq[Double]
 
   /** The [[GenerationWeight]] necessary for generating a Diamond of this type. */

@@ -122,9 +122,9 @@ lazy val `webWorker` = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       "org.scala-js" %%% "scalajs-dom" % "2.4.0"
     ),
-    scalaJSUseMainModuleInitializer := true,
-    scalaJSLinkerConfig ~= { _.withESFeatures(_.withESVersion(ESVersion.ES2018)) }
-    // Compile / fastLinkJS / scalaJSLinkerOutputDirectory := file("./webapp") / "public" / "js" / "gen"
+    scalaJSUseMainModuleInitializer                     := true,
+    Compile / fastLinkJS / scalaJSLinkerOutputDirectory := file("webapp") / "public" / "js" / "gen",
+    Compile / fullLinkJS / scalaJSLinkerOutputDirectory := file("webapp") / "public" / "js" / "gen"
   )
   .jvmSettings(
     assembly / test            := {},

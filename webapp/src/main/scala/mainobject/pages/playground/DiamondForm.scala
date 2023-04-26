@@ -35,8 +35,9 @@ object DiamondForm {
       )
       .map(_.toRight(new WrongParameterException(s"Wrongly formed argument")).flatMap(diamondType.transformArguments))
 
-    div(
+    sectionTag(
       padding := "0.5em",
+      h4(s"Choose the parameters for the ${diamondType.name}"),
       diamondType.argumentNames.zipWithIndex.map { case (argumentName, index) =>
         val label                   = argumentName.label
         val thisArgumentVar         = Var(infoFromArgument(argumentName).toString)

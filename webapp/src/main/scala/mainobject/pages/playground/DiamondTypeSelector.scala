@@ -12,12 +12,18 @@ object DiamondTypeSelector {
 
     val selectedTypeVar: Var[DiamondType] = Var(UniformDiamond)
 
-    Select(
-      selectedTypeVar.signal --> selectedTypeObserver,
-      diamondTypes.map(diamondType => Select.option(diamondType.name, dataAttr("name") := diamondType.name)),
-      _.events.onChange
-        .map(_.detail.selectedOption.dataset.get("name").get)
-        .map(typesFromName(_)) --> selectedTypeVar.writer
+    div(
+      display.flex,
+      alignItems.center,
+      padding := "0.5em",
+      Label(marginRight := "1em", "Select type of diamond"),
+      Select(
+        selectedTypeVar.signal --> selectedTypeObserver,
+        diamondTypes.map(diamondType => Select.option(diamondType.name, dataAttr("name") := diamondType.name)),
+        _.events.onChange
+          .map(_.detail.selectedOption.dataset.get("name").get)
+          .map(typesFromName(_)) --> selectedTypeVar.writer
+      )
     )
   }
 

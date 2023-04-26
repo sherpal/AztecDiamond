@@ -33,10 +33,10 @@ class DiamondDrawer private (
     c
   }
 
-  val topMostFullDiamondCoordinate: Int = diamond.order + 1
-  val rightMostFullDiamondCoordinate: Int = diamond.order + 1
+  val topMostFullDiamondCoordinate: Int    = diamond.order + 1
+  val rightMostFullDiamondCoordinate: Int  = diamond.order + 1
   val bottomMostFullDiamondCoordinate: Int = -diamond.order + 1
-  val leftMostFullDiamondCoordinate: Int = -diamond.order + 1
+  val leftMostFullDiamondCoordinate: Int   = -diamond.order + 1
 
   val diamondCenter: Complex = Complex(
     (rightMostFullDiamondCoordinate + leftMostFullDiamondCoordinate) / 2.0,
@@ -48,24 +48,24 @@ class DiamondDrawer private (
   def dominoesInSubGraph: Iterable[Domino] = dominoes.filter(isInSubGraph)
 
   val topMostSubDiamondCoordinate: Int = dominoesInSubGraph
-    .foldLeft(bottomMostFullDiamondCoordinate)({ case (curMax, domino) =>
+    .foldLeft(bottomMostFullDiamondCoordinate) { case (curMax, domino) =>
       math.max(curMax, domino.p2.y + 1)
-    })
+    }
 
   val bottomMostSubDiamondCoordinate: Int = dominoesInSubGraph
-    .foldLeft(topMostFullDiamondCoordinate)({ case (curMin, domino) =>
+    .foldLeft(topMostFullDiamondCoordinate) { case (curMin, domino) =>
       math.min(curMin, domino.p1.y)
-    })
+    }
 
   val rightMostSubDiamondCoordinate: Int = dominoesInSubGraph
-    .foldLeft(leftMostFullDiamondCoordinate)({ case (curMax, domino) =>
+    .foldLeft(leftMostFullDiamondCoordinate) { case (curMax, domino) =>
       math.max(curMax, domino.p2.x + 1)
-    })
+    }
 
   val leftMostSubDiamondCoordinate: Int = dominoesInSubGraph
-    .foldLeft(rightMostFullDiamondCoordinate)({ case (curMax, domino) =>
+    .foldLeft(rightMostFullDiamondCoordinate) { case (curMax, domino) =>
       math.min(curMax, domino.p1.x)
-    })
+    }
 
   val subDiamondCenter: Complex = Complex(
     (rightMostSubDiamondCoordinate + leftMostSubDiamondCoordinate) / 2.0,
@@ -90,7 +90,7 @@ class DiamondDrawer private (
   private def emptyDominoSprites: List[EmptyDominoSprite] =
     dominoes.map(new EmptyDominoSprite(_, canvas2D.width * 5 / 2000)).toList
 
-  private def defaultColors(domino: Domino): (Double, Double, Double) =
+  def defaultColors(domino: Domino): (Double, Double, Double) =
     domino.dominoType(diamond.order) match {
       case NorthGoing => (1, 0, 0)
       case SouthGoing => (0, 0, 1)
@@ -103,7 +103,7 @@ class DiamondDrawer private (
       scaleX: Double,
       scaleY: Double,
       colors: (Domino) => (Double, Double, Double),
-      predicate: (Domino) => Boolean = (_) => true,
+      predicate: (Domino) => Boolean = _ => true,
       fullDiamond: Boolean = true,
       border: Boolean = false
   ): Unit = {
@@ -128,11 +128,11 @@ class DiamondDrawer private (
 
     (if (border) dominoSprites ++ emptyDominoSprites else dominoSprites)
       .filter(sprite => predicate(sprite.domino))
-      .foreach(sprite => {
+      .foreach { sprite =>
         val (r, g, b) = colors(sprite.domino)
         sprite.setColor(r, g, b)
         camera.drawSprite(sprite)
-      })
+      }
 
   }
 
@@ -142,9 +142,8 @@ class DiamondDrawer private (
       scaleY: Double = 1,
       border: Boolean = false,
       colors: (Domino) => (Double, Double, Double) = defaultColors
-  ): Unit = {
+  ): Unit =
     rawDraw(worldCenter, scaleX, scaleY, colors, border = border)
-  }
 
   def drawSubGraph(
       worldCenter: Complex = subDiamondCenter,
@@ -152,7 +151,7 @@ class DiamondDrawer private (
       scaleY: Double = 1,
       border: Boolean = false,
       colors: (Domino) => (Double, Double, Double) = defaultColors
-  ): Unit = {
+  ): Unit =
     rawDraw(
       worldCenter,
       scaleX,
@@ -162,7 +161,6 @@ class DiamondDrawer private (
       fullDiamond = false,
       border = border
     )
-  }
 
   private def lozengeSprites: List[LozengeSprite] =
     dominoes.map(new LozengeSprite(_, diamond.order)).toList
@@ -179,18 +177,16 @@ class DiamondDrawer private (
       colors: (Domino) => (Double, Double, Double) = defaultColors
   ): Unit = {
     camera.worldCenter = worldCenter
-    camera.worldWidth =
-      (rightMostFullDiamondCoordinate - leftMostFullDiamondCoordinate) / scaleX / 2
-    camera.worldHeight =
-      (topMostFullDiamondCoordinate - bottomMostFullDiamondCoordinate) / scaleY * math
-        .sqrt(3.0) / 2
+    camera.worldWidth = (rightMostFullDiamondCoordinate - leftMostFullDiamondCoordinate) / scaleX / 2
+    camera.worldHeight = (topMostFullDiamondCoordinate - bottomMostFullDiamondCoordinate) / scaleY * math
+      .sqrt(3.0) / 2
 
     (if (border) lozengeSprites ++ emptyLozengeSprites else lozengeSprites)
-      .foreach(sprite => {
+      .foreach { sprite =>
         val (r, g, b) = colors(sprite.domino)
         sprite.setColor(r, g, b)
         camera.drawSprite(sprite)
-      })
+      }
 
   }
 
@@ -201,8 +197,7 @@ class DiamondDrawer private (
       border: Boolean = false,
       colors: Domino => (Double, Double, Double) = defaultColors
   ): Unit = {
-    camera.worldCenter =
-      Complex(worldCenter.re / 2, worldCenter.im * math.sqrt(3.0) / 2)
+    camera.worldCenter = Complex(worldCenter.re / 2, worldCenter.im * math.sqrt(3.0) / 2)
 
     val cameraSize = math.max(
       (rightMostSubDiamondCoordinate - leftMostSubDiamondCoordinate + 1) / scaleX / 2,
@@ -215,11 +210,11 @@ class DiamondDrawer private (
 
     (if (border) lozengeSprites ++ emptyLozengeSprites else lozengeSprites)
       .filter(sprite => isInSubGraph(sprite.domino))
-      .foreach(sprite => {
+      .foreach { sprite =>
         val (r, g, b) = colors(sprite.domino)
         sprite.setColor(r, g, b)
         camera.drawSprite(sprite)
-      })
+      }
 
   }
 
@@ -275,15 +270,15 @@ class DiamondDrawer private (
     )
 
     dominoes
-      .map(domino => {
-        val color = defaultColors(domino)
-        val lowerLeftX = domino.p1.x * unit
-        val lowerLeftY = domino.p1.y * unit
+      .map { domino =>
+        val color       = defaultColors(domino)
+        val lowerLeftX  = domino.p1.x * unit
+        val lowerLeftY  = domino.p1.y * unit
         val upperRightX = (domino.p2.x + 1) * unit
         val upperRightY = (domino.p2.y + 1) * unit
         s"\\draw [fill = ${colors(color)}, draw = black] " +
           s"($lowerLeftX,$lowerLeftY) rectangle ($upperRightX,$upperRightY);"
-      })
+      }
       .mkString("\n") + "\n" +
       DiamondDrawer.emptyDiamondTikzCode(diamond.order, unit = unit)
   }
@@ -293,9 +288,9 @@ class DiamondDrawer private (
       withBorder: Boolean
   ): String = {
     val width =
-      200 max (2 * diamond.order)
+      600 max (2 * diamond.order)
     val height =
-      200 max (2 * diamond.order)
+      600 max (2 * diamond.order)
 
     val unit = width / (2 * diamond.order)
 
@@ -315,8 +310,8 @@ class DiamondDrawer private (
       .map { case (color, group) =>
         val rectangles = group
           .map { domino =>
-            val lowerLeftX = domino.p1.x * unit + diamond.order - 1
-            val lowerLeftY = domino.p1.y * unit + diamond.order - 1
+            val lowerLeftX = (domino.p1.x + diamond.order - 1) * unit
+            val lowerLeftY = (domino.p1.y + diamond.order - 1) * unit
             val (dominoWidth, dominoHeight) =
               if (domino.isHorizontal) (2 * unit, unit) else (unit, 2 * unit)
             s"""<rect x="$lowerLeftX" y="$lowerLeftY" width="$dominoWidth" height="$dominoHeight" />"""
@@ -349,15 +344,13 @@ class DiamondDrawer private (
     val sin = math.sin(rotationAngle)
 
     paths
-      .map(points =>
-        points.map(point => (point.x * unit, (point.y + 0.5) * unit))
-      )
-      .map(coordinates => {
+      .map(points => points.map(point => (point.x * unit, (point.y + 0.5) * unit)))
+      .map { coordinates =>
         "\\draw " + coordinates
-          .map({ case (x, y) => (x * cos + y * sin, -x * sin + y * cos) })
-          .map({ case (x, y) => s"($x,$y)" })
+          .map { case (x, y) => (x * cos + y * sin, -x * sin + y * cos) }
+          .map { case (x, y) => s"($x,$y)" }
           .mkString(" -- ") + ";"
-      })
+      }
       .mkString("\n")
   }
 
@@ -378,25 +371,17 @@ object DiamondDrawer {
   def emptyDiamondTikzCode(order: Int, unit: Double = 1): String = {
     val lowerRightCornerCoordinates: Vector[Point] =
       (0 until order).toVector
-        .flatMap(j =>
-          Vector(Point(1 + j, -order + 1 + j), Point(2 + j, -order + 1 + j))
-        )
+        .flatMap(j => Vector(Point(1 + j, -order + 1 + j), Point(2 + j, -order + 1 + j)))
         .drop(1)
 
     val upperRightCornerCoordinates: Vector[Point] =
-      lowerRightCornerCoordinates
-        .map({ case Point(x, y) => Point(x, -y + 2) })
-        .reverse
+      lowerRightCornerCoordinates.map { case Point(x, y) => Point(x, -y + 2) }.reverse
 
     val upperLeftCornerCoordinates: Vector[Point] =
-      upperRightCornerCoordinates
-        .map({ case Point(x, y) => Point(-x + 2, y) })
-        .reverse
+      upperRightCornerCoordinates.map { case Point(x, y) => Point(-x + 2, y) }.reverse
 
     val lowerLeftCornerCoordinates: Vector[Point] =
-      lowerRightCornerCoordinates
-        .map({ case Point(x, y) => Point(-x + 2, y) })
-        .reverse
+      lowerRightCornerCoordinates.map { case Point(x, y) => Point(-x + 2, y) }.reverse
 
     val allCoordinates =
       lowerRightCornerCoordinates ++
@@ -405,7 +390,7 @@ object DiamondDrawer {
         lowerLeftCornerCoordinates
 
     """\draw[thick] """ + allCoordinates
-      .map({ case Point(x, y) => s"(${x * unit},${y * unit})" })
+      .map { case Point(x, y) => s"(${x * unit},${y * unit})" }
       .mkString(" -- ") + " -- cycle;"
   }
 

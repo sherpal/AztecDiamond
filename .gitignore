@@ -31,4 +31,4 @@ logs
 piece-images
 /null
 /compiled
-**/webworkerjs-fastopt
+**/gen

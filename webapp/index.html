@@ -19,9 +19,9 @@
 </body>
 <script type="text/js-worker" id="scriptWorker">
         self.onmessage = function(e) {
-                const data = e.data
-                console.log(data)
-                importScripts("http://127.0.0.1:5173/aztec-diamond-generator/js/webworker-fastopt/main.js")
+                const url = e.data
+                const urlWithoutGeneration = url.substr(0, url.length - ("generation").length)
+                importScripts(urlWithoutGeneration + "js/gen/main.js")
         }
 </script>
 

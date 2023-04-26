@@ -25,8 +25,6 @@ case class Point(x: Int, y: Int) extends Ordered[Point] {
 
 object Point {
 
-  private val coordsRegex = """(?<=Point\()-?\d+,-?\d+(?=\))""".r
-
   implicit def fromString(stringPoint: String): Point =
     try {
       val coords = stringPoint.drop("Point(".length).dropRight(1).split(",").map(_.toInt)

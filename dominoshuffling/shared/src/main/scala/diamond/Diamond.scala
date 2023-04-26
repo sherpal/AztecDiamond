@@ -5,6 +5,7 @@ import exceptions.ShouldNotBeThereException
 import geometry._
 
 import scala.util.Random
+import scala.concurrent.duration.FiniteDuration
 
 /** A Diamond represents an Aztec Diamond with its tiling.
   *
@@ -352,6 +353,14 @@ object Diamond {
       }
 
     new Diamond(dominoes.map(_.toVector).toVector)
+  }
+
+  final class DiamondGenerationInfo(val diamondType: DiamondType)(
+      val diamond: Diamond,
+      val timeTaken: FiniteDuration,
+      val arg: diamondType.ArgType
+  ) {
+    def isInDiamond: Domino => Boolean = diamondType.isInDiamond(arg)
   }
 
   /** Generate a random tiling of the diamond of order n = weights.last.n.
