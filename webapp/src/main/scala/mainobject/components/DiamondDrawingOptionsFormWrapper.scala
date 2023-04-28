@@ -23,7 +23,7 @@ object DiamondDrawingOptionsFormWrapper {
         _.showFromEvents(openEvents),
         closeSetOptionsEvents --> optionsChangedObserver,
         _.closeFromEvents(closeBus.events.mapTo(())),
-        _.slots.header := Title.h1("Drawing Options"),
+        _.slots.header := Bar(_.slots.startContent := Title.h2("Drawing Options")),
         DiamondDrawingOptionForm(initialOptions, optionsVar.writer),
         _.slots.footer := Bar(
           _.slots.endContent := Button(
