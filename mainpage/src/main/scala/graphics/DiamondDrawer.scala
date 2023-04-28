@@ -259,6 +259,40 @@ class DiamondDrawer private (
     )
   }
 
+  private def applyTransformation(canvasToDrawTo: Canvas2D, rotation: Double, zoomX: Double, zoomY: Double): Unit = {
+    canvasToDrawTo.clear()
+    canvasToDrawTo.withTransformationMatrix(
+      canvasToDrawTo.rotate(0, rotation) * canvasToDrawTo.scale(0, zoomX, zoomY)
+    ) {
+      canvasToDrawTo.drawCanvas(canvas2D.canvas, 0, canvasToDrawTo.canvas.width, canvasToDrawTo.canvas.height)
+    }
+
+    if (!scala.scalajs.LinkingInfo.developmentMode) {
+      canvasToDrawTo.printWatermark(zoomX, zoomY)
+    }
+  }
+
+  def drawOnCanvas(canvasToDrawTo: Canvas2D, options: DiamondDrawingOptions): Unit = {
+    canvas2D.clear()
+    val dominoColors = options.colors.asFunction(diamond.order)
+    if options.drawDominoes then {
+      if options.showInFullAztecDiamond && !options.drawDominoesAsLozenges then
+        draw(border = options.showBorderOfDominoes, colors = dominoColors)
+      else if !options.drawDominoesAsLozenges then
+        drawSubGraph(border = options.showBorderOfDominoes, colors = dominoColors)
+      else if options.showInFullAztecDiamond then
+        drawAsLozenges(border = options.showBorderOfDominoes, colors = dominoColors)
+      else drawSubGraphAsLozenges(border = options.showBorderOfDominoes, colors = dominoColors)
+    }
+
+    if options.drawNonIntersectingPaths then {
+      drawNonIntersectingPaths(subGraph = !options.showInFullAztecDiamond)
+    }
+
+    val DiamondDrawingOptions.Transformations(rotation, zoom) = options.transformations
+    applyTransformation(canvasToDrawTo, rotation, zoom, zoom)
+  }
+
   def tikzCode(unit: Double = 1): String = {
     val colors: Map[(Double, Double, Double), String] = Map(
       (1.0, 0.0, 0.0) -> "red",
@@ -320,9 +354,9 @@ class DiamondDrawer private (
         val stroke =
           if (withBorder) """stroke="black" stroke-width="1"""" else ""
         s"""<g fill="$color" $stroke>
-           |$rectangles
-           |</g>
-           |""".stripMargin
+            |$rectangles
+            |</g>
+            |""".stripMargin
       }
       .mkString("\n")
 

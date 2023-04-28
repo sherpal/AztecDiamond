@@ -14,6 +14,10 @@ import be.doeraene.webcomponents.ui5.configkeys.MessageStripDesign
 import scala.concurrent.duration.*
 import be.doeraene.webcomponents.ui5.configkeys.BarDesign
 import be.doeraene.webcomponents.ui5.configkeys.IconName
+import graphics.DiamondDrawingOptions
+import graphics.Canvas2D
+import mainobject.components.DiamondDrawingOptionsFormWrapper
+import scala.scalajs.LinkingInfo
 
 object DiamondGeneration {
 
@@ -125,23 +129,38 @@ object DiamondGeneration {
             }
             .flatMap(_.diamondEvent)
             .map { diamondGenerationInfo =>
+              val diamond      = diamondGenerationInfo.diamond
               val diamondType  = diamondGenerationInfo.diamondType
               val diamondOrder = diamondGenerationInfo.diamond.order
               val timeTaken    = diamondGenerationInfo.timeTaken
               DiamondDrawer(diamondGenerationInfo.diamond, diamondGenerationInfo.isInDiamond) match {
                 case Some(diamondDrawer) =>
-                  def canvas = diamondDrawer.canvas2D.canvas
+                  val optionsVar = Var(DiamondDrawingOptions.default(diamond, diamondType))
+
+                  val openDrawingOptionsBus = new EventBus[Unit]
+
                   div(
+                    Button(
+                      _.design := ButtonDesign.Default,
+                      "Change drawing options...",
+                      _.icon := IconName.settings,
+                      _.events.onClick.mapTo(()) --> openDrawingOptionsBus.writer
+                    ),
+                    DiamondDrawingOptionsFormWrapper(openDrawingOptionsBus.events, optionsVar.now(), optionsVar.writer),
                     div(
                       margin := "1em",
                       width  := "500px",
+                      height := "500px",
                       border := "2px solid black",
-                      onMountCallback { ctx =>
-                        ctx.thisNode.ref.appendChild(canvas)
-                        canvas.width = 500
-                        canvas.height = 500
-                        diamondDrawer.draw()
-                      }
+                      canvasTag(
+                        widthAttr  := 500,
+                        heightAttr := 500,
+                        onMountBind { ctx =>
+                          val canvas = Canvas2D(ctx.thisNode.ref)
+                          optionsVar.signal --> Observer(diamondDrawer.drawOnCanvas(canvas, _))
+                        }
+                      ),
+                      optionsVar.signal.changes.debugLog(_ => LinkingInfo.developmentMode) --> Observer.empty
                     ),
                     div(
                       displayTiming(diamondType, diamondOrder, timeTaken, true)

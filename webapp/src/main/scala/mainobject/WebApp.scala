@@ -29,31 +29,30 @@ object WebApp {
         )
 
       } else {
-        DiamondGenerationWorker
         TilingNumberCountingWorker
       }
     }
 
     setTimeout(2000) {
-      if (
-        List[String](
-          "Android",
-          "webOS",
-          "iPhone",
-          "iPad",
-          "iPod",
-          "BlackBerry",
-          "Windows Phone"
-        ).exists(dom.window.navigator.userAgent.contains)
-      ) {
+      if isMobile then {
         dom.document.getElementById("mobileAlert").asInstanceOf[html.Element].style.display = "block"
       }
     }
 
+    def isMobile: Boolean = List[String](
+      "Android",
+      "webOS",
+      "iPhone",
+      "iPad",
+      "iPod",
+      "BlackBerry",
+      "Windows Phone"
+    ).exists(dom.window.navigator.userAgent.contains)
+
     render(
       dom.document.getElementById("root"),
       div(
-        className := "ui5-content-density-compact",
+        className := (if isMobile then "" else "ui5-content-density-compact"),
         Header(Route.currentTitle, Route.routes),
         div(
           marginTop := "76px",
