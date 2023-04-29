@@ -67,9 +67,40 @@ trait DiamondType {
     * counting values.
     */
   val argumentNames: List[DiamondType.ArgumentName]
+
+  def withArgs(args: ArgType): DiamondType.DiamondTypeWithArgs = DiamondType.DiamondTypeWithArgs(this)(args)
 }
 
 object DiamondType {
+
+  final class DiamondTypeWithArgs(val diamondType: DiamondType)(args: diamondType.ArgType) {
+
+    def lozengeTiling: Boolean = diamondType.lozengeTiling
+
+    def defaultRotation: Int = diamondType.defaultRotation
+
+    def designedForPartitionFunction: Boolean = diamondType.designedForPartitionFunction
+
+    def name: String = diamondType.name
+
+    def argumentNames: List[ArgumentName] = diamondType.argumentNames
+
+    def diamondOrder: Int = diamondType.diamondOrder(args)
+
+    def makeGenerationWeight: GenerationWeight = diamondType.makeGenerationWeight(args)
+
+    def makeComputationWeight: ComputePartitionFunctionWeight = diamondType.makeComputationWeight(args)
+
+    def countingTilingDiamond: Diamond = diamondType.countingTilingDiamond(args)
+
+    def totalPartitionFunctionToSubGraph(totalPartition: QRoot): QRoot =
+      diamondType.totalPartitionFunctionToSubGraph(args, totalPartition)
+
+    val isPointInDiamond: Point => Boolean = diamondType.isPointInDiamond(args)
+
+    val isInDiamond: Domino => Boolean = diamondType.isInDiamond(args)
+
+  }
 
   case class ArgumentName(label: String, defaultGenerationValue: Double, defaultTilingCountingValue: Double)
 

@@ -146,22 +146,24 @@ object DominoColoursForm {
   private def choseColour(label: String, colourSignal: Signal[Color], colourObserver: Observer[Color]): HtmlElement = {
     val openBus = new EventBus[dom.HTMLElement]
     div(
-      width := "150px",
-      display.flex,
-      alignItems.center,
-      justifyContent.spaceBetween,
-      Label(label, marginRight := "1em"),
-      ColourPalette(
-        _.item(
-          _.value <-- colourSignal.map(_.toUI5)
-        ),
-        inContext(el => ColourPalette.events.onItemClick.mapTo(el.ref) --> openBus.writer),
-        ColourPalettePopover(
-          _.showAtFromEvents(openBus.events),
-          _.events.onItemClick.map(_.detail.color).map(UI5Colour.fromString(_).toAztecDiamond) --> colourObserver,
-          someColourPaletteItems,
-          _.showRecentColours := true,
-          _.showMoreColours   := true
+      ColourPalettePopover(
+        _.showAtFromEvents(openBus.events),
+        _.events.onItemClick.map(_.detail.color).map(UI5Colour.fromString(_).toAztecDiamond) --> colourObserver,
+        someColourPaletteItems,
+        _.showRecentColours := true,
+        _.showMoreColours   := true
+      ),
+      div(
+        width := "150px",
+        display.flex,
+        alignItems.center,
+        justifyContent.spaceBetween,
+        Label(label, marginRight := "1em"),
+        ColourPalette(
+          _.item(
+            _.value <-- colourSignal.map(_.toUI5)
+          ),
+          inContext(el => ColourPalette.events.onItemClick.mapTo(el.ref) --> openBus.writer)
         )
       )
     )

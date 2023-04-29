@@ -17,7 +17,12 @@ final case class DiamondDrawingOptions(
     drawNonIntersectingPaths: Boolean,
     transformations: DiamondDrawingOptions.Transformations,
     colors: DiamondDrawingOptions.DominoColors
-)
+) {
+  def shouldDrawDiamond(diamondType: DiamondType.DiamondTypeWithArgs): Domino => Boolean =
+    if !drawDominoes then _ => false
+    else if showInFullAztecDiamond then _ => true
+    else diamondType.isInDiamond
+}
 
 object DiamondDrawingOptions {
 
@@ -48,7 +53,18 @@ object DiamondDrawingOptions {
     val yellow = Color(255, 255, 0)
   }
   sealed trait DominoColors {
-    def asFunction(diamondOrder: Int): Domino => (Double, Double, Double)
+    def asFunction(diamondOrder: Int): Domino => Color
+
+    final def asIntFunction(diamondOrder: Int): Domino => (Int, Int, Int) =
+      asFunction(diamondOrder) andThen { case Color(red, green, blue) =>
+        (red, green, blue)
+      }
+
+    final def asDoubleFunction(diamondOrder: Int): Domino => (Double, Double, Double) =
+      asFunction(diamondOrder)(_).toTripleIn0_1Range
+
+    final def asCssFunction(diamondOrder: Int): Domino => String =
+      asFunction(diamondOrder) andThen { case Color(red, green, blue) => s"rgb($red,$green,$blue)" }
   }
   object DominoColors {
     def defaultFourTypes: FourTypes = FourTypes(Color.red, Color.blue, Color.green, Color.yellow)
@@ -57,22 +73,15 @@ object DiamondDrawingOptions {
       EightTypes(Color.red, Color.red, Color.blue, Color.blue, Color.green, Color.green, Color.yellow, Color.yellow)
   }
   case class FourTypes(north: Color, south: Color, east: Color, west: Color) extends DominoColors {
-    private val northTriple = north.toTripleIn0_1Range
-    private val southTriple = south.toTripleIn0_1Range
-    private val eastTriple  = east.toTripleIn0_1Range
-    private val westTriple  = west.toTripleIn0_1Range
-    def asFunction(diamondOrder: Int): Domino => (Double, Double, Double) = _.dominoType(diamondOrder) match
-      case NorthGoing => northTriple
-      case SouthGoing => southTriple
-      case EastGoing  => eastTriple
-      case WestGoing  => westTriple
+    def asFunction(diamondOrder: Int): Domino => Color = _.dominoType(diamondOrder) match
+      case NorthGoing => north
+      case SouthGoing => south
+      case EastGoing  => east
+      case WestGoing  => west
 
   }
   case class TwoTypes(horizontal: Color, vertical: Color) extends DominoColors {
-    private val horizontalTriple = horizontal.toTripleIn0_1Range
-    private val verticalTriple   = vertical.toTripleIn0_1Range
-    def asFunction(diamondOrder: Int): Domino => (Double, Double, Double) = domino =>
-      if domino.isHorizontal then horizontalTriple else verticalTriple
+    def asFunction(diamondOrder: Int): Domino => Color = domino => if domino.isHorizontal then horizontal else vertical
   }
   case class EightTypes(
       evenNorth: Color,
@@ -84,22 +93,12 @@ object DiamondDrawingOptions {
       evenWest: Color,
       oddWest: Color
   ) extends DominoColors {
-
-    private val evenNorthTriple = evenNorth.toTripleIn0_1Range
-    private val oddNorthTriple  = oddNorth.toTripleIn0_1Range
-    private val evenSouthTriple = evenSouth.toTripleIn0_1Range
-    private val oddSouthTriple  = oddSouth.toTripleIn0_1Range
-    private val evenEastTriple  = evenEast.toTripleIn0_1Range
-    private val oddEastTriple   = oddEast.toTripleIn0_1Range
-    private val evenWestTriple  = evenWest.toTripleIn0_1Range
-    private val oddWestTriple   = oddWest.toTripleIn0_1Range
-
-    def asFunction(diamondOrder: Int): Domino => (Double, Double, Double) = domino =>
+    def asFunction(diamondOrder: Int): Domino => Color = domino =>
       domino.dominoType(diamondOrder) match
-        case NorthGoing => if domino.p1.y % 2 == 0 then evenNorthTriple else oddNorthTriple
-        case SouthGoing => if domino.p1.y % 2 == 0 then evenSouthTriple else oddSouthTriple
-        case EastGoing  => if domino.p1.x % 2 == 0 then evenEastTriple else oddEastTriple
-        case WestGoing  => if domino.p1.x % 2 == 0 then evenWestTriple else oddWestTriple
+        case NorthGoing => if domino.p1.y % 2 == 0 then evenNorth else oddNorth
+        case SouthGoing => if domino.p1.y % 2 == 0 then evenSouth else oddSouth
+        case EastGoing  => if domino.p1.x % 2 == 0 then evenEast else oddEast
+        case WestGoing  => if domino.p1.x % 2 == 0 then evenWest else oddWest
 
   }
 

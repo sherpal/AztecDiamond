@@ -358,9 +358,9 @@ object Diamond {
   final class DiamondGenerationInfo(val diamondType: DiamondType)(
       val diamond: Diamond,
       val timeTaken: FiniteDuration,
-      val arg: diamondType.ArgType
+      val args: diamondType.ArgType
   ) {
-    def isInDiamond: Domino => Boolean = diamondType.isInDiamond(arg)
+    def diamondTypeWithArgs: DiamondType.DiamondTypeWithArgs = diamondType.withArgs(args)
   }
 
   /** Generate a random tiling of the diamond of order n = weights.last.n.

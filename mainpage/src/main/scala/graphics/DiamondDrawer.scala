@@ -5,6 +5,7 @@ import diamond.Diamond
 import geometry._
 import org.scalajs.dom.html
 import org.scalajs.dom.CanvasRenderingContext2D
+import diamond.DiamondType
 
 /** Class helper for drawing Diamond on a canvas.
   * @param diamond
@@ -233,10 +234,7 @@ class DiamondDrawer private (
       scaleY: Double = 1,
       subGraph: Boolean = true
   ): Unit = {
-    camera.worldCenter =
-      if (worldCenter.isDefined) worldCenter.get
-      else if (subGraph) subDiamondCenter
-      else diamondCenter
+    camera.worldCenter = worldCenter.getOrElse(if subGraph then subDiamondCenter else diamondCenter)
 
     val (worldWidth, worldHeight) = if (!subGraph) {
       (
@@ -274,7 +272,7 @@ class DiamondDrawer private (
 
   def drawOnCanvas(canvasToDrawTo: Canvas2D, options: DiamondDrawingOptions): Unit = {
     canvas2D.clear()
-    val dominoColors = options.colors.asFunction(diamond.order)
+    val dominoColors = options.colors.asDoubleFunction(diamond.order)
     if options.drawDominoes then {
       if options.showInFullAztecDiamond && !options.drawDominoesAsLozenges then
         draw(border = options.showBorderOfDominoes, colors = dominoColors)
@@ -290,7 +288,7 @@ class DiamondDrawer private (
     }
 
     val DiamondDrawingOptions.Transformations(rotation, zoom) = options.transformations
-    applyTransformation(canvasToDrawTo, rotation, zoom, zoom)
+    applyTransformation(canvasToDrawTo, rotation * 2 * math.Pi / 360, zoom, zoom)
   }
 
   def tikzCode(unit: Double = 1): String = {
@@ -318,37 +316,69 @@ class DiamondDrawer private (
   }
 
   def svgCode(
-      colors: Domino => (Double, Double, Double),
-      withBorder: Boolean
+      diamondOrder: Int,
+      diamondType: DiamondType.DiamondTypeWithArgs,
+      options: DiamondDrawingOptions
   ): String = {
-    val width =
-      600 max (2 * diamond.order)
-    val height =
-      600 max (2 * diamond.order)
+    val colorForDomino = options.colors.asCssFunction(diamondOrder)
+    val withBorder     = options.showBorderOfDominoes
 
-    val unit = width / (2 * diamond.order)
+    val rotationAngle = -options.transformations.rotationInDegrees.toInt
+    val zoom          = options.transformations.zoom
 
-    def colorString(red: Double, green: Double, blue: Double): String = {
-      def to0_255Range(x: Double): Int = (255 * ((x max 0) min 1)).toInt
+    val dominoesToDraw = dominoes.filter(options.shouldDrawDiamond(diamondType)).toVector
+    val points         = dominoesToDraw.flatMap(_.points)
 
-      s"rgb(${to0_255Range(red)}, ${to0_255Range(green)}, ${to0_255Range(blue)})"
+    case class Rectangle(x: Double, y: Double, width: Double, height: Double, color: String) {
+      def translate(z: Complex): Rectangle = copy(x = x + z.re, y = y + z.im)
+      def scale(s: Double): Rectangle      = copy(x = s * x, y = y * s, width = width * s, height = height * s)
+
     }
 
-    def colorForDomino(domino: Domino): String = {
-      val (red, green, blue) = colors(domino)
-      colorString(red, green, blue)
+    val rectangles = dominoesToDraw.map { domino =>
+      val (width, height) = if domino.isHorizontal then (2, 1) else (1, 2)
+      Rectangle(
+        domino.p1.x min domino.p2.x,
+        -((domino.p1.y max domino.p2.y) - 1),
+        width,
+        height,
+        colorForDomino(domino)
+      )
     }
 
-    val rectanglesByColor = dominoes
-      .groupBy(colorForDomino)
+    val leftMost   = rectangles.map(_.x).min
+    val rightMost  = rectangles.map(r => r.x + r.width).max
+    val topMost    = rectangles.map(_.y).min
+    val bottomMost = rectangles.map(r => r.y + r.height).max // in svg coords, so top < bottom
+
+    println((leftMost, rightMost, topMost, bottomMost))
+
+    val center = Complex(rightMost + leftMost, topMost + bottomMost) / 2
+
+    val minSize = 600
+
+    val width  = (rightMost - leftMost) max minSize
+    val height = (bottomMost - topMost) max minSize
+
+    val unit = width / (rightMost - leftMost) // arbitrarily chose horizontal as unit
+
+    val svgSize = width max height
+
+    val rectanglesToDraw = rectangles.map(_.translate(-center).scale(unit * zoom))
+
+    val translateX = -rectanglesToDraw.map(_.x).min / zoom
+    val translateY = -rectanglesToDraw.map(_.y).min / zoom
+
+    val transformStatement =
+      s"""transform="translate($translateX $translateY) rotate($rotationAngle)""""
+
+    val rectanglesByColor = rectanglesToDraw
+      .groupBy(_.color)
       .map { case (color, group) =>
         val rectangles = group
-          .map { domino =>
-            val lowerLeftX = (domino.p1.x + diamond.order - 1) * unit
-            val lowerLeftY = (domino.p1.y + diamond.order - 1) * unit
-            val (dominoWidth, dominoHeight) =
-              if (domino.isHorizontal) (2 * unit, unit) else (unit, 2 * unit)
-            s"""<rect x="$lowerLeftX" y="$lowerLeftY" width="$dominoWidth" height="$dominoHeight" />"""
+          .map { rectangle =>
+            val Rectangle(x, y, w, h, _) = rectangle
+            s"""<rect x="$x" y="$y" width="$w" height="$h" />"""
           }
           .mkString("\n")
         val stroke =
@@ -360,9 +390,11 @@ class DiamondDrawer private (
       }
       .mkString("\n")
 
-    s"""<svg xmlns="http://www.w3.org/2000/svg" width="$width" height="$height">
-    $rectanglesByColor
-  </svg>"""
+    s"""<svg xmlns="http://www.w3.org/2000/svg" width="$svgSize" height="$svgSize">
+      |<g $transformStatement >
+      |$rectanglesByColor
+      |</g>
+      |</svg>""".stripMargin
   }
 
   def nonIntersectingPathTikzCode(

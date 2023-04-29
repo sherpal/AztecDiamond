@@ -133,11 +133,15 @@ object DiamondGeneration {
               val diamondType  = diamondGenerationInfo.diamondType
               val diamondOrder = diamondGenerationInfo.diamond.order
               val timeTaken    = diamondGenerationInfo.timeTaken
-              DiamondDrawer(diamondGenerationInfo.diamond, diamondGenerationInfo.isInDiamond) match {
+              DiamondDrawer(
+                diamondGenerationInfo.diamond,
+                diamondGenerationInfo.diamondTypeWithArgs.isInDiamond
+              ) match {
                 case Some(diamondDrawer) =>
                   val optionsVar = Var(DiamondDrawingOptions.default(diamond, diamondType))
 
                   val openDrawingOptionsBus = new EventBus[Unit]
+                  val downloadSvgBus        = new EventBus[Unit]
 
                   div(
                     Button(
@@ -170,11 +174,11 @@ object DiamondGeneration {
                         _.design := ButtonDesign.Emphasized,
                         "Download SVG",
                         _.icon := IconName.download,
-                        _.events.onClick.mapTo(()) --> Observer[Unit](_ =>
+                        _.events.onClick.mapTo(()) --> downloadSvgBus.writer,
+                        downloadSvgBus.events.sample(optionsVar.signal) --> Observer((options: DiamondDrawingOptions) =>
                           utils.downloadSvgFile(
                             "diamond.svg",
-                            diamondDrawer
-                              .svgCode(diamondDrawer.defaultColors, withBorder = diamondDrawer.diamond.order <= 30)
+                            diamondDrawer.svgCode(diamondOrder, diamondGenerationInfo.diamondTypeWithArgs, options)
                           )
                         )
                       )

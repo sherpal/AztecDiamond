@@ -57,6 +57,10 @@ object DiamondDrawingOptionForm {
         initialOptions.colors,
         modifier((options, colors) => options.copy(colors = colors))
       ),
+      TransformationForm(
+        initialOptions.transformations,
+        modifier((options, transformations) => options.copy(transformations = transformations))
+      ),
       optionsSignal --> optionsObserver
     )
   }
