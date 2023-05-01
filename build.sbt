@@ -2,12 +2,16 @@ import org.scalajs.linker.interface.ESVersion
 import scala.util.matching.Regex
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 import sbt.Keys._
+import scala.sys.process.Process
 
 name := "AztecDiamond"
 
 val laminarVersion = "15.0.0"
 
 val releaseVersion: String = "1.1.0"
+
+val isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
+val npm       = if (isWindows) "npm.cmd" else "npm"
 
 val commonSettings = Seq(
   version      := releaseVersion,
@@ -155,3 +159,27 @@ lazy val dominoShufflingAlgorithmJS =
 lazy val dominoShufflingAlgorithmJVM =
   dominoShufflingAlgorithm.jvm.settings(name := "sharedJVM")
 //lazy val dominoShufflingAlgorithmJS = `dominoShufflingAlgorithm`
+
+val buildWebApp = taskKey[Unit]("Builds the web application, ready to be deployed.")
+
+buildWebApp := {
+  val buildResult = Process(npm :: "run" :: "rawBuild" :: Nil, baseDirectory.value / "webapp").!
+  if (buildResult != 0) {
+    throw new RuntimeException("Failure when building vite")
+  }
+
+  val options = CopyOptions().withOverwrite(true)
+
+  val folders = List("shapes", "examples", "generation", "algorithm")
+
+  folders.foreach { folder =>
+    IO.copyFile(
+      baseDirectory.value / "webapp" / "dist" / "index.html",
+      baseDirectory.value / "webapp" / "dist" / folder / "index.html",
+      options
+    )
+  }
+}
+
+buildWebApp := buildWebApp.dependsOn(webApp / Compile / fullLinkJS).value
+buildWebApp := buildWebApp.dependsOn(webWorker.js / Compile / fullLinkJS).value

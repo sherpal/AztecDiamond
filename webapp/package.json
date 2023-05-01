@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vite",
     "build": "cd .. && sbt fullLinkJS && cd webapp && vite build",
+    "rawBuild": "vite build",
     "preview": "vite preview --port 8080"
   },
   "devDependencies": {
