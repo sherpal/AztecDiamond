@@ -12,16 +12,19 @@
 </head>
 
 <body>
-        <div id="root"></div>
-        <%- script %>
+        <%- viteMetadata %>
+                <div id="root"></div>
+                <%- script %>
 
 
 </body>
 <script type="text/js-worker" id="scriptWorker">
         self.onmessage = function(e) {
                 const url = e.data
-                const urlWithoutGeneration = url.substr(0, url.length - ("generation").length)
-                importScripts(urlWithoutGeneration + "js/gen/main.js")
+                
+
+                console.log(pathToAdd)
+                importScripts(url + pathToAdd + "js/gen/main.js")
         }
 </script>
 

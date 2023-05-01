@@ -89,12 +89,12 @@ trait AirstreamDiamondGenerator(val initialMessage: Message) extends Computer {
 
 object AirstreamDiamondGenerator {
 
-  private class AirstreamDiamondGeneratorWorker(initialMessage: Message)
+  private class AirstreamDiamondGeneratorWorker(initialMessage: Message, val blobMaker: BlobMaker)
       extends AirstreamDiamondGenerator(initialMessage)
       with ComputerWorker
 
-  def airstreamDiamondGeneratorWorker(initialMessage: Message): AirstreamDiamondGenerator =
-    AirstreamDiamondGeneratorWorker(initialMessage)
+  def airstreamDiamondGeneratorWorker(initialMessage: Message, blobMaker: BlobMaker): AirstreamDiamondGenerator =
+    AirstreamDiamondGeneratorWorker(initialMessage, blobMaker)
 
   def cancelObserver: Observer[AirstreamDiamondGenerator] = Observer(_.cancel())
 

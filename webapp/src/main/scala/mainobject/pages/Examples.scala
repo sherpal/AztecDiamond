@@ -3,10 +3,11 @@ package mainobject.pages
 import com.raquo.laminar.api.L.*
 import be.doeraene.webcomponents.ui5.*
 import be.doeraene.webcomponents.ui5.configkeys.SideContentPosition
+import mainobject.components.TitleHeader
+import mainobject.components.Footer
+import utils.diamondImagesFolder
 
 object Examples {
-
-  private val diamondImagesFolder = "/images/diamonds/"
 
   private case class RowInfo(elem: HtmlElement, imageSrc: String)
 
@@ -69,7 +70,7 @@ object Examples {
   )
 
   def apply(): HtmlElement = div(
-    h1("Aztec diamonds examples"),
+    TitleHeader("Aztec diamonds examples"),
     examples.zipWithIndex.map { case (RowInfo(text, imgSrc), index) =>
       div(
         margin := "1em",
@@ -85,7 +86,8 @@ object Examples {
           div(maxWidth := "800px", padding := "0.5em", text)
         )
       )
-    }
+    },
+    Footer()
   )
 
 }

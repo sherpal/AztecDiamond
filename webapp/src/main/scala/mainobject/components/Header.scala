@@ -17,8 +17,8 @@ object Header {
     alignItems.center,
     color   := "white",
     padding := "0.5em",
-    height  := "60px",
-    a(className := "navbar-brand", "Aztec Diamond"),
+    height  := "65px",
+    a(className := "navbar-brand", "Aztec Diamond", href := routes.find(_.title == "Home").get.path),
     div(
       routes.filterNot(_.title == "Home").map { route =>
         val title = route.title

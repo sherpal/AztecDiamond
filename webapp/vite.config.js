@@ -11,19 +11,23 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
   console.log("mainJS", mainJS)
   const script = `<script type="module" src="${mainJS}"></script>`
 
+  const base = "/aztec-diamond-generator/"
+  const viteMetadata = `<script type="text/javascript">window.basePath = "${base}";window.aztecProdMode = ${mode === "production"};</script>`
+
   return {
     publicDir: "./public",
     plugins: createHtmlPlugin({
       minify: process.env.NODE_ENV === 'production',
       inject: {
         data: {
-          script
+          "script": script,
+          "viteMetadata": viteMetadata
         }
       }
     }),
-    base: "/aztec-diamond-generator/",
+    base: base,
     server: {
-      open: '/aztec-diamond-generator'
+      open: base
     }
   }
 })

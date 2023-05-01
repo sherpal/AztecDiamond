@@ -2,7 +2,9 @@ package utils
 
 import org.scalajs.dom
 
+import scala.scalajs.js
 import scala.scalajs.js.URIUtils.encodeURIComponent
+import scala.scalajs.LinkingInfo
 
 private def downloadContent(filename: String, contents: String, contentType: String): Unit = {
   val element = dom.document.createElement("a").asInstanceOf[dom.HTMLElement]
@@ -19,3 +21,7 @@ def downloadText(filename: String, contents: String): Unit =
   downloadContent(filename, contents, "application/octet-stream")
 
 def downloadSvgFile(filename: String, svg: String): Unit = downloadContent(filename, svg, "image/svg+xml")
+
+def rawBasePath         = js.Dynamic.global.basePath.asInstanceOf[String]
+def basePath            = if LinkingInfo.developmentMode then "/" else rawBasePath
+def diamondImagesFolder = basePath ++ "images/diamonds/"

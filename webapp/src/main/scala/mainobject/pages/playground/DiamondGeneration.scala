@@ -18,11 +18,20 @@ import graphics.DiamondDrawingOptions
 import graphics.Canvas2D
 import mainobject.components.DiamondDrawingOptionsFormWrapper
 import scala.scalajs.LinkingInfo
+import scala.concurrent.ExecutionContext.Implicits.global
+import computationcom.BlobMaker
+import mainobject.components.ExportButton
+import org.scalajs.dom
+import scala.util.matching.Regex
 
 object DiamondGeneration {
 
   def apply(diamondTypes: List[DiamondType]): HtmlElement = {
     val diamondTypeVar: Var[DiamondType] = Var(UniformDiamond)
+
+    IconName.`status-positive`
+    IconName.`status-in-process`
+    IconName.hint
 
     div(
       DiamondTypeSelector(diamondTypes, diamondTypeVar.writer),
@@ -75,14 +84,18 @@ object DiamondGeneration {
               arg
             }
             .withCurrentValueOf(optimizeMemoryArgumentVar.signal)
-            .map((arg, memoryOptimized) =>
+            .flatMap((arg, mem) =>
+              EventStream.fromFuture(BlobMaker.fromFetch(utils.basePath ++ "js/gen/main.js")).map((arg, mem, _))
+            )
+            .map((arg, memoryOptimized, blobMaker) =>
               Some(
                 AirstreamDiamondGenerator.airstreamDiamondGeneratorWorker(
                   GenerateDiamondMessage(
                     diamondType.toString,
                     diamondType.transformArgumentsBack(arg).toVector,
                     memoryOptimized = memoryOptimized
-                  )
+                  ),
+                  blobMaker
                 )
               )
             ) --> maybeCurrentComputerVar.writer,
@@ -155,14 +168,17 @@ object DiamondGeneration {
                       margin := "1em",
                       width  := "500px",
                       height := "500px",
-                      border := "2px solid black",
                       canvasTag(
-                        widthAttr  := 500,
-                        heightAttr := 500,
+                        idAttr     := "canvas-for-the-diamond",
+                        widthAttr  := 2000,
+                        heightAttr := 2000,
+                        width      := "500px",
+                        height     := "500px",
                         onMountBind { ctx =>
                           val canvas = Canvas2D(ctx.thisNode.ref)
                           optionsVar.signal --> Observer(diamondDrawer.drawOnCanvas(canvas, _))
-                        }
+                        },
+                        border := "2px solid black"
                       ),
                       optionsVar.signal.changes.debugLog(_ => LinkingInfo.developmentMode) --> Observer.empty
                     ),
@@ -170,17 +186,27 @@ object DiamondGeneration {
                       displayTiming(diamondType, diamondOrder, timeTaken, true)
                     ),
                     div(
-                      Button(
-                        _.design := ButtonDesign.Emphasized,
-                        "Download SVG",
-                        _.icon := IconName.download,
-                        _.events.onClick.mapTo(()) --> downloadSvgBus.writer,
-                        downloadSvgBus.events.sample(optionsVar.signal) --> Observer((options: DiamondDrawingOptions) =>
+                      ExportButton(
+                        () =>
                           utils.downloadSvgFile(
                             "diamond.svg",
-                            diamondDrawer.svgCode(diamondOrder, diamondGenerationInfo.diamondTypeWithArgs, options)
-                          )
-                        )
+                            diamondDrawer
+                              .svgCode(diamondOrder, diamondGenerationInfo.diamondTypeWithArgs, optionsVar.now())
+                          ),
+                        () => {
+                          val a = dom.document.createElement("a").asInstanceOf[dom.HTMLAnchorElement]
+                          val dataUrl = dom.document
+                            .getElementById("canvas-for-the-diamond")
+                            .asInstanceOf[dom.HTMLCanvasElement]
+                            .toDataURL("image/png")
+                          a.href =
+                            new Regex("^data:image/[^;]").replaceFirstIn(dataUrl, "data:application/octet-stream")
+                          dom.document.body.appendChild(a)
+                          a.style.display = "none"
+                          a.setAttribute("download", "aztec-diamond.png")
+                          a.click()
+                          dom.document.body.removeChild(a)
+                        }
                       )
                     )
                   )

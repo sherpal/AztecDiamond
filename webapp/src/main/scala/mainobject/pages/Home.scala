@@ -3,14 +3,17 @@ package mainobject.pages
 import com.raquo.laminar.api.L.*
 import be.doeraene.webcomponents.ui5.*
 import be.doeraene.webcomponents.ui5.configkeys.MediaGalleryLayout
+import mainobject.components.TitleHeader
+import mainobject.components.Footer
+import utils.diamondImagesFolder
 
 object Home {
 
-  private def diamondImagesFolder = "/images/diamonds/"
-
   def apply(): HtmlElement = div(
     idAttr := "description",
+    TitleHeader("Aztec Diamonds"),
     div(
+      justifyContent.center,
       cls := "container",
       div(
         cls := "row centered",
@@ -68,7 +71,8 @@ object Home {
           )
         )
       )
-    )
+    ),
+    Footer()
   )
 
 }

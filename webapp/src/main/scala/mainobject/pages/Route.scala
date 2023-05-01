@@ -12,7 +12,8 @@ final case class Route(segment: PathSegment[Unit, _], component: () => HtmlEleme
 
 object Route {
 
-  val baseRoute = root / "aztec-diamond-generator"
+  println(utils.rawBasePath)
+  val baseRoute = root / utils.rawBasePath.filterNot(_ == '/')
 
   val homeRoute      = baseRoute / endOfSegments
   val shapesRoute    = baseRoute / "shapes"

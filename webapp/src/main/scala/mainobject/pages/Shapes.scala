@@ -4,10 +4,11 @@ import be.doeraene.webcomponents.ui5.*
 import com.raquo.laminar.api.L.*
 import be.doeraene.webcomponents.ui5.configkeys.SideContentPosition
 import be.doeraene.webcomponents.ui5.configkeys.LinkTarget
+import mainobject.components.TitleHeader
+import mainobject.components.Footer
+import utils.diamondImagesFolder
 
 object Shapes {
-
-  private val diamondImagesFolder = "/images/diamonds/"
 
   private def doubleAztecAndTacnode = Link(
     _.href   := "https://arxiv.org/abs/1112.5532",
@@ -99,28 +100,32 @@ object Shapes {
     }
 
     div(
-      h1("Available shapes"),
-      p(
-        "The software offers to generate various types of shapes. The description of each of them, as well as an example, can be found below.",
-        br(),
-        "In order to generate the shapes, we always need to generate a bigger enclosing Aztec Diamond. In the online version of the software, a typical computer will generate diamond up to order 100 quite rapidly. The desktop application is up to 10 times faster."
-      ),
-      h2("Plotting Options"),
-      p(
-        "In order to have images that best fit your needs, options for plotting are available:"
-      ),
-      ul(
-        li("Change the colours of the dominoes."),
-        li(
-          "Draw the dominoes with or without a black boundary. If the order of the diamond is bigger than 50, it " +
-            "will not draw the border by default."
+      TitleHeader("Available shapes"),
+      div(
+        padding := "1em",
+        p(
+          "The software offers to generate various types of shapes. The description of each of them, as well as an example, can be found below.",
+          br(),
+          "In order to generate the shapes, we always need to generate a bigger enclosing Aztec Diamond. In the online version of the software, a typical computer will generate diamond up to order 100 quite rapidly. The desktop application is up to 10 times faster."
         ),
-        li("See the shape in its enclosing Diamond."),
-        li("See the non-intersecting paths the diamonds are in bijection with."),
-        li("Draw the dominoes as lozenges. This is activated by default for Hexagon tiling."),
-        li("Rotate the Shape and zoom.")
+        h2("Plotting Options"),
+        p(
+          "In order to have images that best fit your needs, options for plotting are available:"
+        ),
+        ul(
+          li("Change the colours of the dominoes."),
+          li(
+            "Draw the dominoes with or without a black boundary. If the order of the diamond is bigger than 50, it " +
+              "will not draw the border by default."
+          ),
+          li("See the shape in its enclosing Diamond."),
+          li("See the non-intersecting paths the diamonds are in bijection with."),
+          li("Draw the dominoes as lozenges. This is activated by default for Hexagon tiling."),
+          li("Rotate the Shape and zoom.")
+        ),
+        sectionTag(h2("Shapes"), diamondElements)
       ),
-      sectionTag(h2("Shapes"), diamondElements)
+      Footer()
     )
   }
 

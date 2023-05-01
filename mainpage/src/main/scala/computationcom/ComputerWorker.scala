@@ -11,7 +11,10 @@ import scala.scalajs.js.JSConverters.*
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 
 trait ComputerWorker extends Computer {
-  private val worker = new Worker(URL.createObjectURL(BlobMaker.blob))
+
+  def blobMaker: BlobMaker
+
+  private val worker = new Worker(URL.createObjectURL(blobMaker.blob))
 
   worker.onmessage = (event: dom.MessageEvent) =>
     event.data match {
@@ -54,14 +57,6 @@ trait ComputerWorker extends Computer {
     )
 
   worker.onerror = (event: dom.ErrorEvent) => println(event.message)
-
-  {
-    val url      = dom.window.location
-    val href     = url.href
-    val index    = href.indexOf(ComputerWorker._fileName)
-    val finalUrl = if (index != -1) href.substring(0, index) else href
-    worker.postMessage(finalUrl)
-  }
 
 }
 

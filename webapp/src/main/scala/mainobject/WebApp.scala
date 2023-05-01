@@ -55,7 +55,7 @@ object WebApp {
         className := (if isMobile then "" else "ui5-content-density-compact"),
         Header(Route.currentTitle, Route.routes),
         div(
-          marginTop := "76px",
+          marginTop := "65px",
           Route.currentPage
         )
       )
