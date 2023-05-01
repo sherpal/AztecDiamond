@@ -29,10 +29,6 @@ object DiamondGeneration {
   def apply(diamondTypes: List[DiamondType]): HtmlElement = {
     val diamondTypeVar: Var[DiamondType] = Var(UniformDiamond)
 
-    IconName.`status-positive`
-    IconName.`status-in-process`
-    IconName.hint
-
     div(
       DiamondTypeSelector(diamondTypes, diamondTypeVar.writer),
       child <-- diamondTypeVar.signal.map { diamondType =>
@@ -224,21 +220,18 @@ object DiamondGeneration {
     )
   }
 
+  def timeDisplay(timeTaken: FiniteDuration) =
+    if timeTaken < 1.second then timeTaken.toMillis.toString ++ "ms"
+    else if timeTaken < 1.minute then timeTaken.toSeconds.toString ++ "s"
+    else if timeTaken < 1.hour then s"${timeTaken.toMinutes} min ${timeTaken.toSeconds % 60}s"
+    else s"${timeTaken.toMinutes} min"
+
   private def displayTiming(
       diamondType: DiamondType,
       diamondOrder: Int,
       timeTaken: FiniteDuration,
       generationOrWeightComputation: Boolean
-  ): String = {
-    val timeDisplay =
-      if timeTaken < 1.second then timeTaken.toMillis.toString ++ "ms"
-      else if timeTaken < 1.minute then timeTaken.toSeconds.toString ++ "s"
-      else if timeTaken < 1.hour then s"${timeTaken.toMinutes} min ${timeTaken.toSeconds % 60}s"
-      else s"${timeTaken.toMinutes} min"
-
-    val genOrWeight = if generationOrWeightComputation then "generate" else "compute weights of"
-
-    s"It took $timeDisplay to $genOrWeight a diamond of type $diamondType of total order $diamondOrder"
-  }
+  ): String =
+    s"It took ${timeDisplay(timeTaken)} to generate a diamond of type $diamondType of total order $diamondOrder"
 
 }

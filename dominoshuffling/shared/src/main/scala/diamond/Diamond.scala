@@ -363,6 +363,35 @@ object Diamond {
     def diamondTypeWithArgs: DiamondType.DiamondTypeWithArgs = diamondType.withArgs(args)
   }
 
+  final class DiamondCountingInfo(val diamondType: DiamondType)(
+      val timeTaken: FiniteDuration,
+      val args: diamondType.ArgType,
+      val weight: QRoot,
+      val probability: QRoot
+  ) {
+    lazy val diamondTypeWithArgs: DiamondType.DiamondTypeWithArgs = diamondType.withArgs(args)
+
+    lazy val partitionFunction = weight / probability
+
+    lazy val subGraphPartition = diamondTypeWithArgs.totalPartitionFunctionToSubGraph(partitionFunction)
+
+    lazy val isSubGraphPartitionInteger = subGraphPartition == QRoot.fromBigInt(subGraphPartition.toBigInt)
+
+    lazy val scientificNotation: String =
+      if (!isSubGraphPartitionInteger) ""
+      else {
+        val stringNbr = subGraphPartition.toBigInt.toString
+        if stringNbr.length < 6 then ""
+        else {
+          " (" ++ (stringNbr(0).toString ++ "." ++ stringNbr.slice(
+            1,
+            4
+          ) ++ "e+" ++ (stringNbr.length - 1).toString) + ")"
+        }
+      }
+
+  }
+
   /** Generate a random tiling of the diamond of order n = weights.last.n.
     *
     * @param weights

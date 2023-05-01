@@ -13,6 +13,10 @@ object Playground {
       _.tab(
         _.text := "Diamond Generation",
         DiamondGeneration(DiamondType.diamondTypes)
+      ),
+      _.tab(
+        _.text := "Tiling Counting",
+        TilingCounting(DiamondType.diamondTypes)
       )
     )
   )

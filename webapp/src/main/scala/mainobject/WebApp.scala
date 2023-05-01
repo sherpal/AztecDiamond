@@ -10,6 +10,7 @@ import mainobject.components.*
 
 import scala.scalajs.js
 import scala.scalajs.js.timers.setTimeout
+import be.doeraene.webcomponents.ui5.configkeys.IconName
 
 object WebApp {
 
@@ -17,7 +18,9 @@ object WebApp {
 
     println("This is a web application")
 
-    // AztecDiamond
+    // see https://github.com/sherpal/LaminarSAPUI5Bindings/issues/56
+    IconName.`status-positive`
+    IconName.hint
 
     setTimeout(1000) {
       if (js.Dynamic.global.Worker == null) {
@@ -27,9 +30,6 @@ object WebApp {
             "You should update your browser and get the latest version if you want to use the Aztec Diamond generation." +
             " Sorry."
         )
-
-      } else {
-        TilingNumberCountingWorker
       }
     }
 

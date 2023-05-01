@@ -101,9 +101,13 @@ final case class TilingWrongParameterException(errorMessage: String) extends Til
 
 final case class NotImplementedTilingCounting(message: String) extends TilingComputationMessage
 
-final case class CountingComputationStatus(percentage: Int) extends TilingComputationMessage
+final case class CountingComputationStatus(percentage: Int) extends TilingComputationMessage {
+  def ended: Boolean = percentage >= 100
+}
 
-final case class CountingComputationStatusSubroutine(percentage: Int) extends TilingComputationMessage
+final case class CountingComputationStatusSubroutine(percentage: Int) extends TilingComputationMessage {
+  def ended: Boolean = percentage >= 100
+}
 
 sealed trait ImageDiamond extends Message
 
