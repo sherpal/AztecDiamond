@@ -30,16 +30,17 @@ class CustomComputePartitionFunctionWeight(val n: Int)(implicit
       .flatMap { face =>
         val (newPairs, newZeroes) = face.qRootSubWeights(this)
 
-        for (
-          (d, w) <- newPairs
-          if newWeights.inBoundsDomino(d)
-        )
-          newWeights(d) = w
+        newPairs.foreach { (d, w) =>
+          if newWeights.inBoundsDomino(d) then {
+            newWeights(d) = w
+          }
+        }
 
         newZeroes
       }
-      .filter(newWeights.inBoundsDomino)
-      .foreach(domino => newWeights(domino) = _0)
+      .foreach { domino =>
+        if newWeights.inBoundsDomino(domino) then newWeights(domino) = _0
+      }
 
     newWeights
 

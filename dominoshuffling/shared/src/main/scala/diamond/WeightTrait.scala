@@ -8,31 +8,24 @@ import scala.collection.immutable.TreeSet
 
 /** Describe the behaviour of weights.
   *
-  * Given a WeightTrait, the way of generating a Diamond is always the same, and
-  * follows the algorithm described in [1]. The way the sub weights are
-  * computed, the way you recover the weight of a domino and the way you change
-  * it are different.
+  * Given a WeightTrait, the way of generating a Diamond is always the same, and follows the algorithm described in [1].
+  * The way the sub weights are computed, the way you recover the weight of a domino and the way you change it are
+  * different.
   *
-  * A WeightType must be a [[WeightLikeNumber]]. Usually, one of the following
-  * two types is used
-  *   - Double: if you want efficiency when generating diamonds, this is
-  *     probably the best choice
-  *   - QRoot: if you need full precision when computing probabilities of
-  *     diamonds.
+  * A WeightType must be a [[WeightLikeNumber]]. Usually, one of the following two types is used
+  *   - Double: if you want efficiency when generating diamonds, this is probably the best choice
+  *   - QRoot: if you need full precision when computing probabilities of diamonds.
   *
   * The graph of the Aztec Diamond of order 3 is pictured below.
   *
-  * ._. <- horizontalWeights(2 * n - 1) (length 1) \| | ._._._. \| | | |
-  * ._._._._._. \| | | | | | ._._._._._. \| | | | ._._._. <-
-  * horizontalWeights(1) (length 3 = 2 * 1 + 1) \| | ._. <- horizontalWeights(0)
-  * (length 1)
+  * ._. <- horizontalWeights(2 * n - 1) (length 1) \| | ._._._. \| | | | ._._._._._. \| | | | | | ._._._._._. \| | | |
+  * ._._._. <- horizontalWeights(1) (length 3 = 2 * 1 + 1) \| | ._. <- horizontalWeights(0) (length 1)
   *
   * \ verticalWeights(0) (length 1) \ verticalWeights(1) (length 3)
   *
-  * The graph is invariant under pi/2 rotations, that's why we register
-  * horizontal and vertical weights in a dual way. The way we store the weights
-  * is just an implementation detail, all we need is that the apply and update
-  * methods are consistent with each other.
+  * The graph is invariant under pi/2 rotations, that's why we register horizontal and vertical weights in a dual way.
+  * The way we store the weights is just an implementation detail, all we need is that the apply and update methods are
+  * consistent with each other.
   *
   * It is also mutable for the purpose of the algorithm.
   *
@@ -50,9 +43,8 @@ trait WeightTrait[WeightType] {
     */
   def update(domino: Domino, weight: WeightType): Unit
 
-  /** Returns the WeightTrait for the sub diamond. The contract is that if a
-    * diamond is generated according to the probability distribution induced by
-    * the subWeights, then applying the algorithm gives a diamond generated
+  /** Returns the WeightTrait for the sub diamond. The contract is that if a diamond is generated according to the
+    * probability distribution induced by the subWeights, then applying the algorithm gives a diamond generated
     * according to this weight.
     */
   def subWeights: WeightTrait[WeightType]
@@ -73,12 +65,10 @@ trait WeightTrait[WeightType] {
 
 object WeightTrait {
 
-  /** Returns the weight necessary to generate uniform random tiling of the set
-    * of points that satisfy the predicate. As a byproduct, you generate a
-    * uniform random tiling of the complement.
+  /** Returns the weight necessary to generate uniform random tiling of the set of points that satisfy the predicate. As
+    * a byproduct, you generate a uniform random tiling of the complement.
     *
-    * The way it does that is simply putting weight 1 on all the dominoes,
-    * except the ones on the boundary.
+    * The way it does that is simply putting weight 1 on all the dominoes, except the ones on the boundary.
     *
     * @param n
     *   The order of the embedding diamond.
@@ -95,16 +85,16 @@ object WeightTrait {
 
     Face
       .activeFaces(n)
-      .foreach(face => {
-        face.dominoes.foreach(domino => {
+      .foreach { face =>
+        face.dominoes.foreach { domino =>
           // is there XOR operator in Scala?
           if (isInSubGraph(domino.p1) == isInSubGraph(domino.p2)) {
             weights(domino) = 1.0
           } else {
             weights(domino) = 0.0
           }
-        })
-      })
+        }
+      }
     weights
   }
 
@@ -119,22 +109,22 @@ object WeightTrait {
 
     Face
       .activeFaces(n)
-      .foreach(face => {
-        face.dominoes.foreach(domino => {
+      .foreach { face =>
+        face.dominoes.foreach { domino =>
           // is there XOR operator in Scala?
           if (isInSubGraph(domino.p1) == isInSubGraph(domino.p2)) {
             weights(domino) = _1
           } else {
             weights(domino) = _0
           }
-        })
-      })
+        }
+      }
     weights
 
   }
 
-  /** Returns the weights necessary to generate a uniformly random tiling of the
-    * graph containing the points in the given collection.
+  /** Returns the weights necessary to generate a uniformly random tiling of the graph containing the points in the
+    * given collection.
     *
     * @param n
     *   the order of the embedding diamond.
@@ -159,8 +149,8 @@ object WeightTrait {
     injectSubGraphQRoot(n, pointsSet.contains(_: Point))
   }
 
-  /** Returns the Weight necessary to generate the sub graph according to the
-    * weights defined by the subGraphWeights map.
+  /** Returns the Weight necessary to generate the sub graph according to the weights defined by the subGraphWeights
+    * map.
     *
     * @param n
     *   the size of the embedding diamond
@@ -184,15 +174,15 @@ object WeightTrait {
 
     Face
       .activeFaces(n)
-      .foreach(face => {
-        face.dominoes.foreach(domino => {
+      .foreach { face =>
+        face.dominoes.foreach { domino =>
           subGraphWeights.get(domino) match {
             case Some(w) =>
               weights(domino) = w
             case _ =>
           }
-        })
-      })
+        }
+      }
 
     weights
   }
@@ -212,15 +202,15 @@ object WeightTrait {
 
     Face
       .activeFaces(n)
-      .foreach(face => {
-        face.dominoes.foreach(domino => {
+      .foreach { face =>
+        face.dominoes.foreach { domino =>
           subGraphWeights.get(domino) match {
             case Some(w) =>
               weights(domino) = w
             case _ =>
           }
-        })
-      })
+        }
+      }
 
     weights
   }
@@ -243,29 +233,34 @@ object WeightTrait {
     point.x >= xMin(point.y) && point.x <= xMax(point.y)
   }
 
-  /** Computes the WeightTrait for generating random lozenge tilings of the
-    * hexagon.
-    *
-    * We can generate a hexagon from an Aztec Diamond by forbidding the
-    * [[WestGoing]] dominoes inside the sub graph of the hexagon. For example,
-    * the sub graph of a hexagon with each side 1 is ._._. \| | ._._. The sub
-    * graph for a hexagon with each side 2 is ._._. \| | ._._._._. \| | |
-    * ._._._._. \| | ._._. (each weight on the existing edges is then 1.0)
-    *
-    * The embedding is done simply by putting the sub graph at the right of the
-    * Aztec Diamond. Then, you wan show that if embedded in a diamond of order 2
-    * * a - 1 + b, both the hexagon and its complement are tileable.
-    *
-    * @param a
-    *   size of the top right and bottom left sides of the hexagon
-    * @param b
-    *   size of the top and bottom sides of the hexagon (those parallel to the
-    *   horizontal axis)
-    * @param c
-    *   size of the top left and bottom right sides of the hexagon
-    * @return
-    *   the WeightTrait needed to generate a random tiling.
-    */
+  // format: off
+  /**
+   * Computes the WeightTrait for generating random lozenge tilings of the hexagon.
+   *
+   * We can generate a hexagon from an Aztec Diamond by forbidding the [[WestGoing]] dominoes inside the sub graph of
+   * the hexagon. For example, the sub graph of a hexagon with each side 1 is
+   *   ._._.
+   *   |   |
+   *   ._._.
+   * The sub graph for a hexagon with each side 2 is
+   *     ._._.
+   *     |   |
+   *   ._._._._.
+   *   |   |   |
+   *   ._._._._.
+   *     |   |
+   *     ._._.
+   * (each weight on the existing edges is then 1.0)
+   *
+   * The embedding is done simply by putting the sub graph at the right of the Aztec Diamond. Then, you wan show that
+   * if embedded in a diamond of order 2 * a - 1 + b, both the hexagon and its complement are tileable.
+   *
+   * @param a size of the top right and bottom left sides of the hexagon
+   * @param b size of the top and bottom sides of the hexagon (those parallel to the horizontal axis)
+   * @param c size of the top left and bottom right sides of the hexagon
+   * @return  the WeightTrait needed to generate a random tiling.
+   */
+  // format: on
   def hexagonWeightGeneration(
       a: Int,
       b: Int,
@@ -313,9 +308,8 @@ object WeightTrait {
     weights
   }
 
-  def isInRectangle(point: Point, width: Int, height: Int): Boolean = {
+  def isInRectangle(point: Point, width: Int, height: Int): Boolean =
     -width / 2 + 1 <= point.x && point.x <= (width + 1) / 2 && -height / 2 + 1 <= point.y && point.y <= (height + 1) / 2
-  }
 
   def rectangleOrder(width: Int, height: Int): Int =
     (width + height - 2 + 1) / 2 // +1 needed in case either
@@ -324,12 +318,11 @@ object WeightTrait {
   def rectangleWeightsGeneration(
       width: Int,
       height: Int
-  ): CustomGenerationWeight = {
+  ): CustomGenerationWeight =
     injectSubGraphDouble(
       rectangleOrder(width, height),
       (point: Point) => isInRectangle(point, width, height)
     )
-  }
 
   def rectangleWeightsPartition(
       width: Int,
@@ -343,8 +336,7 @@ object WeightTrait {
     )
   }
 
-  /** Returns whether the Point point is in the Aztec House of specified width
-    * and height.
+  /** Returns whether the Point point is in the Aztec House of specified width and height.
     */
   def isInAztecHouse(point: Point, width: Int, height: Int): Boolean =
     (-width / 2 + 1 <= point.x && point.x <= (width + 1) / 2
@@ -395,8 +387,8 @@ object WeightTrait {
     isInLeftDoubleAztec(point, n, l) || isInRightDoubleAztec(point, n, l)
   }
 
-  /** Returns the WeightMap able to generate a random tiling of a Double Aztec
-    * diamond as in Adler-Johansson-van Moerbeke.
+  /** Returns the WeightMap able to generate a random tiling of a Double Aztec diamond as in Adler-Johansson-van
+    * Moerbeke.
     */
   def doubleAztecDiamondGeneration(
       order: Int,
@@ -424,9 +416,7 @@ object WeightTrait {
 
     Face
       .activeFaces(totalOrder)
-      .foreach(_.dominoes.foreach(domino => {
-        weights(domino) = if (oneWeight(domino)) 1.0 else 0.0
-      }))
+      .foreach(_.dominoes.foreach(domino => weights(domino) = if (oneWeight(domino)) 1.0 else 0.0))
 
     weights
   }
@@ -460,9 +450,7 @@ object WeightTrait {
 
     Face
       .activeFaces(totalOrder)
-      .foreach(_.dominoes.foreach(domino => {
-        weights(domino) = if (oneWeight(domino)) _1 else _0
-      }))
+      .foreach(_.dominoes.foreach(domino => weights(domino) = if (oneWeight(domino)) _1 else _0))
 
     weights
   }
@@ -471,24 +459,19 @@ object WeightTrait {
       point: Point,
       innerOrder: Int,
       outerOrder: Int
-  ): Boolean = {
+  ): Boolean =
     Diamond.inBoundsPoint(point, Point(0, 0), outerOrder) && !Diamond
       .inBoundsPoint(point, Point(0, 0), innerOrder)
-  }
 
-  /** Returns the WeightMap necessary to generate an Aztec ring with specified
-    * inner and outer order.
+  /** Returns the WeightMap necessary to generate an Aztec ring with specified inner and outer order.
     *
-    * Conditions on inner and outer orders for being tileable is shown in [1,
-    * Proposition 1].
+    * Conditions on inner and outer orders for being tileable is shown in [1, Proposition 1].
     */
   def diamondRingGeneration(
       innerOrder: Int,
       outerOrder: Int
-  ): CustomGenerationWeight = {
-    if (
-      outerOrder > innerOrder && ((outerOrder - innerOrder) % 2 == 0 || outerOrder >= 3 * innerOrder - 1)
-    ) {
+  ): CustomGenerationWeight =
+    if (outerOrder > innerOrder && ((outerOrder - innerOrder) % 2 == 0 || outerOrder >= 3 * innerOrder - 1)) {
       injectSubGraphDouble(
         outerOrder,
         (point: Point) => isInDiamondRing(point, innerOrder, outerOrder)
@@ -496,15 +479,12 @@ object WeightTrait {
     } else {
       throw new NotTileableException
     }
-  }
 
   def diamondRingPartition(
       innerOrder: Int,
       outerOrder: Int
-  ): CustomComputePartitionFunctionWeight = {
-    if (
-      outerOrder > innerOrder && ((outerOrder - innerOrder) % 2 == 0 || outerOrder >= 3 * innerOrder - 1)
-    ) {
+  ): CustomComputePartitionFunctionWeight =
+    if (outerOrder > innerOrder && ((outerOrder - innerOrder) % 2 == 0 || outerOrder >= 3 * innerOrder - 1)) {
       injectSubGraphQRoot(
         outerOrder,
         (point: Point) => isInDiamondRing(point, innerOrder, outerOrder)
@@ -512,7 +492,6 @@ object WeightTrait {
     } else {
       throw new NotTileableException
     }
-  }
 
   def twoPeriodicAztecDiamondGeneration(
       a: Double,
@@ -531,8 +510,8 @@ object WeightTrait {
     weight
   }
 
-  /** Computes the WeightMap for a double periodic aztec diamond of order order.
-    * The a weight value starts at the top of the diamond.
+  /** Computes the WeightMap for a double periodic aztec diamond of order order. The a weight value starts at the top of
+    * the diamond.
     */
   def twoPeriodicAztecDiamondPartition(
       a: QRoot,
@@ -551,27 +530,23 @@ object WeightTrait {
     weight
   }
 
-  /** Computes all the weights from weight to the Weights for diamond order 1.
-    * The head of the list is the WeightMap for diamond of order 1, and the last
-    * is the argument weight.
+  /** Computes all the weights from weight to the Weights for diamond order 1. The head of the list is the WeightMap for
+    * diamond of order 1, and the last is the argument weight.
     *
-    * This can be memory-heavy and should be adapted to avoid Out of Memory
-    * issues when generating Diamonds of large sizes. When memory is not an
-    * issue, it is the most efficient way to generate diamonds. Remark: when
-    * using [[UniformWeightGeneration]], memory is never an issue because of the
-    * special treatment that we do in this case.
+    * This can be memory-heavy and should be adapted to avoid Out of Memory issues when generating Diamonds of large
+    * sizes. When memory is not an issue, it is the most efficient way to generate diamonds. Remark: when using
+    * [[UniformWeightGeneration]], memory is never an issue because of the special treatment that we do in this case.
     */
   def computeAllWeights[WeightType, Weight <: WeightTrait[WeightType]](
       weight: Weight
   ): List[Weight] = {
-    def computeAllWeightsAcc(computed: List[Weight]): List[Weight] = {
+    def computeAllWeightsAcc(computed: List[Weight]): List[Weight] =
       if (computed.head.n == 1)
         computed
       else
         computeAllWeightsAcc(
           computed.head.subWeights.asInstanceOf[Weight] +: computed
         )
-    }
 
     computeAllWeightsAcc(List(weight))
   }

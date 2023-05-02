@@ -11,7 +11,7 @@ case class Point(x: Int, y: Int) extends Ordered[Point] {
   override def compare(that: Point): Int = if (this.x != that.x) this.x - that.x
   else this.y - that.y
 
-  def +(that: Point): Point = Point(this.x + that.x, this.y + that.y)
+  inline def +(that: Point): Point = Point(this.x + that.x, this.y + that.y)
 
   def toVectorCoordinate(diamondOrder: Int): (Int, Int) = {
     def yMin(x: Int) = if (x < 1) -diamondOrder + 1 - x else -diamondOrder + x

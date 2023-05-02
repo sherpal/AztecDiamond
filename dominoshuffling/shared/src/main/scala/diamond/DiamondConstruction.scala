@@ -83,7 +83,7 @@ object DiamondConstruction {
     } {
       points(currentIndex) = Point(x, y)
       points(currentIndex + 1) = Point(x, -y + 1)
-      currentIndex += 1
+      currentIndex += 2
     }
     points
   }

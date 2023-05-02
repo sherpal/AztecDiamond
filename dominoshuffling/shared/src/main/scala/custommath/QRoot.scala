@@ -236,13 +236,13 @@ object QRoot {
     QRoot(math.round(exponent * d), exponent)
   }
 
-  def abs(n: BigInt): BigInt = if (n >= 0) n else -n
+  def abs(n: BigInt): BigInt = if n >= 0 then n else -n
 
   def apply(num: BigInt, den: BigInt): QRoot = Rational.apply(num, den)
 
   import scala.language.implicitConversions
 
-  implicit object QRootIsWeightLikeNumber extends WeightLikeNumber[QRoot] {
+  given WeightLikeNumber[QRoot] = new WeightLikeNumber[QRoot] {
     override def zero: QRoot = QRoot(0, 1)
 
     override def one: QRoot = QRoot(1, 1)
