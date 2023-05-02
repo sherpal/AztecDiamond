@@ -6,10 +6,6 @@ import scala.language.implicitConversions
   */
 case class Point(x: Int, y: Int) extends Ordered[Point] {
 
-//  override def <(that: Point): Boolean = this.x < that.x || (this.x == that.x && this.y < that.y)
-//
-//  override def <=(that: Point): Boolean = this < that || this == that
-//
   override def compare(that: Point): Int = if (this.x != that.x) this.x - that.x
   else this.y - that.y
 

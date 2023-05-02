@@ -2,16 +2,14 @@ package custommath
 
 import scala.language.implicitConversions
 
-/** QRoot are numbers designed to handle weights that can appear during
-  * computations of weights. The restriction is that all weights at the
-  * beginning must be rational or quotients of sums of square roots of natural
-  * numbers.
+import narr.NArray
+
+/** QRoot are numbers designed to handle weights that can appear during computations of weights. The restriction is that
+  * all weights at the beginning must be rational or quotients of sums of square roots of natural numbers.
   *
-  * Note that even if all beginning weights are rational, it may happen at some
-  * point that we have to use 1/sqrt(2) and therefore leaving rational numbers.
-  * After that, sums and quotients are made. Most often that not, however,
-  * rational numbers are enough and this is why we make two distinct concrete
-  * classes.
+  * Note that even if all beginning weights are rational, it may happen at some point that we have to use 1/sqrt(2) and
+  * therefore leaving rational numbers. After that, sums and quotients are made. Most often that not, however, rational
+  * numbers are enough and this is why we make two distinct concrete classes.
   */
 // TODO: optimize and clean all of this!
 sealed abstract class QRoot {
@@ -46,14 +44,13 @@ sealed abstract class QRoot {
 
 }
 
-/** The NotRational class is a QRoot that is not rational. It is a sum of square
-  * root of integers divided by a sum of root of integers. The Vectors
-  * numerators and denominators are composed of the squares of the elements in
-  * the sums. The sign is +1 ou -1, and
+/** The NotRational class is a QRoot that is not rational. It is a sum of square root of integers divided by a sum of
+  * root of integers. The Vectors numerators and denominators are composed of the squares of the elements in the sums.
+  * The sign is +1 ou -1, and
   */
 case class NotRational(
-    numerators: Vector[BigInt],
-    denominators: Vector[BigInt],
+    numerators: NArray[BigInt],
+    denominators: NArray[BigInt],
     sign: Int = 1
 ) extends QRoot {
 
@@ -134,17 +131,16 @@ case class NotRational(
 object NotRational {
 
   private def vectorProduct(
-      as: Vector[BigInt],
-      bs: Vector[BigInt]
-  ): Vector[BigInt] = {
+      as: NArray[BigInt],
+      bs: NArray[BigInt]
+  ): NArray[BigInt] =
     (for {
       a <- as
       b <- bs
     } yield a * b).sorted
-  }
 
   implicit def fromInt(n: Int): NotRational =
-    NotRational(Vector(n * n), Vector(1))
+    NotRational(NArray[BigInt](n * n), NArray[BigInt](1))
 
 }
 
@@ -165,10 +161,10 @@ class Rational(val numerator: BigInt, val denominator: BigInt) extends QRoot {
 
   def +(that: QRoot): QRoot = that match {
     case q: Rational =>
-      val newNum = q.numerator * denominator + q.denominator * numerator
-      val newDen = q.denominator * denominator
+      val newNum     = q.numerator * denominator + q.denominator * numerator
+      val newDen     = q.denominator * denominator
       val isPositive = (newNum > 0) == (newDen > 0)
-      val (a, b) = IntegerMethods.reduce(QRoot.abs(newNum), QRoot.abs(newDen))
+      val (a, b)     = IntegerMethods.reduce(QRoot.abs(newNum), QRoot.abs(newDen))
       new Rational(if (isPositive) a else -a, b)
     case notRational: NotRational =>
       notRational + this
@@ -190,8 +186,8 @@ class Rational(val numerator: BigInt, val denominator: BigInt) extends QRoot {
   def toInt: Int = toBigInt.toInt
 
   def toNotRational: NotRational = NotRational(
-    Vector(numerator * numerator),
-    Vector(denominator * denominator),
+    NArray(numerator * numerator),
+    NArray(denominator * denominator),
     if (isPositive) 1 else -1
   )
 
@@ -218,7 +214,7 @@ object Rational {
 
   def apply(num: BigInt, den: BigInt): Rational = {
     val isPositive = (num > 0) == (den > 0)
-    val (a, b) = IntegerMethods.reduce(QRoot.abs(num), QRoot.abs(den))
+    val (a, b)     = IntegerMethods.reduce(QRoot.abs(num), QRoot.abs(den))
     new Rational(if (isPositive) a else -a, b)
   }
 
@@ -229,7 +225,7 @@ object Rational {
 object QRoot {
 
   implicit def fromDouble(d: Double): QRoot = QRoot(d.toLong, 1)
-  implicit def fromInt(n: Int): QRoot = Rational(n, 1)
+  implicit def fromInt(n: Int): QRoot       = Rational(n, 1)
   implicit def fromBigInt(n: BigInt): QRoot = Rational(n, 1)
 
   def fromRationalDouble(d: Double): QRoot = {
@@ -251,7 +247,7 @@ object QRoot {
 
     override def one: QRoot = QRoot(1, 1)
 
-    override def oneOverRoot2: QRoot = NotRational(Vector(1), Vector(2))
+    override def oneOverRoot2: QRoot = NotRational(NArray[BigInt](1), NArray[BigInt](2))
 
     override def plus(x: QRoot, y: QRoot): QRoot = x + y
 
