@@ -51,8 +51,8 @@ final class Diamond(val dominoes: NArray[NArray[Option[Domino]]]) {
     inBoundsPoint(domino.p1) && inBoundsPoint(domino.p2)
 
   def inSubGraph(isInSubGraph: (Point) => Boolean): String = {
-    val chars: Array[Array[String]] =
-      Array.fill[String](2 * order, 2 * order)(" ")
+    val chars: NArray[NArray[String]] =
+      NArray.fill[NArray[String]](2 * order)(NArray.fill[String](2 * order)(" "))
 
     listOfDominoes
       .filter(domino => isInSubGraph(domino.p1))
@@ -84,8 +84,8 @@ final class Diamond(val dominoes: NArray[NArray[Option[Domino]]]) {
   }
 
   override def toString: String = {
-    val chars: Array[Array[String]] =
-      Array.fill[String](2 * order, 2 * order)(" ")
+    val chars: NArray[NArray[String]] =
+      NArray.fill[NArray[String]](2 * order)(NArray.fill[String](2 * order)(" "))
 
     listOfDominoes.foreach { domino =>
       val (x1, y1) = (domino.p1.x + order - 1, domino.p1.y + order - 1)
@@ -130,13 +130,9 @@ final class Diamond(val dominoes: NArray[NArray[Option[Domino]]]) {
         .filter(_.dominoes.count(diamond.contains) == 2)
         .flatMap { face =>
           val (alpha, beta, gamma, delta) = face.getFaceWeights(weightTrait)
-          if (diamond.contains(face.horizontalDominoes._1)) {
-            List(alpha * gamma / (alpha * gamma + beta * delta))
-          } else {
-            List(beta * delta / (alpha * gamma + beta * delta))
-          }
+          if diamond.contains(face.horizontalDominoes._1) then NArray(alpha * gamma / (alpha * gamma + beta * delta))
+          else NArray(beta * delta / (alpha * gamma + beta * delta))
         }
-        .toList
         .product
 
     /** Every diamond comes with a list of list of coefficients. The outer list reflects the number of such diamonds,
@@ -148,7 +144,7 @@ final class Diamond(val dominoes: NArray[NArray[Option[Domino]]]) {
         weightTrait: ComputePartitionFunctionWeight
     ): QRoot =
       if (diamondsAndCoefficients.head._1.order == 1) { // all diamonds will be of order 1 at the same time
-        diamondsAndCoefficients.map { case (d, listOfCoefficients) =>
+        diamondsAndCoefficients.map { (d, listOfCoefficients) =>
           val thisStep = thisStepProbability(d, weightTrait)
           listOfCoefficients.map { coefficients =>
             (thisStep +: coefficients).product
@@ -184,7 +180,7 @@ final class Diamond(val dominoes: NArray[NArray[Option[Domino]]]) {
     * operation of the algorithm.
     */
   lazy val subDiamonds: NArray[Diamond] =
-    if (order == 1) NArray.empty[Diamond]
+    if order == 1 then NArray.empty[Diamond]
     else {
       val dominoes: NArray[NArray[Option[Domino]]] = Diamond.emptyArrayDominoes(order - 1)
 
@@ -198,7 +194,7 @@ final class Diamond(val dominoes: NArray[NArray[Option[Domino]]]) {
         }
 
       activeFaces
-        .foldLeft(NArray[NArray[NArray[Option[Domino]]]](dominoes)) { case (dominoesList, face) =>
+        .foldLeft(NArray[NArray[NArray[Option[Domino]]]](dominoes)) { (dominoesList, face) =>
           val previousConstruction = face.previousDiamondConstruction(this)
           if previousConstruction.length == 1 then {
             dominoesList.foreach(fillPossibilities(previousConstruction(0), _))
@@ -228,8 +224,7 @@ final class Diamond(val dominoes: NArray[NArray[Option[Domino]]]) {
         .map(array => new Diamond(array))
     }
 
-  def aSubDiamond: Option[Diamond] = if (order == 1) None
-  else {
+  def aSubDiamond: Option[Diamond] = Option.unless(order == 1) {
     val dominoes = Diamond.emptyArrayDominoes(order - 1)
 
     def fillPossibilities(
@@ -243,14 +238,13 @@ final class Diamond(val dominoes: NArray[NArray[Option[Domino]]]) {
 
     activeFaces.foreach(face => fillPossibilities(face.previousDiamondConstruction(this).head, dominoes))
 
-    Some(new Diamond(dominoes))
+    new Diamond(dominoes)
   }
 
   def allSubDiamonds: NArray[Diamond] =
     this +: subDiamonds.flatMap(_.allSubDiamonds)
 
-  def randomSubDiamond: Option[Diamond] = if (order == 1) None
-  else {
+  def randomSubDiamond: Option[Diamond] = Option.unless(order == 1) {
     val dominoes = Diamond.emptyArrayDominoes(order - 1)
 
     def fillPossibilities(
@@ -267,12 +261,10 @@ final class Diamond(val dominoes: NArray[NArray[Option[Domino]]]) {
       fillPossibilities(previous(Random.nextInt(previous.length)), dominoes)
     }
 
-    Some(new Diamond(dominoes))
+    new Diamond(dominoes)
   }
 
-  def aRandomSubDiamond: Diamond = subDiamonds(
-    Random.nextInt(subDiamonds.length)
-  )
+  def aRandomSubDiamond: Diamond = subDiamonds(Random.nextInt(subDiamonds.length))
 
   def firstSubDiamond: Diamond = subDiamonds.head
 

@@ -3,15 +3,18 @@ package diamond
 import diamond.diamondtypes.Rectangle
 import exceptions.WrongOrderException
 import geometry.{Domino, Face, Point}
+import narr.NArray
 
 import scala.reflect.ClassTag
 
-class CustomGenerationWeight(val n: Int)(implicit val tTag: ClassTag[Double])
+class CustomGenerationWeight(val n: Int)(implicit val tTag: ClassTag[Double], val atTag: ClassTag[NArray[Double]])
     extends GenerationWeight
     with CustomWeightTrait[Double] {
 
-  /** Computes the Weights corresponding to the Diamond of order diamondOrder -
-    * 1
+  def makeArray(size: Int): NArray[Double]                 = NArray.ofSize[Double](size)
+  def makeArrayOfArrays(size: Int): NArray[NArray[Double]] = NArray.ofSize[NArray[Double]](size)
+
+  /** Computes the Weights corresponding to the Diamond of order diamondOrder - 1
     */
   def subWeights: CustomGenerationWeight = if (n == 1)
     throw new WrongOrderException("Can't compute WeightMap of order 0.")
@@ -22,18 +25,17 @@ class CustomGenerationWeight(val n: Int)(implicit val tTag: ClassTag[Double])
     val newWeights = new CustomGenerationWeight(n - 1)
     Face
       .activeFaces(n)
-      .flatMap(face => {
+      .flatMap { face =>
         val (newPairs, newZeroes) = face.doubleSubWeights(this)
 
         for (
           (d, w) <- newPairs
           if newWeights.inBoundsDomino(d)
-        ) {
+        )
           newWeights(d) = w
-        }
 
         newZeroes
-      })
+      }
       .filter(newWeights.inBoundsDomino)
       .foreach(domino => newWeights(domino) = _0)
 
@@ -49,8 +51,7 @@ object CustomGenerationWeight {
     */
   def nextBernoulli(p: Double): Boolean = scala.util.Random.nextDouble() < p
 
-  /** Computes a GenerationWeight associated with the picture whose information
-    * is contained within imageData.
+  /** Computes a GenerationWeight associated with the picture whose information is contained within imageData.
     * @param imageData
     *   width * height * 4 Vector containing the integers of a canvas imageData
     * @param width
@@ -81,7 +82,7 @@ object CustomGenerationWeight {
 
     facesOut
       .flatMap(_.dominoes)
-      .foreach(domino => {
+      .foreach { domino =>
         if (
           isPointInRectangle(domino.p1) && !isPointInRectangle(domino.p2) ||
           (isPointInRectangle(domino.p2) && !isPointInRectangle(domino.p1))
@@ -90,7 +91,7 @@ object CustomGenerationWeight {
         } else {
           weights(domino) = 1.0
         }
-      })
+      }
 
     def clamp(x: Double): Double = math.max(0.01, math.min(0.99, x))
 
@@ -108,14 +109,11 @@ object CustomGenerationWeight {
       greyScale(imgY * width + imgX)
     }
 
-    facesIn.foreach(face => {
+    facesIn.foreach { face =>
       val luminosity = face.points.map(pointToPixel).sum / 4
       // horizontal dominoes will be lighter and vertical ones darker
-      face.dominoes.foreach(domino =>
-        weights(domino) =
-          if (domino.isHorizontal) luminosity else 1 - luminosity
-      )
-    })
+      face.dominoes.foreach(domino => weights(domino) = if (domino.isHorizontal) luminosity else 1 - luminosity)
+    }
 
     weights
   }

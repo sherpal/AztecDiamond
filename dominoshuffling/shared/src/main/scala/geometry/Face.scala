@@ -329,11 +329,10 @@ object Face {
     * are were we to use scala with the JVM, we could speed up the algorithm by using toParArray.
     */
   def activeFaces(n: Int): NArray[Face] = {
-    val js           = NArray.from((0 to (-n + 1) by -1).toArray)
-    val ks           = NArray.from((0 until n).toArray)
-    val faces        = NArray.ofSize[Face](js.length * ks.length)
+    val js           = 0 to (-n + 1) by -1
+    val ks           = 0 until n
+    val faces        = NArray.ofSize[Face](n * n)
     var currentIndex = 0
-
     for {
       j <- js
       k <- ks

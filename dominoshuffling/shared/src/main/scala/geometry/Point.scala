@@ -1,5 +1,7 @@
 package geometry
 
+import narr.NArray
+
 import scala.language.implicitConversions
 
 /** A Point is a point of the square lattice.
@@ -16,7 +18,8 @@ case class Point(x: Int, y: Int) extends Ordered[Point] {
     (x + diamondOrder, y - yMin(x) + 1)
   }
 
-  def adjacentPoints: List[Point] = List(Point(1, 0), Point(-1, 0), Point(0, 1), Point(0, -1)).map(this + _)
+  def adjacentPoints: NArray[Point] =
+    NArray(this + Point(1, 0), this + Point(-1, 0), this + Point(0, 1), this + Point(0, -1))
 }
 
 object Point {
