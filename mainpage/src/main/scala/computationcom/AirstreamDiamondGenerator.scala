@@ -39,7 +39,7 @@ trait AirstreamDiamondGenerator(val initialMessage: Message) extends Computer {
     case DiamondMessage(diamondTypeStr, timeTaken, rawArgs, diamondInfo) =>
       val diamondType = diamondTypeStr.toDiamondType
       val args        = diamondType.unsafeTransformArguments(rawArgs)
-      val diamond     = Diamond(diamondInfo)
+      val diamond     = Diamond.fromIntsSerialization(diamondInfo)
       Diamond.DiamondGenerationInfo(diamondType)(diamond, timeTaken.millis, args)
   }
 

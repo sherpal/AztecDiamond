@@ -1,10 +1,11 @@
 package diamond
 
 import geometry.{Domino, Point}
+import narr.NArray
 
 class DiamondConstruction(val order: Int) {
 
-  private val dominoes: Array[Array[Option[Domino]]] =
+  private val dominoes: NArray[NArray[Option[Domino]]] =
     Diamond.emptyArrayDominoes(order)
 
   def update(domino: Domino): Unit = {
@@ -28,15 +29,15 @@ class DiamondConstruction(val order: Int) {
     }
   }
 
-  def isPointOccupied(point: Point): Boolean = List[Domino](
+  def isPointOccupied(point: Point): Boolean = NArray[Domino](
     Domino(point, point + Point(1, 0)),
     Domino(point + Point(-1, 0), point),
     Domino(point, point + Point(0, 1)),
     Domino(point + Point(0, -1), point)
   ).exists(contains)
 
-  def possibleDominoesOn(point: Point): List[Domino] =
-    if (isPointOccupied(point)) Nil
+  def possibleDominoesOn(point: Point): NArray[Domino] =
+    if isPointOccupied(point) then NArray.empty[Domino]
     else {
       point.adjacentPoints
         .filter(inBoundsPoint)
@@ -44,13 +45,12 @@ class DiamondConstruction(val order: Int) {
         .map(p => if (p < point) Domino(p, point) else Domino(point, p))
     }
 
-  def forcedDominoes: List[Domino] =
+  def forcedDominoes: NArray[Domino] =
     DiamondConstruction
       .allPoints(order)
       .map(possibleDominoesOn)
       .filter(ds => ds.nonEmpty && ds.tail.isEmpty)
       .flatten
-      .toList
       .distinct
 
   def fillForcedDominoes(): Unit = {
@@ -61,23 +61,31 @@ class DiamondConstruction(val order: Int) {
     }
   }
 
-  def insertDiamond(diamond: Diamond, center: Point = Point(0, 0)): Unit = {
+  def insertDiamond(diamond: Diamond, center: Point = Point(0, 0)): Unit =
     diamond.listOfDominoes
-      .map({ case Domino(p1, p2) => Domino(p1 + center, p2 + center) })
+      .map { case Domino(p1, p2) => Domino(p1 + center, p2 + center) }
       .foreach(this() = _)
-  }
 
-  def toDiamond: Diamond = new Diamond(dominoes.toVector.map(_.toVector))
+  def toDiamond: Diamond = new Diamond(dominoes)
 
 }
 
 object DiamondConstruction {
 
-  def allPoints(order: Int): Iterable[Point] = (for {
-    y <- 1 to order
-    x <- -order + y to order + 1 - y
-  } yield Point(x, y)).flatMap({ case Point(x, y) =>
-    List(Point(x, y), Point(x, -y + 1))
-  })
+  // todo: test no regression
+  /** Returns all [[Point]] in a full diamond or specified order. */
+  def allPoints(order: Int): NArray[Point] = {
+    val points       = NArray.ofSize[Point](2 * order * (order + 1))
+    var currentIndex = 0
+    for {
+      y <- 1 to order
+      x <- -order + y to order + 1 - y
+    } {
+      points(currentIndex) = Point(x, y)
+      points(currentIndex + 1) = Point(x, -y + 1)
+      currentIndex += 2
+    }
+    points
+  }
 
 }

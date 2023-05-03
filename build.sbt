@@ -146,7 +146,8 @@ lazy val `dominoShufflingAlgorithm` = crossProject(JSPlatform, JVMPlatform)
   .settings(
     name := "shared",
     libraryDependencies ++= Seq(
-      "io.suzaku" %%% "boopickle" % "1.4.0"
+      "io.suzaku"    %%% "boopickle" % "1.4.0",
+      "ai.dragonfly" %%% "narr"      % "0.101"
     )
   )
   .jvmSettings(

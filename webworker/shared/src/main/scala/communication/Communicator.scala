@@ -3,9 +3,9 @@ package communication
 import custommath.{NotRational, QRoot, Rational}
 import diamond.{ComputePartitionFunctionWeight, CustomGenerationWeight, Diamond, GenerationWeight}
 import diamond.DiamondType.DiamondTypeFromString
-import dominoshuffingextension.{DiamondGeneration, TilingNumberCounting}
+import dominoshuffingextension.DiamondGeneration
 import exceptions.WrongParameterException
-import messages._
+import messages.*
 
 object Communicator {
 
@@ -32,7 +32,7 @@ object Communicator {
               diamondType.toString,
               new java.util.Date().getTime - t,
               arg,
-              diamond.toArray.toList
+              diamond.toArray.toArray
             )
           )
         }
@@ -68,7 +68,15 @@ object Communicator {
 
         val diamond: Diamond = diamondType.countingTilingDiamond(arg)
 
-        val probability = TilingNumberCounting.probability(diamond, weights)
+        val probability = diamond.probability(
+          weights,
+          status =>
+            Communicator.postMessage(
+              CountingComputationStatus(
+                status
+              )
+            )
+        )
 
         val diamondWeight = diamond.weightQRoot(weights)
 

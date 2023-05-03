@@ -3,6 +3,7 @@ package geometry
 import custommath.{NotRational, QRoot}
 import diamond._
 import exceptions.{ImpossibleDiamondException, NotTileableException, ShouldNotBeThereException}
+import narr.NArray
 
 import scala.language.implicitConversions
 
@@ -18,7 +19,7 @@ import scala.language.implicitConversions
   */
 case class Face(bottomLeft: Point) {
 
-  def points: Vector[Point] = Vector(
+  def points: NArray[Point] = NArray(
     bottomLeft,
     bottomLeft + Point(1, 0),
     bottomLeft + Point(0, 1),
@@ -37,7 +38,7 @@ case class Face(bottomLeft: Point) {
       Domino(bottomLeft + Point(1, 0), bottomLeft + Point(1, 1))
     )
 
-  def dominoes: List[Domino] = List(
+  def dominoes: NArray[Domino] = NArray(
     horizontalDominoes._1,
     horizontalDominoes._2,
     verticalDominoes._1,
@@ -60,7 +61,7 @@ case class Face(bottomLeft: Point) {
 
   /** Returns two dominoes with probability distribution given by the weights.
     */
-  def randomSquare(weights: GenerationWeight): Iterable[Domino] = {
+  def randomSquare(weights: GenerationWeight): NArray[Domino] = {
 
     val (h1, h2) = horizontalDominoes
     val (v1, v2) = verticalDominoes
@@ -77,11 +78,11 @@ case class Face(bottomLeft: Point) {
       println("weights of order " ++ weights.n.toString)
       throw new NotTileableException
     } else {
-      if (alpha.toDouble == 0.0 || gamma.toDouble == 0.0) List(v1, v2)
-      else if (beta.toDouble == 0.0 || delta.toDouble == 0.0) List(h1, h2)
+      if (alpha.toDouble == 0.0 || gamma.toDouble == 0.0) NArray(v1, v2)
+      else if (beta.toDouble == 0.0 || delta.toDouble == 0.0) NArray(h1, h2)
       else if (CustomGenerationWeight.nextBernoulli(topBottom / crossProduct))
-        List(h1, h2)
-      else List(v1, v2)
+        NArray(h1, h2)
+      else NArray(v1, v2)
     }
   }
 
@@ -93,7 +94,7 @@ case class Face(bottomLeft: Point) {
     */
   def previousDiamondConstruction(
       diamond: Diamond
-  ): Iterable[Iterable[Domino]] = {
+  ): NArray[NArray[Domino]] = {
     val (h1, h2) = horizontalDominoes
     val (v1, v2) = verticalDominoes
 
@@ -103,13 +104,13 @@ case class Face(bottomLeft: Point) {
       diamond.contains(v1),
       diamond.contains(v2)
     ) match {
-      case (true, false, false, false)  => List(List(h2))
-      case (false, true, false, false)  => List(List(h1))
-      case (false, false, true, false)  => List(List(v2))
-      case (false, false, false, true)  => List(List(v1))
-      case (true, true, false, false)   => List(List())
-      case (false, false, true, true)   => List(List())
-      case (false, false, false, false) => List(List(h1, h2), List(v1, v2))
+      case (true, false, false, false)  => NArray(NArray(h2))
+      case (false, true, false, false)  => NArray(NArray(h1))
+      case (false, false, true, false)  => NArray(NArray(v2))
+      case (false, false, false, true)  => NArray(NArray(v1))
+      case (true, true, false, false)   => NArray(NArray.empty[Domino])
+      case (false, false, true, true)   => NArray(NArray.empty[Domino])
+      case (false, false, false, false) => NArray(NArray(h1, h2), NArray(v1, v2))
       case _ =>
         throw new ImpossibleDiamondException(
           s"The diamond was of order ${diamond.order}"
@@ -128,7 +129,7 @@ case class Face(bottomLeft: Point) {
   def nextDiamondConstruction(
       subDiamond: Diamond,
       weights: GenerationWeight
-  ): Iterable[Domino] = {
+  ): NArray[Domino] = {
     val (h1, h2) = horizontalDominoes
     val (v1, v2) = verticalDominoes
 
@@ -138,12 +139,12 @@ case class Face(bottomLeft: Point) {
       subDiamond.contains(v1),
       subDiamond.contains(v2)
     ) match {
-      case (true, false, false, false)  => List(h2)
-      case (false, true, false, false)  => List(h1)
-      case (false, false, true, false)  => List(v2)
-      case (false, false, false, true)  => List(v1)
-      case (true, true, false, false)   => List()
-      case (false, false, true, true)   => List()
+      case (true, false, false, false)  => NArray(h2)
+      case (false, true, false, false)  => NArray(h1)
+      case (false, false, true, false)  => NArray(v2)
+      case (false, false, false, true)  => NArray(v1)
+      case (true, true, false, false)   => NArray.empty[Domino]
+      case (false, false, true, true)   => NArray.empty[Domino]
       case (false, false, false, false) => randomSquare(weights)
       case _ =>
         throw new ImpossibleDiamondException(
@@ -160,7 +161,7 @@ case class Face(bottomLeft: Point) {
     */
   def doubleSubWeights(
       weights: CustomGenerationWeight
-  ): (List[(Domino, Double)], List[Domino]) = {
+  ): (NArray[(Domino, Double)], NArray[Domino]) = {
     val (h1, h2) = horizontalDominoes
     val (v1, v2) = verticalDominoes
 
@@ -171,7 +172,7 @@ case class Face(bottomLeft: Point) {
     (
       (alpha, beta, gamma, delta) match {
         case (_, _, _, _) if crossProduct != 0 =>
-          List(
+          NArray(
             h1 -> alpha / crossProduct,
             h2 -> gamma / crossProduct,
             v1 -> beta / crossProduct,
@@ -179,35 +180,35 @@ case class Face(bottomLeft: Point) {
           )
         case (0, 0, 0, 0) =>
           val _1overV2 = 1 / math.sqrt(2)
-          List(
+          NArray(
             h1 -> _1overV2,
             h2 -> _1overV2,
             v1 -> _1overV2,
             v2 -> _1overV2
           )
         case (_, _, 0, 0) =>
-          List(
+          NArray(
             h1 -> alpha,
             h2 -> 1 / (alpha + beta),
             v1 -> beta,
             v2 -> 1 / (alpha + beta)
           )
         case (0, _, _, 0) =>
-          List(
+          NArray(
             h1 -> 1 / (beta + gamma),
             h2 -> gamma,
             v1 -> beta,
             v2 -> 1 / (beta + gamma)
           )
         case (0, 0, _, _) =>
-          List(
+          NArray(
             h1 -> 1 / (delta + gamma),
             h2 -> gamma,
             v1 -> 1 / (delta + gamma),
             v2 -> delta
           )
         case (_, 0, 0, _) =>
-          List(
+          NArray(
             h1 -> alpha,
             h2 -> 1 / (alpha + delta),
             v1 -> 1 / (alpha + delta),
@@ -217,19 +218,19 @@ case class Face(bottomLeft: Point) {
           // this will never happen as all cases are dealt above.
           throw new ShouldNotBeThereException
       },
-      List[List[Domino]](
+      NArray[NArray[Domino]](
         if (alpha == 0 && beta == 0)
-          List(h2.horizontalMove(1), v2.verticalMove(1))
-        else Nil,
+          NArray(h2.horizontalMove(1), v2.verticalMove(1))
+        else NArray.empty[Domino],
         if (beta == 0 && gamma == 0)
-          List(h1.horizontalMove(1), v2.verticalMove(-1))
-        else Nil,
+          NArray(h1.horizontalMove(1), v2.verticalMove(-1))
+        else NArray.empty[Domino],
         if (gamma == 0 && delta == 0)
-          List(h1.horizontalMove(-1), v1.verticalMove(-1))
-        else Nil,
+          NArray(h1.horizontalMove(-1), v1.verticalMove(-1))
+        else NArray.empty[Domino],
         if (delta == 0 && alpha == 0)
-          List(h2.horizontalMove(-1), v1.verticalMove(1))
-        else Nil
+          NArray(h2.horizontalMove(-1), v1.verticalMove(1))
+        else NArray.empty[Domino]
       ).flatten
     )
   }
@@ -242,7 +243,7 @@ case class Face(bottomLeft: Point) {
     */
   def qRootSubWeights(
       weights: CustomComputePartitionFunctionWeight
-  ): (List[(Domino, QRoot)], List[Domino]) = {
+  ): (NArray[(Domino, QRoot)], NArray[Domino]) = {
     val (h1, h2) = horizontalDominoes
     val (v1, v2) = verticalDominoes
 
@@ -255,43 +256,43 @@ case class Face(bottomLeft: Point) {
     (
       (alpha, beta, gamma, delta) match {
         case (_, _, _, _) if crossProduct != _0 =>
-          List(
+          NArray(
             h1 -> alpha / crossProduct,
             h2 -> gamma / crossProduct,
             v1 -> beta / crossProduct,
             v2 -> delta / crossProduct
           )
-        case (a, b, c, d) if List(a, b, c, d).forall(_ == _0) =>
-          val _1overV2 = NotRational(Vector(1), Vector(2))
-          List(
+        case (a, b, c, d) if NArray(a, b, c, d).forall(_ == _0) =>
+          val _1overV2 = NotRational(NArray[BigInt](1), NArray[BigInt](2)): QRoot
+          NArray(
             h1 -> _1overV2,
             h2 -> _1overV2,
             v1 -> _1overV2,
             v2 -> _1overV2
           )
         case (_, _, c, d) if c == _0 && d == _0 =>
-          List(
+          NArray(
             h1 -> alpha,
             h2 -> 1 / (alpha + beta),
             v1 -> beta,
             v2 -> 1 / (alpha + beta)
           )
         case (a, _, _, d) if a == _0 && d == _0 =>
-          List(
+          NArray(
             h1 -> 1 / (beta + gamma),
             h2 -> gamma,
             v1 -> beta,
             v2 -> 1 / (beta + gamma)
           )
         case (a, b, _, _) if a == _0 && b == _0 =>
-          List(
+          NArray(
             h1 -> 1 / (delta + gamma),
             h2 -> gamma,
             v1 -> 1 / (delta + gamma),
             v2 -> delta
           )
         case (_, b, c, _) if b == _0 && c == _0 =>
-          List(
+          NArray(
             h1 -> alpha,
             h2 -> 1 / (alpha + delta),
             v1 -> 1 / (alpha + delta),
@@ -301,19 +302,19 @@ case class Face(bottomLeft: Point) {
           // this will never happen as all cases are dealt above.
           throw new ShouldNotBeThereException
       },
-      List[List[Domino]](
+      NArray[NArray[Domino]](
         if (alpha == _0 && beta == _0)
-          List(h2.horizontalMove(1), v2.verticalMove(1))
-        else Nil,
+          NArray(h2.horizontalMove(1), v2.verticalMove(1))
+        else NArray.empty[Domino],
         if (beta == _0 && gamma == _0)
-          List(h1.horizontalMove(1), v2.verticalMove(-1))
-        else Nil,
+          NArray(h1.horizontalMove(1), v2.verticalMove(-1))
+        else NArray.empty[Domino],
         if (gamma == _0 && delta == _0)
-          List(h1.horizontalMove(-1), v1.verticalMove(-1))
-        else Nil,
+          NArray(h1.horizontalMove(-1), v1.verticalMove(-1))
+        else NArray.empty[Domino],
         if (delta == _0 && alpha == _0)
-          List(h2.horizontalMove(-1), v1.verticalMove(1))
-        else Nil
+          NArray(h2.horizontalMove(-1), v1.verticalMove(1))
+        else NArray.empty[Domino]
       ).flatten
     )
   }
@@ -327,10 +328,20 @@ object Face {
     * Since we are using scala.js, we can't parallelise this Iterable. However, all operations on faces are independent
     * are were we to use scala with the JVM, we could speed up the algorithm by using toParArray.
     */
-  def activeFaces(n: Int): Seq[Face] = toParIfPossible(for {
-    j <- 0 to (-n + 1) by -1
-    k <- 0 until n
-  } yield Face(Point(j + k, -n + 1 - j + k)))
+  def activeFaces(n: Int): NArray[Face] = {
+    val js           = 0 to (-n + 1) by -1
+    val ks           = 0 until n
+    val faces        = NArray.ofSize[Face](n * n)
+    var currentIndex = 0
+    for {
+      j <- js
+      k <- ks
+    } {
+      faces(currentIndex) = Face(Point(j + k, -n + 1 - j + k))
+      currentIndex += 1
+    }
+    faces
+  }
 
   private def toParIfPossible[A](iterable: Iterable[A]): Seq[A] =
     PlatformDependent.toPar(iterable)

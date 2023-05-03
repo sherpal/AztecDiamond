@@ -6,6 +6,7 @@ import geometry._
 
 import scala.util.Random
 import scala.concurrent.duration.FiniteDuration
+import narr.NArray
 
 /** A Diamond represents an Aztec Diamond with its tiling.
   *
@@ -17,12 +18,14 @@ import scala.concurrent.duration.FiniteDuration
   * For example, an Aztec diamond of order 1 with two horizontal dominoes would have the dominoes Vector Vector(
   * Vector(Some(Domino(Point(0,0), Point(1,0)), Some(Domino(Point(0,1), Point(1,1)))), Vector(None, None) )
   */
-final class Diamond(val dominoes: Vector[Vector[Option[Domino]]]) {
+final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[Domino]]]) {
 
-  lazy val dominoesNumber: Int = dominoes.map(d => d.count(_.isDefined)).sum
+  lazy val dominoesNumber: Int = internalDominoes.map(d => d.count(_.isDefined)).sum
 
-  lazy val listOfDominoes: List[Domino] =
-    dominoes.flatMap(_.filter(_.isDefined).map(_.get)).toList
+  private[diamond] lazy val listOfDominoes: NArray[Domino] =
+    internalDominoes.flatMap(_.filter(_.isDefined).map(_.get))
+
+  def dominoes: Iterable[Domino] = listOfDominoes
 
   lazy val order: Int =
     (-1 + IntegerMethods.integerSquareRoot(1 + 4 * dominoesNumber)) / 2
@@ -37,10 +40,7 @@ final class Diamond(val dominoes: Vector[Vector[Option[Domino]]]) {
 
   def contains(domino: Domino): Boolean = inBoundsDomino(domino) && {
     val (x, y) = Domino.changeVerticalCoordinates(domino.p1, order)
-    dominoes(x)(y) match {
-      case Some(d) => d == domino
-      case None    => false
-    }
+    internalDominoes(x)(y).contains[Domino](domino)
   }
 
   def inBoundsPoint(point: Point): Boolean =
@@ -50,12 +50,11 @@ final class Diamond(val dominoes: Vector[Vector[Option[Domino]]]) {
     inBoundsPoint(domino.p1) && inBoundsPoint(domino.p2)
 
   def inSubGraph(isInSubGraph: (Point) => Boolean): String = {
-    val chars: Array[Array[String]] =
-      Array.fill[String](2 * order, 2 * order)(" ")
+    val chars: NArray[NArray[String]] =
+      NArray.fill[NArray[String]](2 * order)(NArray.fill[String](2 * order)(" "))
 
-    listOfDominoes
-      .filter(domino => isInSubGraph(domino.p1))
-      .foreach { domino =>
+    listOfDominoes.foreach(domino =>
+      if isInSubGraph(domino.p1) then {
         val (x1, y1) = (domino.p1.x + order - 1, domino.p1.y + order - 1)
         val (x2, y2) = (domino.p2.x + order - 1, domino.p2.y + order - 1)
         val color = domino.dominoType(order) match {
@@ -78,13 +77,14 @@ final class Diamond(val dominoes: Vector[Vector[Option[Domino]]]) {
           chars(y2)(x2) = color + "v" + Console.BLACK_B
         }
       }
+    )
 
     chars.map(_.mkString("")).mkString("\n")
   }
 
   override def toString: String = {
-    val chars: Array[Array[String]] =
-      Array.fill[String](2 * order, 2 * order)(" ")
+    val chars: NArray[NArray[String]] =
+      NArray.fill[NArray[String]](2 * order)(NArray.fill[String](2 * order)(" "))
 
     listOfDominoes.foreach { domino =>
       val (x1, y1) = (domino.p1.x + order - 1, domino.p1.y + order - 1)
@@ -113,11 +113,11 @@ final class Diamond(val dominoes: Vector[Vector[Option[Domino]]]) {
     chars.map(_.mkString("")).mkString("\n")
   }
 
-  lazy val activeFaces: Seq[Face] = Face.activeFaces(order)
+  private[diamond] lazy val activeFaces: NArray[Face] = Face.activeFaces(order)
 
   /** Computes the probability of seeing this domino if generated with the given weights
     */
-  def probability(weights: ComputePartitionFunctionWeight): QRoot = {
+  def probability(weights: ComputePartitionFunctionWeight, statusCallback: Int => Unit): QRoot = {
 
     val _1 = QRoot(1, 1)
 
@@ -129,13 +129,9 @@ final class Diamond(val dominoes: Vector[Vector[Option[Domino]]]) {
         .filter(_.dominoes.count(diamond.contains) == 2)
         .flatMap { face =>
           val (alpha, beta, gamma, delta) = face.getFaceWeights(weightTrait)
-          if (diamond.contains(face.horizontalDominoes._1)) {
-            List(alpha * gamma / (alpha * gamma + beta * delta))
-          } else {
-            List(beta * delta / (alpha * gamma + beta * delta))
-          }
+          if diamond.contains(face.horizontalDominoes._1) then NArray(alpha * gamma / (alpha * gamma + beta * delta))
+          else NArray(beta * delta / (alpha * gamma + beta * delta))
         }
-        .toList
         .product
 
     /** Every diamond comes with a list of list of coefficients. The outer list reflects the number of such diamonds,
@@ -143,11 +139,11 @@ final class Diamond(val dominoes: Vector[Vector[Option[Domino]]]) {
       * the amount of computation.
       */
     def probabilityAcc(
-        diamondsAndCoefficients: List[(Diamond, List[List[QRoot]])],
+        diamondsAndCoefficients: NArray[(Diamond, NArray[NArray[QRoot]])],
         weightTrait: ComputePartitionFunctionWeight
     ): QRoot =
       if (diamondsAndCoefficients.head._1.order == 1) { // all diamonds will be of order 1 at the same time
-        diamondsAndCoefficients.map { case (d, listOfCoefficients) =>
+        diamondsAndCoefficients.map { (d, listOfCoefficients) =>
           val thisStep = thisStepProbability(d, weightTrait)
           listOfCoefficients.map { coefficients =>
             (thisStep +: coefficients).product
@@ -156,17 +152,21 @@ final class Diamond(val dominoes: Vector[Vector[Option[Domino]]]) {
       } else {
 
         val newDiamonds =
-          diamondsAndCoefficients
-            .foldLeft(List[(Diamond, List[List[QRoot]])]()) { case (diamonds, (d, listOfCoefficients)) =>
-              val thisStep        = thisStepProbability(d, weightTrait)
-              val newCoefficients = listOfCoefficients.map(thisStep +: _)
-              d.subDiamonds.map((_, newCoefficients)) ++ diamonds
-            }
-            .groupBy(_._1)
-            .toList
-            .map { case (key, values) =>
+          NArray(
+            diamondsAndCoefficients
+              .foldLeft(NArray[(Diamond, NArray[NArray[QRoot]])]()) { case (diamonds, (d, listOfCoefficients)) =>
+                val thisStep        = thisStepProbability(d, weightTrait)
+                val newCoefficients = listOfCoefficients.map(thisStep +: _)
+                d.subDiamonds.map((_, newCoefficients)) ++ diamonds
+              }
+              .groupBy(_._1)
+              .toList: _*
+          )
+            .map { (key, values) =>
               key -> values.flatMap(_._2)
             }
+
+        statusCallback(100 - math.round(weightTrait.n * 100 / order.toDouble).toInt)
 
         probabilityAcc(
           newDiamonds,
@@ -174,20 +174,20 @@ final class Diamond(val dominoes: Vector[Vector[Option[Domino]]]) {
         )
       }
 
-    probabilityAcc(List((this, List(List(_1)))), weights)
+    probabilityAcc(NArray((this, NArray(NArray(_1)))), weights)
   }
 
   /** Returns the List of all sub diamonds that can generate this one from the algorithm. This is the "inverse"
     * operation of the algorithm.
     */
-  lazy val subDiamonds: List[Diamond] =
-    if (order == 1) Nil
+  private[diamond] lazy val subDiamonds: NArray[Diamond] =
+    if order == 1 then NArray.empty[Diamond]
     else {
-      val dominoes = Diamond.emptyArrayDominoes(order - 1)
+      val dominoes: NArray[NArray[Option[Domino]]] = Diamond.emptyArrayDominoes(order - 1)
 
       def fillPossibilities(
-          dominoesToFill: Iterable[Domino],
-          dominoes: Array[Array[Option[Domino]]]
+          dominoesToFill: NArray[Domino],
+          dominoes: NArray[NArray[Option[Domino]]]
       ): Unit =
         dominoesToFill.foreach { domino =>
           val (x, y) = Domino.changeVerticalCoordinates(domino.p1, order - 1)
@@ -195,39 +195,42 @@ final class Diamond(val dominoes: Vector[Vector[Option[Domino]]]) {
         }
 
       activeFaces
-        .foldLeft(List(dominoes)) { case (dominoesList, face) =>
-          face.previousDiamondConstruction(this).toList match {
-            case List(p) =>
-              dominoesList.foreach(fillPossibilities(p, _))
-              dominoesList
-            case List(p1, p2) =>
-              dominoesList.flatMap { dominoes =>
-                val clone = dominoes.map(_.clone())
-                List(
-                  {
-                    fillPossibilities(p1, dominoes)
-                    dominoes
-                  }, {
-                    fillPossibilities(p2, clone)
-                    clone
-                  }
-                )
+        .foldLeft(NArray[NArray[NArray[Option[Domino]]]](dominoes)) { (dominoesList, face) =>
+          val previousConstruction = face.previousDiamondConstruction(this)
+          if previousConstruction.length == 1 then {
+            dominoesList.foreach(fillPossibilities(previousConstruction(0), _))
+            dominoesList
+          } else if previousConstruction.length == 2 then {
+            val p1 = previousConstruction(0)
+            val p2 = previousConstruction(1)
+            dominoesList.flatMap { dominoes =>
+              val clone: NArray[NArray[Option[Domino]]] = dominoes.map { arr =>
+                val c = NArray.ofSize[Option[Domino]](arr.length)
+                for (j <- arr.indices)
+                  c(j) = arr(j)
+                c
               }
-            case _ =>
-              throw new UnsupportedOperationException
-          }
+              NArray(
+                {
+                  fillPossibilities(p1, dominoes)
+                  dominoes
+                }, {
+                  fillPossibilities(p2, clone)
+                  clone
+                }
+              )
+            }
+          } else throw new UnsupportedOperationException
         }
-        .map(array => new Diamond(array.toVector.map(_.toVector)))
-
+        .map(array => new Diamond(array))
     }
 
-  def aSubDiamond: Option[Diamond] = if (order == 1) None
-  else {
+  def aSubDiamond: Option[Diamond] = Option.unless(order == 1) {
     val dominoes = Diamond.emptyArrayDominoes(order - 1)
 
     def fillPossibilities(
-        dominoesToFill: Iterable[Domino],
-        dominoes: Array[Array[Option[Domino]]]
+        dominoesToFill: NArray[Domino],
+        dominoes: NArray[NArray[Option[Domino]]]
     ): Unit =
       dominoesToFill.foreach { domino =>
         val (x, y) = Domino.changeVerticalCoordinates(domino.p1, order - 1)
@@ -236,19 +239,18 @@ final class Diamond(val dominoes: Vector[Vector[Option[Domino]]]) {
 
     activeFaces.foreach(face => fillPossibilities(face.previousDiamondConstruction(this).head, dominoes))
 
-    Some(new Diamond(dominoes.toVector.map(_.toVector)))
+    new Diamond(dominoes)
   }
 
-  def allSubDiamonds: List[Diamond] =
+  private[diamond] def allSubDiamonds: NArray[Diamond] =
     this +: subDiamonds.flatMap(_.allSubDiamonds)
 
-  def randomSubDiamond: Option[Diamond] = if (order == 1) None
-  else {
+  def randomSubDiamond: Option[Diamond] = Option.unless(order == 1) {
     val dominoes = Diamond.emptyArrayDominoes(order - 1)
 
     def fillPossibilities(
-        dominoesToFill: Iterable[Domino],
-        dominoes: Array[Array[Option[Domino]]]
+        dominoesToFill: NArray[Domino],
+        dominoes: NArray[NArray[Option[Domino]]]
     ): Unit =
       dominoesToFill.foreach { domino =>
         val (x, y) = Domino.changeVerticalCoordinates(domino.p1, order - 1)
@@ -256,16 +258,14 @@ final class Diamond(val dominoes: Vector[Vector[Option[Domino]]]) {
       }
 
     activeFaces.foreach { face =>
-      val previous = face.previousDiamondConstruction(this).toList
+      val previous = face.previousDiamondConstruction(this)
       fillPossibilities(previous(Random.nextInt(previous.length)), dominoes)
     }
 
-    Some(new Diamond(dominoes.toVector.map(_.toVector)))
+    new Diamond(dominoes)
   }
 
-  def aRandomSubDiamond: Diamond = subDiamonds(
-    Random.nextInt(subDiamonds.length)
-  )
+  def aRandomSubDiamond: Diamond = subDiamonds(Random.nextInt(subDiamonds.length))
 
   def firstSubDiamond: Diamond = subDiamonds.head
 
@@ -316,31 +316,39 @@ final class Diamond(val dominoes: Vector[Vector[Option[Domino]]]) {
       )
       .filter(_.length > 1)
 
-  def toArray: Array[Int] =
-    order +: listOfDominoes.flatMap(domino => List(domino.p1.x, domino.p1.y, domino.p2.x, domino.p2.y)).toArray
+  def toArray: NArray[Int] = {
+    val allInts = order +: listOfDominoes.flatMap(domino => NArray(domino.p1.x, domino.p1.y, domino.p2.x, domino.p2.y))
+    val output  = NArray.ofSize[Int](allInts.length)
+    allInts.indices.foreach { idx =>
+      output(idx) = allInts(idx)
+    }
+    output
+  }
 
   override def equals(that: Any): Boolean = that match {
     case that: Diamond if this.order == that.order =>
-      this.dominoes
-        .zip(that.dominoes)
+      this.internalDominoes
+        .zip(that.internalDominoes)
         .forall { case (v1, v2) =>
           v1.zip(v2).forall { case (d1, d2) => d1 == d2 }
         }
     case _ => false
   }
 
-  override def hashCode(): Int = dominoes.hashCode
+  override def hashCode(): Int = internalDominoes.hashCode
 
 }
 
 object Diamond {
 
-  def apply(intDiamond: List[Int]): Diamond = {
+  def fromIntsSerialization(intDiamondIterable: Iterable[Int]): Diamond = {
+    val intDiamond = intDiamondIterable.toList
+
     val order = intDiamond.head
 
     val dominoes = emptyArrayDominoes(order)
 
-    intDiamond.tail
+    intDiamond
       .grouped(4)
       .map {
         case List(x1, y1, x2, y2) =>
@@ -352,7 +360,7 @@ object Diamond {
         dominoes(x)(y) = Some(domino)
       }
 
-    new Diamond(dominoes.map(_.toVector).toVector)
+    new Diamond(dominoes)
   }
 
   final class DiamondGenerationInfo(val diamondType: DiamondType)(
@@ -479,7 +487,7 @@ object Diamond {
         dominoes(x)(y) = Some(domino)
       }
 
-    new Diamond(dominoes.toVector.map(_.toVector))
+    new Diamond(dominoes)
   }
 
   def uniformHexagon(a: Int, b: Int, c: Int): Diamond =
@@ -508,14 +516,15 @@ object Diamond {
         val (x, y) = Domino.changeVerticalCoordinates(domino.p1, order)
         dominoes(x)(y) = Some(domino)
       }
-    new Diamond(dominoes.toVector.map(_.toVector))
+    new Diamond(dominoes)
   }
 
-  def emptyArrayDominoes(order: Int): Array[Array[Option[Domino]]] = {
-    val dominoes = Array.ofDim[Array[Option[Domino]]](2 * order)
+  def emptyArrayDominoes(order: Int): NArray[NArray[Option[Domino]]] = {
+    val dominoes = NArray.ofSize[NArray[Option[Domino]]](2 * order)
+
     for (j <- 1 to order) {
-      dominoes(j - 1) = Array.fill[Option[Domino]](2 * j)(None)
-      dominoes(2 * order - j) = Array.fill[Option[Domino]](2 * j)(None)
+      dominoes(j - 1) = NArray.fill[Option[Domino]](2 * j)(None)
+      dominoes(2 * order - j) = NArray.fill[Option[Domino]](2 * j)(None)
     }
     dominoes
   }
