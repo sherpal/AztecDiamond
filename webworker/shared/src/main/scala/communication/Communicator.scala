@@ -32,7 +32,7 @@ object Communicator {
               diamondType.toString,
               new java.util.Date().getTime - t,
               arg,
-              diamond.toArray.toList
+              diamond.toArray.toArray
             )
           )
         }

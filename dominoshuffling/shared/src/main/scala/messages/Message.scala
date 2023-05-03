@@ -60,7 +60,7 @@ final case class DiamondMessage(
     diamondType: String,
     timeTaken: Long,
     args: Vector[Double],
-    diamondInfo: List[Int]
+    diamondInfo: Array[Int]
 ) extends DiamondGenerationMessage
 
 final case class WeightComputationStatus(percentage: Int) extends DiamondGenerationMessage

@@ -341,12 +341,14 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
 
 object Diamond {
 
-  def apply(intDiamond: List[Int]): Diamond = {
+  def fromIntsSerialization(intDiamondIterable: Iterable[Int]): Diamond = {
+    val intDiamond = intDiamondIterable.toList
+
     val order = intDiamond.head
 
     val dominoes = emptyArrayDominoes(order)
 
-    intDiamond.tail
+    intDiamond
       .grouped(4)
       .map {
         case List(x1, y1, x2, y2) =>

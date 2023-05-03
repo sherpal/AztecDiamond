@@ -50,7 +50,7 @@ trait DiamondGenerator extends Computer {
 
         val t = new java.util.Date().getTime
 
-        drawnDiamond = DiamondDrawer(Diamond(diamondInfo), diamondType.isInDiamond(arg))
+        drawnDiamond = DiamondDrawer(Diamond.fromIntsSerialization(diamondInfo), diamondType.isInDiamond(arg))
         val order = drawnDiamond.get.diamond.order
         if (scala.scalajs.LinkingInfo.developmentMode) {
           println(s"It took ${new java.util.Date().getTime - t} ms to recover the diamond of order $order.")
