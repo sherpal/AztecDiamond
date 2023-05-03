@@ -44,7 +44,7 @@ class DiamondDrawer private (
     (topMostFullDiamondCoordinate + bottomMostFullDiamondCoordinate) / 2.0
   )
 
-  def dominoes: Iterable[Domino] = diamond.listOfDominoes
+  def dominoes: Iterable[Domino] = diamond.dominoes
 
   def dominoesInSubGraph: Iterable[Domino] = dominoes.filter(isInSubGraph)
 
