@@ -138,10 +138,11 @@ object DiamondGeneration {
             }
             .flatMap(_.diamondEvent)
             .map { diamondGenerationInfo =>
-              val diamond      = diamondGenerationInfo.diamond
-              val diamondType  = diamondGenerationInfo.diamondType
-              val diamondOrder = diamondGenerationInfo.diamond.order
-              val timeTaken    = diamondGenerationInfo.timeTaken
+              val diamond             = diamondGenerationInfo.diamond
+              val diamondType         = diamondGenerationInfo.diamondType
+              val diamondOrder        = diamondGenerationInfo.diamond.order
+              val timeTaken           = diamondGenerationInfo.timeTaken
+              val diamondTypeWithArgs = diamondGenerationInfo.diamondTypeWithArgs
               DiamondDrawer(
                 diamondGenerationInfo.diamond,
                 diamondGenerationInfo.diamondTypeWithArgs.isInDiamond
@@ -202,7 +203,9 @@ object DiamondGeneration {
                           a.setAttribute("download", "aztec-diamond.png")
                           a.click()
                           dom.document.body.removeChild(a)
-                        }
+                        },
+                        diamond,
+                        diamondTypeWithArgs
                       )
                     )
                   )

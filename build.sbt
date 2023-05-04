@@ -28,6 +28,18 @@ val commonSettings = Seq(
   )
 )
 
+def circe = {
+  val circeVersion = "0.14.1"
+
+  Def.settings(
+    libraryDependencies ++= Seq(
+      "io.circe" %%% "circe-core",
+      "io.circe" %%% "circe-generic",
+      "io.circe" %%% "circe-parser"
+    ).map(_ % circeVersion)
+  )
+}
+
 def removeHtmlCommentLine(line: String): String =
   """<!--.+-->""".r.replaceAllIn(line, "").trim
 
@@ -45,7 +57,8 @@ lazy val `renderer` = project
       "com.raquo"   %%% "laminar"            % laminarVersion,
       "be.doeraene" %%% "web-components-ui5" % "1.10.0",
       "be.doeraene" %%% "url-dsl"            % "0.6.0"
-    )
+    ),
+    circe
   )
   .dependsOn(dominoShufflingAlgorithm.js)
   .disablePlugins(sbtassembly.AssemblyPlugin)
@@ -154,12 +167,6 @@ lazy val `dominoShufflingAlgorithm` = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies += "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.3"
   )
   .disablePlugins(sbtassembly.AssemblyPlugin)
-
-lazy val dominoShufflingAlgorithmJS =
-  dominoShufflingAlgorithm.js.settings(name := "sharedJS")
-lazy val dominoShufflingAlgorithmJVM =
-  dominoShufflingAlgorithm.jvm.settings(name := "sharedJVM")
-//lazy val dominoShufflingAlgorithmJS = `dominoShufflingAlgorithm`
 
 val buildWebApp = taskKey[Unit]("Builds the web application, ready to be deployed.")
 

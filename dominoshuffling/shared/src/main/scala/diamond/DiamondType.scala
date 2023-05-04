@@ -100,6 +100,8 @@ object DiamondType {
 
     val isInDiamond: Domino => Boolean = diamondType.isInDiamond(args)
 
+    def transformArgumentsBack: Seq[Double] = diamondType.transformArgumentsBack(args)
+
   }
 
   case class ArgumentName(label: String, defaultGenerationValue: Double, defaultTilingCountingValue: Double)

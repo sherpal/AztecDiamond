@@ -27,6 +27,9 @@ case class Domino(p1: Point, p2: Point) extends Ordered[Domino] {
 
   def points: NArray[Point] = NArray(p1, p2)
 
+  /** Returns the point on the left for horizontal dominoes, and the point on the bottom for vertical dominoes. */
+  def lowerLeft: Point = Point(p1.x min p2.x, p1.y min p2.y)
+
 }
 
 object Domino {
