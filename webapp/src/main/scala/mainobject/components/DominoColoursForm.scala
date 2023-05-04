@@ -9,7 +9,10 @@ import be.doeraene.webcomponents.ui5.scaladsl.colour.{Colour => UI5Colour}
 object DominoColoursForm {
 
   def apply(initialColors: DominoColors, colorsObserver: Observer[DominoColors]): HtmlElement = {
-    val dominoColorsVar = Var(initialColors)
+    val dominoColorsVar           = Var(initialColors)
+    val openColourPaletteBus      = new EventBus[dom.HTMLElement]
+    val selectedColourObserverVar = Var(Observer.empty[Color])
+    val selectedColourBus         = new EventBus[Color]
     sectionTag(
       Title.h4("Chose colours for the dominoes"),
       Select(
@@ -23,99 +26,173 @@ object DominoColoursForm {
           case _       => DominoColors.defaultFourTypes
         } --> dominoColorsVar.writer
       ),
+      ColourPalettePopover(
+        _.showAtFromEvents(openColourPaletteBus.events),
+        _.events.onItemClick
+          .map(_.detail.color)
+          .map(UI5Colour.fromString(_).toAztecDiamond) --> selectedColourBus.writer,
+        someColourPaletteItems,
+        _.showRecentColours := true,
+        _.showMoreColours   := true
+      ),
+      selectedColourBus.events
+        .withCurrentValueOf(selectedColourObserverVar.signal) --> Observer[(Color, Observer[Color])]((color, obs) =>
+        obs.onNext(color)
+      ),
       child <-- dominoColorsVar.signal.map {
-        case twoTypes: TwoTypes     => twoTypesSelector(twoTypes, dominoColorsVar.writer)
-        case fourTypes: FourTypes   => fourTypesSelector(fourTypes, dominoColorsVar.writer)
-        case eightTypes: EightTypes => eightTypesSelector(eightTypes, dominoColorsVar.writer)
+        case twoTypes: TwoTypes =>
+          twoTypesSelector(
+            twoTypes,
+            openColourPaletteBus.writer,
+            dominoColorsVar.writer,
+            selectedColourObserverVar.writer
+          )
+        case fourTypes: FourTypes =>
+          fourTypesSelector(
+            fourTypes,
+            openColourPaletteBus.writer,
+            dominoColorsVar.writer,
+            selectedColourObserverVar.writer
+          )
+        case eightTypes: EightTypes =>
+          eightTypesSelector(
+            eightTypes,
+            openColourPaletteBus.writer,
+            dominoColorsVar.writer,
+            selectedColourObserverVar.writer
+          )
       },
       dominoColorsVar.signal --> colorsObserver
     )
   }
 
-  private def twoTypesSelector(initialColors: TwoTypes, colorsObserver: Observer[DominoColors]): HtmlElement = {
+  private def twoTypesSelector(
+      initialColors: TwoTypes,
+      openColourPaletteObserver: Observer[dom.HTMLElement],
+      colorsObserver: Observer[DominoColors],
+      colourObserverObserver: Observer[Observer[Color]]
+  ): HtmlElement = {
     def obs(f: Color => TwoTypes) = colorsObserver.contramap[Color](f)
     div(
       choseColour(
         "Horizontal",
         Val(initialColors.horizontal),
-        obs(color => initialColors.copy(horizontal = color))
+        openColourPaletteObserver,
+        obs(color => initialColors.copy(horizontal = color)),
+        colourObserverObserver
       ),
       choseColour(
         "Vertical",
         Val(initialColors.vertical),
-        obs(color => initialColors.copy(vertical = color))
+        openColourPaletteObserver,
+        obs(color => initialColors.copy(vertical = color)),
+        colourObserverObserver
       )
     )
   }
 
-  private def fourTypesSelector(initialColors: FourTypes, colorsObserver: Observer[DominoColors]): HtmlElement = {
+  private def fourTypesSelector(
+      initialColors: FourTypes,
+      openColourPaletteObserver: Observer[dom.HTMLElement],
+      colorsObserver: Observer[DominoColors],
+      colourObserverObserver: Observer[Observer[Color]]
+  ): HtmlElement = {
     def obs(f: Color => FourTypes) = colorsObserver.contramap[Color](f)
     div(
       choseColour(
         "North",
         Val(initialColors.north),
-        obs(color => initialColors.copy(north = color))
+        openColourPaletteObserver,
+        obs(color => initialColors.copy(north = color)),
+        colourObserverObserver
       ),
       choseColour(
         "South",
         Val(initialColors.south),
-        obs(color => initialColors.copy(south = color))
+        openColourPaletteObserver,
+        obs(color => initialColors.copy(south = color)),
+        colourObserverObserver
       ),
       choseColour(
         "East",
         Val(initialColors.east),
-        obs(color => initialColors.copy(east = color))
+        openColourPaletteObserver,
+        obs(color => initialColors.copy(east = color)),
+        colourObserverObserver
       ),
       choseColour(
         "West",
         Val(initialColors.west),
-        obs(color => initialColors.copy(west = color))
+        openColourPaletteObserver,
+        obs(color => initialColors.copy(west = color)),
+        colourObserverObserver
       )
     )
   }
 
-  private def eightTypesSelector(initialColors: EightTypes, colorsObserver: Observer[DominoColors]): HtmlElement = {
+  private def eightTypesSelector(
+      initialColors: EightTypes,
+      openColourPaletteObserver: Observer[dom.HTMLElement],
+      colorsObserver: Observer[DominoColors],
+      colourObserverObserver: Observer[Observer[Color]]
+  ): HtmlElement = {
     def obs(f: Color => EightTypes) = colorsObserver.contramap[Color](f)
     div(
       choseColour(
         "Even North",
         Val(initialColors.evenNorth),
-        obs(color => initialColors.copy(evenNorth = color))
+        openColourPaletteObserver,
+        obs(color => initialColors.copy(evenNorth = color)),
+        colourObserverObserver
       ),
       choseColour(
         "Odd North",
         Val(initialColors.oddNorth),
-        obs(color => initialColors.copy(oddNorth = color))
+        openColourPaletteObserver,
+        obs(color => initialColors.copy(oddNorth = color)),
+        colourObserverObserver
       ),
       choseColour(
         "Even South",
         Val(initialColors.evenSouth),
-        obs(color => initialColors.copy(evenSouth = color))
+        openColourPaletteObserver,
+        obs(color => initialColors.copy(evenSouth = color)),
+        colourObserverObserver
       ),
       choseColour(
         "Odd South",
         Val(initialColors.oddSouth),
-        obs(color => initialColors.copy(oddSouth = color))
+        openColourPaletteObserver,
+        obs(color => initialColors.copy(oddSouth = color)),
+        colourObserverObserver
       ),
       choseColour(
         "Even East",
         Val(initialColors.evenEast),
-        obs(color => initialColors.copy(evenEast = color))
+        openColourPaletteObserver,
+        obs(color => initialColors.copy(evenEast = color)),
+        colourObserverObserver
       ),
       choseColour(
         "Odd East",
         Val(initialColors.oddEast),
-        obs(color => initialColors.copy(oddEast = color))
+        openColourPaletteObserver,
+        obs(color => initialColors.copy(oddEast = color)),
+        colourObserverObserver
       ),
       choseColour(
         "Even West",
         Val(initialColors.evenWest),
-        obs(color => initialColors.copy(evenWest = color))
+        openColourPaletteObserver,
+        obs(color => initialColors.copy(evenWest = color)),
+        colourObserverObserver
       ),
       choseColour(
         "Odd West",
         Val(initialColors.oddWest),
-        obs(color => initialColors.copy(oddWest = color))
+        openColourPaletteObserver,
+        obs(color => initialColors.copy(oddWest = color)),
+        colourObserverObserver
       )
     )
   }
@@ -143,16 +220,14 @@ object DominoColoursForm {
     UI5Colour.fromIntColour(0xff6699)
   ).map(colour => ColourPalette.item(_.value := colour))
 
-  private def choseColour(label: String, colourSignal: Signal[Color], colourObserver: Observer[Color]): HtmlElement = {
-    val openBus = new EventBus[dom.HTMLElement]
+  private def choseColour(
+      label: String,
+      colourSignal: Signal[Color],
+      openPopoverObserver: Observer[dom.HTMLElement],
+      colourObserver: Observer[Color],
+      colourObserverObserver: Observer[Observer[Color]]
+  ): HtmlElement =
     div(
-      ColourPalettePopover(
-        _.showAtFromEvents(openBus.events),
-        _.events.onItemClick.map(_.detail.color).map(UI5Colour.fromString(_).toAztecDiamond) --> colourObserver,
-        someColourPaletteItems,
-        _.showRecentColours := true,
-        _.showMoreColours   := true
-      ),
       div(
         width := "150px",
         display.flex,
@@ -163,10 +238,14 @@ object DominoColoursForm {
           _.item(
             _.value <-- colourSignal.map(_.toUI5)
           ),
-          inContext(el => ColourPalette.events.onItemClick.mapTo(el.ref) --> openBus.writer)
+          inContext(el =>
+            ColourPalette.events.onItemClick.mapTo(el.ref) --> Observer.combine(
+              openPopoverObserver,
+              Observer[dom.HTMLElement](_ => colourObserverObserver.onNext(colourObserver))
+            )
+          )
         )
       )
     )
-  }
 
 }

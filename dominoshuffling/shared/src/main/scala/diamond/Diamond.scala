@@ -222,7 +222,7 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
             }
           } else throw new UnsupportedOperationException
         }
-        .map(array => new Diamond(array))
+        .map(array => Diamond(array))
     }
 
   def aSubDiamond: Option[Diamond] = Option.unless(order == 1) {
@@ -239,7 +239,7 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
 
     activeFaces.foreach(face => fillPossibilities(face.previousDiamondConstruction(this).head, dominoes))
 
-    new Diamond(dominoes)
+    Diamond(dominoes)
   }
 
   private[diamond] def allSubDiamonds: NArray[Diamond] =
@@ -262,7 +262,7 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
       fillPossibilities(previous(Random.nextInt(previous.length)), dominoes)
     }
 
-    new Diamond(dominoes)
+    Diamond(dominoes)
   }
 
   def aRandomSubDiamond: Diamond = subDiamonds(Random.nextInt(subDiamonds.length))
@@ -348,19 +348,17 @@ object Diamond {
 
     val dominoes = emptyArrayDominoes(order)
 
-    intDiamond
+    intDiamond.tail
       .grouped(4)
-      .map {
+      .foreach {
         case List(x1, y1, x2, y2) =>
-          Domino(Point(x1, y1), Point(x2, y2))
+          val domino = Domino(Point(x1, y1), Point(x2, y2))
+          val (x, y) = Domino.changeVerticalCoordinates(domino.p1, order)
+          dominoes(x)(y) = Some(domino)
         case other => throw new RuntimeException(other.toString)
       }
-      .foreach { domino =>
-        val (x, y) = Domino.changeVerticalCoordinates(domino.p1, order)
-        dominoes(x)(y) = Some(domino)
-      }
 
-    new Diamond(dominoes)
+    Diamond(dominoes)
   }
 
   final class DiamondGenerationInfo(val diamondType: DiamondType)(
@@ -487,7 +485,7 @@ object Diamond {
         dominoes(x)(y) = Some(domino)
       }
 
-    new Diamond(dominoes)
+    Diamond(dominoes)
   }
 
   def uniformHexagon(a: Int, b: Int, c: Int): Diamond =
@@ -516,7 +514,7 @@ object Diamond {
         val (x, y) = Domino.changeVerticalCoordinates(domino.p1, order)
         dominoes(x)(y) = Some(domino)
       }
-    new Diamond(dominoes)
+    Diamond(dominoes)
   }
 
   def emptyArrayDominoes(order: Int): NArray[NArray[Option[Domino]]] = {
