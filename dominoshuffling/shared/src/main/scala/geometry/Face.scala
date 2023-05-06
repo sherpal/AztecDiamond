@@ -6,6 +6,7 @@ import exceptions.{ImpossibleDiamondException, NotTileableException, ShouldNotBe
 import narr.NArray
 
 import scala.language.implicitConversions
+import custommath.WeightLikeNumber
 
 /** A Face is 4 points that form a square, and is represented by its bottom left point on the lattice.
   *
@@ -235,6 +236,8 @@ case class Face(bottomLeft: Point) {
     )
   }
 
+  private val _1overV2 = summon[WeightLikeNumber[QRoot]].oneOverRoot2
+
   /** Computes the weights for the diamond of one order less by applying Step 1 & 2 described in [1].
     * @param weights
     *   the weights for this order n Diamond
@@ -263,7 +266,6 @@ case class Face(bottomLeft: Point) {
             v2 -> delta / crossProduct
           )
         case (a, b, c, d) if NArray(a, b, c, d).forall(_ == _0) =>
-          val _1overV2 = NotRational(NArray[BigInt](1), NArray[BigInt](2)): QRoot
           NArray(
             h1 -> _1overV2,
             h2 -> _1overV2,
