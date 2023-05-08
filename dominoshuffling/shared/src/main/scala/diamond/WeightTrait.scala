@@ -79,7 +79,7 @@ object WeightTrait {
     */
   def injectSubGraphDouble(
       n: Int,
-      isInSubGraph: (Point) => Boolean
+      isInSubGraph: Point => Boolean
   ): CustomGenerationWeight = {
     val weights = new CustomGenerationWeight(n)
 
@@ -87,7 +87,6 @@ object WeightTrait {
       .activeFaces(n)
       .foreach { face =>
         face.dominoes.foreach { domino =>
-          // is there XOR operator in Scala?
           if (isInSubGraph(domino.p1) == isInSubGraph(domino.p2)) {
             weights(domino) = 1.0
           } else {

@@ -34,6 +34,10 @@ object QRootChecks extends Properties("QRootChecks") {
     5 -> notRationalGen
   )
 
+  property("Going from integer is deterministic") = forAll(Arbitrary.arbitrary[BigInt]) { b =>
+    QRoot.fromBigInt(b) == QRoot.fromBigInt(b)
+  }
+
   property("one is generated") = exists(qRootGen)(_ == one)
   property("zero is generated") = exists(qRootGen)(_ == zero)
   property("rational is generated") = exists(qRootGen)(_.isRational)

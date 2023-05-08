@@ -7,7 +7,7 @@ import geometry.{Domino, Face}
 import scala.reflect.ClassTag
 import narr.NArray
 
-class CustomComputePartitionFunctionWeight(val n: Int)(implicit
+final class CustomComputePartitionFunctionWeight(val n: Int)(implicit
     val tTag: ClassTag[QRoot],
     val atTag: ClassTag[NArray[QRoot]]
 ) extends ComputePartitionFunctionWeight

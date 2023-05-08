@@ -137,6 +137,11 @@ object NotRational {
     sumTheGroups.filter((c, x) => c != 0 && x != 0).sortBy(_.swap)
   }
 
+  def coefficientsArray(values: (BigInt, BigInt)*): NArray[(BigInt, BigInt)] = NArray(values: _*)
+  def intCoefficientsArray(values: (Int, Int)*): NArray[(BigInt, BigInt)] = coefficientsArray(
+    values.map((c, x) => BigInt(c) -> BigInt(x)): _*
+  )
+
   private def vectorProduct(
       as: NArray[(BigInt, BigInt)],
       bs: NArray[(BigInt, BigInt)]

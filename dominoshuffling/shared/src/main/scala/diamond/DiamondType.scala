@@ -55,9 +55,9 @@ trait DiamondType {
 
   /** Predicate for knowing what point is in the sub-graph of this type of Diamond. Used for drawing.
     */
-  def isPointInDiamond(args: ArgType): (Point) => Boolean
+  def isPointInDiamond(args: ArgType): Point => Boolean
 
-  def isInDiamond(args: ArgType): (Domino) => Boolean =
+  def isInDiamond(args: ArgType): Domino => Boolean =
     (domino: Domino) => isPointInDiamond(args)(domino.p1) && isPointInDiamond(args)(domino.p2)
 
   /** A space separated version of the toString of the object. */

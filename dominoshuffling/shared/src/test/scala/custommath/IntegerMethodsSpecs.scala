@@ -11,8 +11,17 @@ final class IntegerMethodsSpecs extends munit.FunSuite {
     assert(!isPrime(-1))
   }
 
+  test("1 is not prime") {
+    assert(!isPrime(1))
+  }
+
   test("All 100 first primes are indeed primes") {
-    primesFrom(2).take(100).foreach(n => assert(isPrime(n), s"$n was not prime"))
+    primeNumbers.take(100).foreach(n => assert(isPrime(n), s"$n was not prime"))
+  }
+
+  test("There are 25 primes smaller than 100") {
+    val primes = (1 to 100).map(BigInt(_)).filter(isPrime).toList
+    assertEquals(primes.length, 25, s"I found ${primes.mkString(", ")}")
   }
 
 }

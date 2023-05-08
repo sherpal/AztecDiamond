@@ -4,7 +4,13 @@ import narr.NArray
 
 object IntegerMethods {
 
-  def primesFrom(n: BigInt): LazyList[BigInt] = if isPrime(n) then n #:: primesFrom(n + 1) else primesFrom(n + 1)
+  private def primesFrom(n: BigInt): LazyList[BigInt] =
+    if isPrime(n) then n #:: primesFrom(n + 1) else primesFrom(n + 1)
+
+  lazy val primeNumbers = primesFrom(2)
+
+  private val precomputedPrimesNumber = 1000
+  lazy val precomputedPrimes          = NArray[BigInt](primeNumbers.take(precomputedPrimesNumber).toList: _*)
 
   def integerSquareRoot(n: Int): Int = {
     def integerSquareRootAcc(n: Int, start: Int): Int = {
@@ -92,23 +98,50 @@ object IntegerMethods {
     val isPositive = n >= 0
     val x          = if isPositive then n else -n
 
-    def primeNumberAcc(currentPrime: BigInt, remainingToDecompose: BigInt, primesFound: List[BigInt]): List[BigInt] =
+    def primeNumberAcc(
+        currentPrime: BigInt,
+        primeAttemptIndex: Int,
+        remainingToDecompose: BigInt,
+        primesFound: List[BigInt]
+    ): List[BigInt] =
       if remainingToDecompose <= 1 then if remainingToDecompose == 0 then Nil else primesFound
       else if currentPrime == 2 then {
-        if remainingToDecompose % 2 == 0 then primeNumberAcc(currentPrime, remainingToDecompose / 2, 2 +: primesFound)
-        else primeNumberAcc(3, remainingToDecompose, primesFound)
+        if remainingToDecompose % 2 == 0 then
+          primeNumberAcc(currentPrime, primeAttemptIndex, remainingToDecompose / 2, 2 +: primesFound)
+        else primeNumberAcc(3, 1, remainingToDecompose, primesFound)
       } else {
         if remainingToDecompose % currentPrime == 0 then
-          primeNumberAcc(currentPrime, remainingToDecompose / currentPrime, currentPrime +: primesFound)
-        else primeNumberAcc(currentPrime + 2, remainingToDecompose, primesFound)
+          primeNumberAcc(
+            currentPrime,
+            primeAttemptIndex,
+            remainingToDecompose / currentPrime,
+            currentPrime +: primesFound
+          )
+        else {
+          val nextIndex = primeAttemptIndex + 1
+          primeNumberAcc(
+            if nextIndex < precomputedPrimesNumber then precomputedPrimes(nextIndex) else currentPrime + 2,
+            nextIndex,
+            remainingToDecompose,
+            primesFound
+          )
+        }
       }
 
-    val primes = primeNumberAcc(2, x, Nil)
+    val primes = primeNumberAcc(2, 0, x, Nil)
 
     if isPositive then primes else -1 +: primes
   }
 
-  def isPrime(n: BigInt): Boolean = n != -1 && primeNumberDecomposition(n) == List(n)
+  def positiveDivisers(n: BigInt): List[BigInt] = {
+    val posN = if n < 0 then -n else n
+    (if posN == 1 then Nil else List(n)) ++ (BigInt(1) to bigIntSquareRoot(posN)).filter(n % _ == 0).toList
+  }
+
+  def isPrime(n: BigInt): Boolean = n != 0 && (positiveDivisers(n) match {
+    case _ :: _ :: Nil => true
+    case _             => false
+  })
 
   /** Given a [[BigInt]] n, returns to numbers p and q such that
     *

@@ -7,6 +7,7 @@ import exceptions.WrongParameterException
 import geometry.{Domino, Point}
 
 case object AztecRing extends DiamondType {
+  // (inner, outer)
   type ArgType = (Int, Int)
 
   val lozengeTiling: Boolean = false

@@ -15,7 +15,7 @@ object IntegerMethodsChecks extends Properties("IntegerMethods") {
   val smallPositiveBigIntGen: Gen[BigInt] =
     Gen.frequency(10 -> Gen.choose[BigInt](1, 1000000), 1 -> Gen.const(BigInt(1)))
 
-  def primeUpToGen(n: BigInt): Gen[BigInt] = Gen.oneOf(primesFrom(2).takeWhile(_ <= n).toList)
+  def primeUpToGen(n: BigInt): Gen[BigInt] = Gen.oneOf(primeNumbers.takeWhile(_ <= n).toList)
 
   property("Product of primes is the number") = forAll(smallBigIntGen) { x =>
     x == 0 || {
