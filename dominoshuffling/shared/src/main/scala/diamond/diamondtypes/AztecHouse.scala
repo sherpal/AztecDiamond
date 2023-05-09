@@ -7,6 +7,7 @@ import exceptions.WrongParameterException
 import geometry.{Domino, Point}
 
 case object AztecHouse extends DiamondType {
+  // (width, height)
   type ArgType = (Int, Int)
 
   val lozengeTiling: Boolean = false
@@ -18,19 +19,21 @@ case object AztecHouse extends DiamondType {
   /** Arguments are of the form (n, h), but ArgType is (width, height), so there's an extra transformation here.
     */
   def transformArguments(args: Seq[Double]): Either[WrongParameterException, (Int, Int)] = {
-    val width  = args(0).toInt * 2
-    val height = args(1).toInt + 1
+    val n      = args(0).toInt
+    val h      = args(1).toInt
+    val width  = n * 2
+    val height = h + 1
     Either.cond(
       args.forall(isInteger) && width > 0 && height > 0,
       (width, height),
       new WrongParameterException(
         s"For the shape to be tileable, n must be a positive integer, and h must be a non negative integer " +
-          s"(received: (${args(0)}, ${args(1)}))."
+          s"(received: ($n, $h))."
       )
     )
   }
 
-  def transformArgumentsBack(arg: ArgType): Seq[Double] = List(arg._1.toDouble, arg._2.toDouble)
+  def transformArgumentsBack(arg: ArgType): Seq[Double] = List((arg._1 / 2).toDouble, (arg._2 - 1).toDouble)
 
   def makeGenerationWeight(args: (Int, Int)): CustomGenerationWeight =
     WeightTrait.aztecHouseWeightsGeneration(args._1, args._2)

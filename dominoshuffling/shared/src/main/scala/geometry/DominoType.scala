@@ -1,8 +1,7 @@
 package geometry
 
-
 sealed trait DominoType {
-  def name: String = """[A-Z][a-z]*""".r.findAllIn(toString).mkString(" ")
+  lazy val name: String = """[A-Z][a-z]*""".r.findAllIn(toString).mkString(" ")
 
   def defaultColor: (Int, Int, Int)
 }
@@ -20,11 +19,13 @@ case object WestGoing extends DominoType {
   def defaultColor: (Int, Int, Int) = (255, 255, 0)
 }
 
-
 object DominoType {
 
   val types: List[DominoType] = List(
-    NorthGoing, SouthGoing, EastGoing, WestGoing
+    NorthGoing,
+    SouthGoing,
+    EastGoing,
+    WestGoing
   )
 
 }

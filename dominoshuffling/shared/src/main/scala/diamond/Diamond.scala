@@ -2,11 +2,13 @@ package diamond
 
 import custommath.{IntegerMethods, QRoot, WeightLikeNumber}
 import exceptions.ShouldNotBeThereException
-import geometry._
+import geometry.*
 
 import scala.util.Random
 import scala.concurrent.duration.FiniteDuration
 import narr.NArray
+
+import scala.annotation.tailrec
 
 /** A Diamond represents an Aztec Diamond with its tiling.
   *
@@ -18,12 +20,20 @@ import narr.NArray
   * For example, an Aztec diamond of order 1 with two horizontal dominoes would have the dominoes Vector Vector(
   * Vector(Some(Domino(Point(0,0), Point(1,0)), Some(Domino(Point(0,1), Point(1,1)))), Vector(None, None) )
   */
+//noinspection ScalaUnusedSymbol
 final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[Domino]]]) {
 
-  lazy val dominoesNumber: Int = internalDominoes.map(d => d.count(_.isDefined)).sum
+  private[diamond] lazy val dominoesNumber: Int = internalDominoes.map(d => d.count(_.isDefined)).sum
 
-  private[diamond] lazy val listOfDominoes: NArray[Domino] =
-    internalDominoes.flatMap(_.filter(_.isDefined).map(_.get))
+  private[diamond] lazy val listOfDominoes: NArray[Domino] = {
+    val dominoes     = NArray.ofSize[Domino](dominoesNumber)
+    var currentIndex = 0
+    internalDominoes.foreach(_.foreach(_.foreach { domino =>
+      dominoes(currentIndex) = domino
+      currentIndex += 1
+    }))
+    dominoes
+  }
 
   def dominoes: Iterable[Domino] = listOfDominoes
 
@@ -49,7 +59,7 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
   def inBoundsDomino(domino: Domino): Boolean =
     inBoundsPoint(domino.p1) && inBoundsPoint(domino.p2)
 
-  def inSubGraph(isInSubGraph: (Point) => Boolean): String = {
+  def inSubGraph(isInSubGraph: Point => Boolean): String = {
     val chars: NArray[NArray[String]] =
       NArray.fill[NArray[String]](2 * order)(NArray.fill[String](2 * order)(" "))
 
@@ -57,24 +67,26 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
       if isInSubGraph(domino.p1) then {
         val (x1, y1) = (domino.p1.x + order - 1, domino.p1.y + order - 1)
         val (x2, y2) = (domino.p2.x + order - 1, domino.p2.y + order - 1)
-        val color = domino.dominoType(order) match {
-          case NorthGoing =>
-            Console.RED_B
-          case SouthGoing =>
-            Console.GREEN_B
-          case EastGoing =>
-            Console.YELLOW_B
-          case WestGoing =>
-            Console.BLUE_B
-        }
-        chars(y1)(x1) = color + " " + Console.BLACK_B
-        chars(y2)(x2) = color + " " + Console.BLACK_B
+//        val color = domino.dominoType(order) match {
+//          case NorthGoing =>
+//            Console.RED_B
+//          case SouthGoing =>
+//            Console.GREEN_B
+//          case EastGoing =>
+//            Console.YELLOW_B
+//          case WestGoing =>
+//            Console.BLUE_B
+//        }
+        val black = "" //  Console.BLACK_B
+        val color = ""
+        chars(y1)(x1) = color + " " + black
+        chars(y2)(x2) = color + " " + black
         if (domino.isHorizontal) {
           chars(y1)(x1) = color + "<"
-          chars(y2)(x2) = ">" + Console.BLACK_B
+          chars(y2)(x2) = ">" + black
         } else {
-          chars(y1)(x1) = color + "n" + Console.BLACK_B
-          chars(y2)(x2) = color + "v" + Console.BLACK_B
+          chars(y1)(x1) = color + "n" + black
+          chars(y2)(x2) = color + "v" + black
         }
       }
     )
@@ -89,24 +101,26 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
     listOfDominoes.foreach { domino =>
       val (x1, y1) = (domino.p1.x + order - 1, domino.p1.y + order - 1)
       val (x2, y2) = (domino.p2.x + order - 1, domino.p2.y + order - 1)
-      val color = domino.dominoType(order) match {
-        case NorthGoing =>
-          Console.RED_B
-        case SouthGoing =>
-          Console.GREEN_B
-        case EastGoing =>
-          Console.YELLOW_B
-        case WestGoing =>
-          Console.BLUE_B
-      }
-      chars(y1)(x1) = color + " " + Console.BLACK_B
-      chars(y2)(x2) = color + " " + Console.BLACK_B
+//      val color = domino.dominoType(order) match {
+//        case NorthGoing =>
+//          Console.RED_B
+//        case SouthGoing =>
+//          Console.GREEN_B
+//        case EastGoing =>
+//          Console.YELLOW_B
+//        case WestGoing =>
+//          Console.BLUE_B
+//      }
+      val black = "" //  Console.BLACK_B
+      val color = ""
+      chars(y1)(x1) = color + " " + black
+      chars(y2)(x2) = color + " " + black
       if (domino.isHorizontal) {
         chars(y1)(x1) = color + "<"
-        chars(y2)(x2) = ">" + Console.BLACK_B
+        chars(y2)(x2) = ">" + black
       } else {
-        chars(y1)(x1) = color + "n" + Console.BLACK_B
-        chars(y2)(x2) = color + "v" + Console.BLACK_B
+        chars(y1)(x1) = color + "n" + black
+        chars(y2)(x2) = color + "v" + black
       }
     }
 
@@ -118,7 +132,6 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
   /** Computes the probability of seeing this domino if generated with the given weights
     */
   def probability(weights: ComputePartitionFunctionWeight, statusCallback: Int => Unit): QRoot = {
-
     val _1 = QRoot(1, 1)
 
     def thisStepProbability(
@@ -127,10 +140,10 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
     ): QRoot =
       diamond.activeFaces
         .filter(_.dominoes.count(diamond.contains) == 2)
-        .flatMap { face =>
+        .map { face =>
           val (alpha, beta, gamma, delta) = face.getFaceWeights(weightTrait)
-          if diamond.contains(face.horizontalDominoes._1) then NArray(alpha * gamma / (alpha * gamma + beta * delta))
-          else NArray(beta * delta / (alpha * gamma + beta * delta))
+          if diamond.contains(face.horizontalDominoes._1) then alpha * gamma / (alpha * gamma + beta * delta)
+          else beta * delta / (alpha * gamma + beta * delta)
         }
         .product
 
@@ -138,32 +151,30 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
       * and the inner list are the coefficients stored up to that point. This should in principle dramatically reduce
       * the amount of computation.
       */
+    @tailrec
     def probabilityAcc(
-        diamondsAndCoefficients: NArray[(Diamond, NArray[NArray[QRoot]])],
+        diamondsAndCoefficients: List[(Diamond, NArray[NArray[QRoot]])],
         weightTrait: ComputePartitionFunctionWeight
     ): QRoot =
-      if (diamondsAndCoefficients.head._1.order == 1) { // all diamonds will be of order 1 at the same time
+      if diamondsAndCoefficients.head._1.order == 1 then { // all diamonds will be of order 1 at the same time
         diamondsAndCoefficients.map { (d, listOfCoefficients) =>
           val thisStep = thisStepProbability(d, weightTrait)
           listOfCoefficients.map { coefficients =>
-            (thisStep +: coefficients).product
+            coefficients.product * thisStep
           }.sum
         }.sum
       } else {
-
         val newDiamonds =
-          NArray(
-            diamondsAndCoefficients
-              .foldLeft(NArray[(Diamond, NArray[NArray[QRoot]])]()) { case (diamonds, (d, listOfCoefficients)) =>
-                val thisStep        = thisStepProbability(d, weightTrait)
-                val newCoefficients = listOfCoefficients.map(thisStep +: _)
-                d.subDiamonds.map((_, newCoefficients)) ++ diamonds
-              }
-              .groupBy(_._1)
-              .toList: _*
-          )
+          diamondsAndCoefficients
+            .foldLeft(List[(Diamond, NArray[NArray[QRoot]])]()) { case (diamonds, (d, listOfCoefficients)) =>
+              val thisStep        = thisStepProbability(d, weightTrait)
+              val newCoefficients = listOfCoefficients.map(thisStep +: _)
+              d.subDiamonds.map((_, newCoefficients)) ++ diamonds
+            }
+            .groupBy(_._1)
+            .toList
             .map { (key, values) =>
-              key -> values.flatMap(_._2)
+              key -> NArray(values.flatMap(_._2): _*)
             }
 
         statusCallback(100 - math.round(weightTrait.n * 100 / order.toDouble).toInt)
@@ -174,14 +185,14 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
         )
       }
 
-    probabilityAcc(NArray((this, NArray(NArray(_1)))), weights)
+    probabilityAcc(List((this, NArray(NArray(_1)))), weights)
   }
 
   /** Returns the List of all sub diamonds that can generate this one from the algorithm. This is the "inverse"
     * operation of the algorithm.
     */
-  private[diamond] lazy val subDiamonds: NArray[Diamond] =
-    if order == 1 then NArray.empty[Diamond]
+  private[diamond] lazy val subDiamonds: List[Diamond] =
+    if order == 1 then List.empty[Diamond]
     else {
       val dominoes: NArray[NArray[Option[Domino]]] = Diamond.emptyArrayDominoes(order - 1)
 
@@ -195,7 +206,7 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
         }
 
       activeFaces
-        .foldLeft(NArray[NArray[NArray[Option[Domino]]]](dominoes)) { (dominoesList, face) =>
+        .foldLeft(List[NArray[NArray[Option[Domino]]]](dominoes)) { (dominoesList, face) =>
           val previousConstruction = face.previousDiamondConstruction(this)
           if previousConstruction.length == 1 then {
             dominoesList.foreach(fillPossibilities(previousConstruction(0), _))
@@ -204,13 +215,8 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
             val p1 = previousConstruction(0)
             val p2 = previousConstruction(1)
             dominoesList.flatMap { dominoes =>
-              val clone: NArray[NArray[Option[Domino]]] = dominoes.map { arr =>
-                val c = NArray.ofSize[Option[Domino]](arr.length)
-                for (j <- arr.indices)
-                  c(j) = arr(j)
-                c
-              }
-              NArray(
+              val clone: NArray[NArray[Option[Domino]]] = dominoes.map(_.map(identity))
+              List(
                 {
                   fillPossibilities(p1, dominoes)
                   dominoes
@@ -242,7 +248,7 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
     Diamond(dominoes)
   }
 
-  private[diamond] def allSubDiamonds: NArray[Diamond] =
+  private[diamond] def allSubDiamonds: List[Diamond] =
     this +: subDiamonds.flatMap(_.allSubDiamonds)
 
   def randomSubDiamond: Option[Diamond] = Option.unless(order == 1) {
@@ -278,6 +284,7 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
     }
 
     def followPath(point: Point): Vector[Point] = {
+      @tailrec
       def acc(accumulator: List[Point]): List[Point] = {
         val currentPoint = accumulator.head
         if (inBoundsPoint(currentPoint)) {
@@ -298,7 +305,7 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
   }
 
   def nonIntersectingPathsSubGraph(
-      isInSubGraph: (Point) => Boolean
+      isInSubGraph: Point => Boolean
   ): Vector[Vector[Point]] =
     nonIntersectingPaths
       .flatMap(points =>
@@ -339,6 +346,7 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
 
 }
 
+//noinspection ScalaUnusedSymbol
 object Diamond {
 
   def fromIntsSerialization(intDiamondIterable: Iterable[Int]): Diamond = {
@@ -377,11 +385,11 @@ object Diamond {
   ) {
     lazy val diamondTypeWithArgs: DiamondType.DiamondTypeWithArgs = diamondType.withArgs(args)
 
-    lazy val partitionFunction = weight / probability
+    lazy val partitionFunction: QRoot = weight / probability
 
-    lazy val subGraphPartition = diamondTypeWithArgs.totalPartitionFunctionToSubGraph(partitionFunction)
+    lazy val subGraphPartition: QRoot = diamondTypeWithArgs.totalPartitionFunctionToSubGraph(partitionFunction)
 
-    lazy val isSubGraphPartitionInteger = subGraphPartition == QRoot.fromBigInt(subGraphPartition.toBigInt)
+    lazy val isSubGraphPartitionInteger: Boolean = subGraphPartition == QRoot.fromBigInt(subGraphPartition.toBigInt)
 
     lazy val scientificNotation: String =
       if (!isSubGraphPartitionInteger) ""
@@ -488,7 +496,7 @@ object Diamond {
     Diamond(dominoes)
   }
 
-  def uniformHexagon(a: Int, b: Int, c: Int): Diamond =
+  private def uniformHexagon(a: Int, b: Int, c: Int): Diamond =
     generateDiamond(
       WeightTrait.computeAllWeights[Double, CustomGenerationWeight](
         WeightTrait.hexagonWeightGeneration(a, b, c)

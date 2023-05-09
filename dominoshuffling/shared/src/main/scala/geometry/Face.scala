@@ -6,6 +6,7 @@ import exceptions.{ImpossibleDiamondException, NotTileableException, ShouldNotBe
 import narr.NArray
 
 import scala.language.implicitConversions
+import custommath.WeightLikeNumber
 
 /** A Face is 4 points that form a square, and is represented by its bottom left point on the lattice.
   *
@@ -61,25 +62,30 @@ case class Face(bottomLeft: Point) {
 
   /** Returns two dominoes with probability distribution given by the weights.
     */
-  def randomSquare(weights: GenerationWeight): NArray[Domino] = {
+  inline def randomSquare(weights: GenerationWeight): NArray[Domino] =
+    randomSquare(getFaceWeights[Double](weights), weights.n)
 
+  inline def randomSquare(weights: (Double, Double, Double, Double), diamondOrder: => Int): NArray[Domino] = {
+    val (alpha, beta, gamma, delta) = weights
+    randomSquare(alpha, beta, gamma, delta, diamondOrder)
+  }
+
+  def randomSquare(alpha: Double, beta: Double, gamma: Double, delta: Double, diamondOrder: => Int): NArray[Domino] = {
     val (h1, h2) = horizontalDominoes
     val (v1, v2) = verticalDominoes
-
-    val (alpha, beta, gamma, delta) = getFaceWeights[Double](weights)
 
     val topBottom    = alpha * gamma
     val leftRight    = beta * delta
     val crossProduct = topBottom + leftRight
 
-    if (crossProduct.toDouble == 0.0) {
+    if (crossProduct == 0.0) {
       println((alpha, beta, gamma, delta))
       println("Cross product is 0")
-      println("weights of order " ++ weights.n.toString)
+      println("weights of order " ++ diamondOrder.toString)
       throw new NotTileableException
     } else {
-      if (alpha.toDouble == 0.0 || gamma.toDouble == 0.0) NArray(v1, v2)
-      else if (beta.toDouble == 0.0 || delta.toDouble == 0.0) NArray(h1, h2)
+      if (alpha == 0.0 || gamma == 0.0) NArray(v1, v2)
+      else if (beta == 0.0 || delta == 0.0) NArray(h1, h2)
       else if (CustomGenerationWeight.nextBernoulli(topBottom / crossProduct))
         NArray(h1, h2)
       else NArray(v1, v2)
@@ -118,26 +124,31 @@ case class Face(bottomLeft: Point) {
     }
   }
 
-  /** We put the dominoes for the next diamond, given the dominoes of the sub diamond and the weights.
-    *
-    * The rule is as follows: ._. . . . . ---> ._. (with all symmetric cases)
-    *
-    * ._. . . . . ._. or | | ---> . .
-    *
-    * . . ._. . . . . ---> randomly chosen between ._. or | |
-    */
-  def nextDiamondConstruction(
-      subDiamond: Diamond,
-      weights: GenerationWeight
-  ): NArray[Domino] = {
+  // format: off
+  /**
+   * We put the dominoes for the next diamond, given the dominoes of the sub diamond and the weights.
+   *
+   * The rule is as follows:
+   * ._.      . .
+   * . . ---> ._. (with all symmetric cases)
+   *
+   * ._.    . .      . .
+   * ._. or | | ---> . .
+   *
+   * . .                              ._.    . .
+   * . . ---> randomly chosen between ._. or | |
+   *
+   */
+  // format:on
+  def diamondConstructionFaceMapping(contains: Domino => Boolean, faceWeights: => (Double, Double, Double, Double), diamondOrder: => Int): NArray[Domino] = {
     val (h1, h2) = horizontalDominoes
     val (v1, v2) = verticalDominoes
 
     (
-      subDiamond.contains(h1),
-      subDiamond.contains(h2),
-      subDiamond.contains(v1),
-      subDiamond.contains(v2)
+      contains(h1),
+      contains(h2),
+      contains(v1),
+      contains(v2)
     ) match {
       case (true, false, false, false)  => NArray(h2)
       case (false, true, false, false)  => NArray(h1)
@@ -145,13 +156,18 @@ case class Face(bottomLeft: Point) {
       case (false, false, false, true)  => NArray(v1)
       case (true, true, false, false)   => NArray.empty[Domino]
       case (false, false, true, true)   => NArray.empty[Domino]
-      case (false, false, false, false) => randomSquare(weights)
+      case (false, false, false, false) => randomSquare(faceWeights, diamondOrder)
       case _ =>
         throw new ImpossibleDiamondException(
-          s"The diamond was of order ${subDiamond.order}"
+          s"The diamond was of order ${diamondOrder-1}"
         )
     }
   }
+
+  def nextDiamondConstruction(
+      subDiamond: Diamond,
+      weights: GenerationWeight
+  ): NArray[Domino] = diamondConstructionFaceMapping(subDiamond.contains, getFaceWeights(weights), weights.n)
 
   /** Computes the weights for the diamond of one order less by applying Step 1 & 2 described in [1].
     * @param weights
@@ -235,6 +251,8 @@ case class Face(bottomLeft: Point) {
     )
   }
 
+  private val _1overV2 = summon[WeightLikeNumber[QRoot]].oneOverRoot2
+
   /** Computes the weights for the diamond of one order less by applying Step 1 & 2 described in [1].
     * @param weights
     *   the weights for this order n Diamond
@@ -263,7 +281,6 @@ case class Face(bottomLeft: Point) {
             v2 -> delta / crossProduct
           )
         case (a, b, c, d) if NArray(a, b, c, d).forall(_ == _0) =>
-          val _1overV2 = NotRational(NArray[BigInt](1), NArray[BigInt](2)): QRoot
           NArray(
             h1 -> _1overV2,
             h2 -> _1overV2,
@@ -342,8 +359,5 @@ object Face {
     }
     faces
   }
-
-  private def toParIfPossible[A](iterable: Iterable[A]): Seq[A] =
-    PlatformDependent.toPar(iterable)
 
 }

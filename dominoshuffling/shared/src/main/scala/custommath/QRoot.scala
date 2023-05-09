@@ -48,48 +48,45 @@ sealed abstract class QRoot {
   * root of integers. The Vectors numerators and denominators are composed of the squares of the elements in the sums.
   * The sign is +1 ou -1, and
   */
-case class NotRational(
-    numerators: NArray[BigInt],
-    denominators: NArray[BigInt],
-    sign: Int = 1
+case class NotRational private (
+    numerators: NArray[(BigInt, BigInt)],
+    denominators: NArray[(BigInt, BigInt)]
 ) extends QRoot {
 
   def *(that: QRoot): QRoot = that match {
     case q: Rational =>
-      val numSquare = q.numerator * q.numerator
-      val denSquare = q.denominator * q.denominator
+      val num = q.numerator
+      val den = q.denominator
       NotRational(
-        numerators.map(_ * numSquare),
-        denominators.map(_ * denSquare),
-        sign * (if (that.isPositive) 1 else -1)
+        numerators.map((c_x, x) => ((c_x * num, x))),
+        denominators.map((c_x, x) => ((c_x * den, x)))
       )
-    case NotRational(num, den, s) =>
-      NotRational(
-        NotRational.vectorProduct(num, numerators),
-        NotRational.vectorProduct(den, denominators),
-        sign * s
-      )
+    case that: NotRational => this * that
   }
 
-  def +(that: QRoot): QRoot = {
+  def *(that: NotRational): NotRational = NotRational(
+    NotRational.vectorProduct(that.numerators, numerators),
+    NotRational.vectorProduct(that.denominators, denominators)
+  )
+
+  def +(that: QRoot): NotRational = {
     val q = that.toNotRational
 
     NotRational(
-      (NotRational.vectorProduct(numerators, q.denominators) ++
-        NotRational.vectorProduct(denominators, q.numerators)).sorted,
-      NotRational.vectorProduct(denominators, q.denominators),
-      sign * -q.sign
+      NotRational.vectorProduct(numerators, q.denominators) ++
+        NotRational.vectorProduct(denominators, q.numerators),
+      NotRational.vectorProduct(denominators, q.denominators)
     )
   }
 
   def inverse: QRoot = NotRational(denominators, numerators)
 
-  def isPositive: Boolean = sign > 0
+  def isPositive: Boolean = ???
 
-  def unary_- : NotRational = NotRational(numerators, denominators, -sign)
+  def unary_- : NotRational = NotRational(numerators.map((c, x) => (-c, x)), denominators)
 
-  def toDouble: Double = numerators.map(n => math.sqrt(n.toDouble)).sum /
-    denominators.map(n => math.sqrt(n.toDouble)).sum
+  def toDouble: Double = numerators.map((c, n) => c.toDouble * math.sqrt(n.toDouble)).sum /
+    denominators.map((c, n) => c.toDouble * math.sqrt(n.toDouble)).sum
 
   def toLong: Long = toDouble.toLong // TODO
 
@@ -100,26 +97,19 @@ case class NotRational(
   def toNotRational: NotRational = this
 
   def toRational: Rational = Rational(
-    numerators.map(IntegerMethods.bigIntSquareRoot).sum,
-    denominators.map(IntegerMethods.bigIntSquareRoot).sum
+    numerators.map((c, x) => c * IntegerMethods.bigIntSquareRoot(x)).sum,
+    denominators.map((c, x) => c * IntegerMethods.bigIntSquareRoot(x)).sum
   )
 
-  def isRational: Boolean = numerators.forall(IntegerMethods.isPerfectSquare) &&
-    denominators.forall(IntegerMethods.isPerfectSquare)
+  def isRational: Boolean = numerators.forall((_, x) => IntegerMethods.isPerfectSquare(x)) &&
+    denominators.forall((_, x) => IntegerMethods.isPerfectSquare(x))
 
   override def equals(that: Any): Boolean = that match {
-    case that: Int => isRational && (toRational equals QRoot.fromInt(that))
-    case that: BigInt =>
-      isRational && (toRational equals QRoot.fromBigInt(that))
-    case that: Rational => this.toRational equals that
-    case that: NotRational =>
-      this.numerators.length == that.numerators.length &&
-      this.denominators.length == that.denominators.length &&
-      this.numerators.zip(that.numerators).forall(elem => elem._1 == elem._2) &&
-      this.denominators
-        .zip(that.denominators)
-        .forall(elem => elem._1 == elem._2)
-    case _ => false
+    case that: Int         => isRational && (toRational equals QRoot.fromInt(that))
+    case that: BigInt      => isRational && (toRational equals QRoot.fromBigInt(that))
+    case that: Rational    => this.toRational equals that
+    case that: NotRational => (this - that).toNotRational.numerators.length == 0
+    case _                 => false
   }
 
   override def toString: String =
@@ -130,21 +120,42 @@ case class NotRational(
 
 object NotRational {
 
+  def apply(
+      numerators: NArray[(BigInt, BigInt)],
+      denominators: NArray[(BigInt, BigInt)]
+  ): NotRational = new NotRational(sanitizeFactorArray(numerators), sanitizeFactorArray(denominators))
+
+  private[custommath] def sanitizeFactorArray(arr: NArray[(BigInt, BigInt)]): NArray[(BigInt, BigInt)] = {
+    val biggestSquaresExtracted = arr.map { (c, x) =>
+      val (p, q) = IntegerMethods.biggestSquareDecomposition(x)
+      (c * p, q)
+    }
+    val sumTheGroups = NArray(biggestSquaresExtracted.groupBy(_._2).toSeq: _*).map { (x, coeffs) =>
+      coeffs.map(_._1).sum -> x
+    }
+
+    sumTheGroups.filter((c, x) => c != 0 && x != 0).sortBy(_.swap)
+  }
+
+  def coefficientsArray(values: (BigInt, BigInt)*): NArray[(BigInt, BigInt)] = NArray(values: _*)
+  def intCoefficientsArray(values: (Int, Int)*): NArray[(BigInt, BigInt)] = coefficientsArray(
+    values.map((c, x) => BigInt(c) -> BigInt(x)): _*
+  )
+
   private def vectorProduct(
-      as: NArray[BigInt],
-      bs: NArray[BigInt]
-  ): NArray[BigInt] =
-    (for {
-      a <- as
-      b <- bs
-    } yield a * b).sorted
+      as: NArray[(BigInt, BigInt)],
+      bs: NArray[(BigInt, BigInt)]
+  ): NArray[(BigInt, BigInt)] = for {
+    (c_a, a) <- as
+    (c_b, b) <- bs
+  } yield (c_a * c_b, a * b)
 
   implicit def fromInt(n: Int): NotRational =
-    NotRational(NArray[BigInt](n * n), NArray[BigInt](1))
+    NotRational(NArray[(BigInt, BigInt)]((1, n * n)), NArray[(BigInt, BigInt)]((1, 1)))
 
 }
 
-class Rational(val numerator: BigInt, val denominator: BigInt) extends QRoot {
+final class Rational(val numerator: BigInt, val denominator: BigInt) extends QRoot {
 
   def *(that: QRoot): QRoot = that match {
     case q: Rational =>
@@ -186,9 +197,8 @@ class Rational(val numerator: BigInt, val denominator: BigInt) extends QRoot {
   def toInt: Int = toBigInt.toInt
 
   def toNotRational: NotRational = NotRational(
-    NArray(numerator * numerator),
-    NArray(denominator * denominator),
-    if (isPositive) 1 else -1
+    NArray(numerator   -> BigInt(1)),
+    NArray(denominator -> BigInt(1))
   )
 
   def toRational: Rational = this
@@ -247,7 +257,8 @@ object QRoot {
 
     override def one: QRoot = QRoot(1, 1)
 
-    override def oneOverRoot2: QRoot = NotRational(NArray[BigInt](1), NArray[BigInt](2))
+    override val oneOverRoot2: QRoot =
+      NotRational(NArray[(BigInt, BigInt)](BigInt(1) -> BigInt(1)), NArray[(BigInt, BigInt)](BigInt(1) -> 2))
 
     override def plus(x: QRoot, y: QRoot): QRoot = x + y
 

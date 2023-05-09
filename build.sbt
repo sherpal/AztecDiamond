@@ -40,6 +40,13 @@ def circe = {
   )
 }
 
+def testDeps = Def.settings {
+  libraryDependencies ++= List(
+    "org.scalameta"  %%% "munit"      % "0.7.29",
+    "org.scalacheck" %%% "scalacheck" % "1.17.0"
+  ).map(_ % Test)
+}
+
 def removeHtmlCommentLine(line: String): String =
   """<!--.+-->""".r.replaceAllIn(line, "").trim
 
@@ -161,7 +168,8 @@ lazy val `dominoShufflingAlgorithm` = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       "io.suzaku"    %%% "boopickle" % "1.4.0",
       "ai.dragonfly" %%% "narr"      % "0.101"
-    )
+    ),
+    testDeps
   )
   .jvmSettings(
     libraryDependencies += "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.3"

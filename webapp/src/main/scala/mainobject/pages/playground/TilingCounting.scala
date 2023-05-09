@@ -9,10 +9,13 @@ import computationcom.AirstreamTilingNumberCounting
 import be.doeraene.webcomponents.ui5.configkeys.BarDesign
 import be.doeraene.webcomponents.ui5.configkeys.ButtonDesign
 import computationcom.BlobMaker
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import messages.CountingTilingMessage
 import be.doeraene.webcomponents.ui5.configkeys.ValueState
 import diamond.Diamond
+
+import scala.scalajs.LinkingInfo
 
 object TilingCounting {
 
@@ -77,6 +80,8 @@ object TilingCounting {
             .collect { case Some(arg) =>
               arg
             }
+            .setDisplayName("Arguments for tiling counting")
+            .debugLog(_ => LinkingInfo.developmentMode)
             .flatMap(arg =>
               EventStream.fromFuture(BlobMaker.fromFetch(utils.basePath ++ "js/gen/main.js")).map((arg, _))
             )
