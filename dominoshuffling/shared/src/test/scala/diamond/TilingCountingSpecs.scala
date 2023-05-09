@@ -16,24 +16,32 @@ final class TilingCountingSpecs extends munit.FunSuite {
     }
   }
 
-  def aztecRingTest(args: AztecRing.ArgType, expected: BigInt): Unit = {
-    val aztecRing = AztecRing.withArgs(args)
-    val weights   = aztecRing.makeComputationWeight
-    val diamond   = aztecRing.countingTilingDiamond
+  def dominoTypeCountTest(diamondType: DiamondType)(args: diamondType.ArgType, expected: BigInt): Unit = {
+    val diamondTypeWithArgs = diamondType.withArgs(args)
+    val weights             = diamondTypeWithArgs.makeComputationWeight
 
-    val partition = 1 / aztecRing.countingTilingDiamond.probability(aztecRing.makeComputationWeight, _ => ())
+    val partition =
+      1 / diamondTypeWithArgs.countingTilingDiamond.probability(diamondTypeWithArgs.makeComputationWeight, _ => ())
 
     for (_ <- 1 to 100) {
-      val left = 1 / aztecRing.countingTilingDiamond.probability(weights, _ => ())
-      val right =  1 / aztecRing.countingTilingDiamond.probability(weights, _ => ())
+      val left  = 1 / diamondTypeWithArgs.countingTilingDiamond.probability(weights, _ => ())
+      val right = 1 / diamondTypeWithArgs.countingTilingDiamond.probability(weights, _ => ())
       assertEquals(left, right)
     }
-    assertEquals(aztecRing.totalPartitionFunctionToSubGraph(partition), QRoot.fromBigInt(expected))
+    assertEquals(diamondTypeWithArgs.totalPartitionFunctionToSubGraph(partition), QRoot.fromBigInt(expected))
   }
 
   test("Aztec ring values") {
+    def aztecRingTest(args: AztecRing.ArgType, expected: BigInt): Unit = dominoTypeCountTest(AztecRing)(args, expected)
     aztecRingTest((1, 2), 1)
     aztecRingTest((2, 5), 16)
+  }
+
+  test("Aztec house values") {
+    def aztecHouseTest(args: AztecHouse.ArgType, expected: BigInt): Unit =
+      dominoTypeCountTest(AztecHouse)(args, expected)
+    aztecHouseTest(AztecHouse.transformArguments(List(1, 1)).fold(exc => throw exc, identity), 2)
+    aztecHouseTest(AztecHouse.transformArguments(List(5, 5)).fold(exc => throw exc, identity), 21740032)
   }
 
 }

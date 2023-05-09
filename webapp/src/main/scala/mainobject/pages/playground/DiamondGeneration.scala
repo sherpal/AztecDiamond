@@ -76,6 +76,8 @@ object DiamondGeneration {
           ),
           startGenerationBus.events
             .sample(maybeArgumentVar.signal)
+            .setDisplayName("Arguments for generation")
+            .debugLog(_ => LinkingInfo.developmentMode)
             .collect { case Some(arg) =>
               arg
             }

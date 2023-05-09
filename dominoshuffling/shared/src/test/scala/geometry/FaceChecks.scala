@@ -16,8 +16,8 @@ object FaceChecks extends Properties("Face") {
   }
 
   property("diamondConstructionFaceMapping removes dominoes when there are 2") = forAll(faceGen) { face =>
-    (face.diamondConstructionFaceMapping(_.isHorizontal, (0, 0, 0, 0), 2).isEmpty) &&
-    (face.diamondConstructionFaceMapping(_.isVertical, (0, 0, 0, 0), 2).isEmpty)
+    face.diamondConstructionFaceMapping(_.isHorizontal, (0, 0, 0, 0), 2).isEmpty &&
+    face.diamondConstructionFaceMapping(_.isVertical, (0, 0, 0, 0), 2).isEmpty
 
   }
 

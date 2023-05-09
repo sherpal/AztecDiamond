@@ -73,7 +73,7 @@ trait DiamondType {
 
 object DiamondType {
 
-  final class DiamondTypeWithArgs(val diamondType: DiamondType)(args: diamondType.ArgType) {
+  final class DiamondTypeWithArgs(val diamondType: DiamondType)(val args: diamondType.ArgType) {
 
     def lozengeTiling: Boolean = diamondType.lozengeTiling
 

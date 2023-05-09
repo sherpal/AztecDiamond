@@ -17,31 +17,53 @@ final class DiamondSpecs extends munit.FunSuite {
     }
   }
 
-  test("Constructed diamonds have the right number of dominoes") {
-    def checkRightCounts(diamondType: DiamondType)(args: Iterable[diamondType.ArgType]) = args
-      .filter(arg => diamondType.transformArguments(diamondType.transformArgumentsBack(arg)).isRight)
+  def checkRightCounts(diamondType: DiamondType)(args: Iterable[diamondType.ArgType]) = {
+    def diamondTypeWithArgs = args
+      .filter(arg => diamondType.transformArguments(diamondType.transformArgumentsBack(arg)).fold(_ => false, _ == arg))
       .map(diamondType.withArgs)
-      .foreach { dt =>
+
+    test(s"Diamond have the right number of dominoes for ${diamondType.name}") {
+      diamondTypeWithArgs.foreach { dt =>
         val diamond = dt.countingTilingDiamond
         val order   = dt.diamondOrder
         assertEquals(diamond.dominoesNumber, order * (order + 1))
+      }
+    }
+    test(s"Computed order is the right order for ${diamondType.name}") {
+      diamondTypeWithArgs.foreach { dt =>
+        val diamond = dt.countingTilingDiamond
+        val order   = dt.diamondOrder
         assertEquals(diamond.order, order)
+      }
+    }
+    test(s"No dominoes are null in the list for ${diamondType.name}") {
+      diamondTypeWithArgs.foreach { dt =>
+        val diamond = dt.countingTilingDiamond
         diamond.listOfDominoes.foreach { domino =>
           assert(domino != null)
         }
       }
-
-    checkRightCounts(UniformDiamond)((1 to 100).map(_ *: EmptyTuple))
-
-    checkRightCounts(AztecHouse)(for {
-      h <- 1 to 50
-      v <- 1 to 50
-    } yield (h, v))
-
-    checkRightCounts(AztecRing)(for {
-      inner <- 1 to 50
-      outer <- 1 to 50
-    } yield (inner, outer))
+    }
+    test(s"Argument transformation can roundtrip for ${diamondType.name}") {
+      diamondTypeWithArgs.foreach { dt =>
+        assert(
+          Right(dt.args) == dt.diamondType.transformArguments(dt.transformArgumentsBack),
+          s"${dt.args} vs ${dt.diamondType.transformArguments(dt.transformArgumentsBack)}"
+        )
+      }
+    }
   }
+
+  checkRightCounts(UniformDiamond)((1 to 100).map(_ *: EmptyTuple))
+
+  checkRightCounts(AztecHouse)(for {
+    h <- 1 to 50
+    v <- 1 to 50
+  } yield (h, v))
+
+  checkRightCounts(AztecRing)(for {
+    inner <- 1 to 50
+    outer <- 1 to 50
+  } yield (inner, outer))
 
 }
