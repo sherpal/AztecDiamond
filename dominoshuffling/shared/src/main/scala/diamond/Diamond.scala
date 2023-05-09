@@ -153,7 +153,7 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
       */
     @tailrec
     def probabilityAcc(
-        diamondsAndCoefficients: List[(Diamond, NArray[NArray[QRoot]])],
+        diamondsAndCoefficients: NArray[(Diamond, NArray[NArray[QRoot]])],
         weightTrait: ComputePartitionFunctionWeight
     ): QRoot =
       if diamondsAndCoefficients.head._1.order == 1 then { // all diamonds will be of order 1 at the same time
@@ -165,34 +165,34 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
         }.sum
       } else {
         val newDiamonds =
-          diamondsAndCoefficients
-            .foldLeft(List[(Diamond, NArray[NArray[QRoot]])]()) { case (diamonds, (d, listOfCoefficients)) =>
+          NArray(diamondsAndCoefficients
+            .foldLeft(NArray[(Diamond, NArray[NArray[QRoot]])]()) { case (diamonds, (d, listOfCoefficients)) =>
               val thisStep        = thisStepProbability(d, weightTrait)
               val newCoefficients = listOfCoefficients.map(thisStep +: _)
               d.subDiamonds.map((_, newCoefficients)) ++ diamonds
             }
             .groupBy(_._1)
-            .toList
+            .toList: _*)
             .map { (key, values) =>
-              key -> NArray(values.flatMap(_._2): _*)
+              key -> values.flatMap(_._2)
             }
 
         statusCallback(100 - math.round(weightTrait.n * 100 / order.toDouble).toInt)
 
         probabilityAcc(
-          newDiamonds,
+         newDiamonds,
           weightTrait.subWeights.asInstanceOf[ComputePartitionFunctionWeight]
         )
       }
 
-    probabilityAcc(List((this, NArray(NArray(_1)))), weights)
+    probabilityAcc(NArray((this, NArray(NArray(_1)))), weights)
   }
 
   /** Returns the List of all sub diamonds that can generate this one from the algorithm. This is the "inverse"
     * operation of the algorithm.
     */
-  private[diamond] lazy val subDiamonds: List[Diamond] =
-    if order == 1 then List.empty[Diamond]
+  private[diamond] lazy val subDiamonds: NArray[Diamond] =
+    if order == 1 then NArray.empty[Diamond]
     else {
       val dominoes: NArray[NArray[Option[Domino]]] = Diamond.emptyArrayDominoes(order - 1)
 
@@ -206,7 +206,7 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
         }
 
       activeFaces
-        .foldLeft(List[NArray[NArray[Option[Domino]]]](dominoes)) { (dominoesList, face) =>
+        .foldLeft(NArray[NArray[NArray[Option[Domino]]]](dominoes)) { (dominoesList, face) =>
           val previousConstruction = face.previousDiamondConstruction(this)
           if previousConstruction.length == 1 then {
             dominoesList.foreach(fillPossibilities(previousConstruction(0), _))
@@ -248,7 +248,7 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
     Diamond(dominoes)
   }
 
-  private[diamond] def allSubDiamonds: List[Diamond] =
+  private[diamond] def allSubDiamonds: NArray[Diamond] =
     this +: subDiamonds.flatMap(_.allSubDiamonds)
 
   def randomSubDiamond: Option[Diamond] = Option.unless(order == 1) {
