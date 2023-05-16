@@ -8,6 +8,8 @@ object IntegerMethodsChecks extends Properties("IntegerMethods") {
 
   def abs(x: BigInt): BigInt = if x < 0 then -x else x
 
+  val posLongGen: Gen[Long] = Gen.choose(0, utils.Platform.platformValue(10000, 1000))
+
   val bigIntGen: Gen[BigInt] = Arbitrary.arbitrary[BigInt]
   val smallBigIntGen: Gen[BigInt] =
     Gen.frequency(10 -> Gen.choose[BigInt](-1000000, 1000000), 1 -> Gen.oneOf(BigInt(1), BigInt(0), BigInt(-1)))
@@ -16,6 +18,10 @@ object IntegerMethodsChecks extends Properties("IntegerMethods") {
     Gen.frequency(10 -> Gen.choose[BigInt](1, 1000000), 1 -> Gen.const(BigInt(1)))
 
   def primeUpToGen(n: BigInt): Gen[BigInt] = Gen.oneOf(primeNumbers.takeWhile(_ <= n).toList)
+
+  property("n^(x+y) = n^xn^y") = forAll(bigIntGen, posLongGen, posLongGen) { (n, x, y) =>
+    bigIntPow(n, x + y) == bigIntPow(n, x) * bigIntPow(n, y)
+  }
 
   property("Product of primes is the number") = forAll(smallBigIntGen) { x =>
     x == 0 || {
@@ -45,7 +51,7 @@ object IntegerMethodsChecks extends Properties("IntegerMethods") {
 
     val qPrimes = primeNumberDecomposition(q)
 
-    qPrimes.groupBy(identity).map(_._2).toList.foldLeft(proved) { (proofStatus, occurrences) =>
+    qPrimes.groupBy(identity).values.toList.foldLeft(proved) { (proofStatus, occurrences) =>
       proofStatus && Prop(occurrences.length == 1)
     }
   }
@@ -60,6 +66,19 @@ object IntegerMethodsChecks extends Properties("IntegerMethods") {
 
   property("big square root of x^2 is abs(x)") = forAll(bigIntGen) { x =>
     bigIntSquareRoot(x * x) == abs(x)
+  }
+
+  property("2x shifts the binary decomposition of x to the left if x != 0") = forAll(bigIntGen) { n =>
+    val forN = binaryDecomposition(n)
+    val for2N = binaryDecomposition(2 * n)
+    n == 0 || forN.toList.appended(0) == for2N.toList
+  }
+
+  property("abs x can be recovered with the binary decomposition") = forAll(bigIntGen) { n =>
+    val decomposition = binaryDecomposition(n)
+    //noinspection RangeToIndices
+    val powers = (0 until decomposition.length).map(bigIntPow(2, _)).reverse
+    abs(n) == binaryDecomposition(n).zip(powers).map((coef, b) => coef * b).sum
   }
 
 }

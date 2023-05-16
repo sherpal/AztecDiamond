@@ -174,6 +174,10 @@ lazy val `dominoShufflingAlgorithm` = crossProject(JSPlatform, JVMPlatform)
   .jvmSettings(
     libraryDependencies += "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.3"
   )
+  .jsSettings(
+    Test / jsEnv := new org.scalajs.jsenv.nodejs.NodeJSEnv(org.scalajs.jsenv.nodejs.NodeJSEnv.Config().withSourceMap(true))
+
+  )
   .disablePlugins(sbtassembly.AssemblyPlugin)
 
 val buildWebApp = taskKey[Unit]("Builds the web application, ready to be deployed.")

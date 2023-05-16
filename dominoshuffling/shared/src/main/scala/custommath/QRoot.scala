@@ -233,6 +233,9 @@ object Rational {
 }
 
 object QRoot {
+  
+  val one: QRoot = QRoot(1, 1)
+  val zero: QRoot = QRoot(0,1)
 
   implicit def fromDouble(d: Double): QRoot = QRoot(d.toLong, 1)
   implicit def fromInt(n: Int): QRoot       = Rational(n, 1)
@@ -253,9 +256,9 @@ object QRoot {
   import scala.language.implicitConversions
 
   given WeightLikeNumber[QRoot] = new WeightLikeNumber[QRoot] {
-    override def zero: QRoot = QRoot(0, 1)
+    override def zero: QRoot = QRoot.zero
 
-    override def one: QRoot = QRoot(1, 1)
+    override def one: QRoot = QRoot.one
 
     override val oneOverRoot2: QRoot =
       NotRational(NArray[(BigInt, BigInt)](BigInt(1) -> BigInt(1)), NArray[(BigInt, BigInt)](BigInt(1) -> 2))

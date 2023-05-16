@@ -91,6 +91,8 @@ case class Face(bottomLeft: Point) {
       else NArray(v1, v2)
     }
   }
+  
+  def numberOfPreviousDiamond(diamond: Diamond): Int = previousDiamondConstruction(diamond).length
 
   /** Returns the possibilities of the sub dominoes that can generate this domino, at that face.
     *

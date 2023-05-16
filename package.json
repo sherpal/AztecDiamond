@@ -1,0 +1,8 @@
+{
+  "scripts": {},
+  "type": "module",
+  "devDependencies": {},
+  "dependencies": {
+    "source-map-support": "^0.5.21"
+  }
+}

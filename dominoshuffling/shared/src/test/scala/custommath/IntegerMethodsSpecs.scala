@@ -24,4 +24,16 @@ final class IntegerMethodsSpecs extends munit.FunSuite {
     assertEquals(primes.length, 25, s"I found ${primes.mkString(", ")}")
   }
 
+  test("Binary decomposition of 0 is [0]") {
+    assertEquals(binaryDecomposition(0).toList, List(0))
+  }
+
+  test("Binary decomposition of 1 is [1]") {
+    assertEquals(binaryDecomposition(1).toList, List(1))
+  }
+
+  test("Binary decomposition of 2 is [1, 0]") {
+    assertEquals(binaryDecomposition(2).toList, List(1,0))
+  }
+
 }

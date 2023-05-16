@@ -2,6 +2,8 @@ package custommath
 
 import narr.NArray
 
+import scala.annotation.tailrec
+
 object IntegerMethods {
 
   private def primesFrom(n: BigInt): LazyList[BigInt] =
@@ -11,6 +13,13 @@ object IntegerMethods {
 
   private val precomputedPrimesNumber = 1000
   lazy val precomputedPrimes          = NArray[BigInt](primeNumbers.take(precomputedPrimesNumber).toList: _*)
+
+  def bigIntPow(base: BigInt, exp: Long): BigInt = if exp == 0 then BigInt(1)
+  else {
+    val sqrt = bigIntPow(base, exp / 2)
+
+    sqrt * sqrt * (if exp % 2 == 1 then base else 1)
+  }
 
   def integerSquareRoot(n: Int): Int = {
     def integerSquareRootAcc(n: Int, start: Int): Int = {
@@ -167,6 +176,18 @@ object IntegerMethods {
       }
 
     findBiggestSquareAcc(primes, Nil, Set.empty)
+  }
+
+  @tailrec
+  def binaryDecomposition(n: BigInt): NArray[Int] = if n < 0 then binaryDecomposition(-n)
+  else {
+    @tailrec
+    def accumulator(remaining: BigInt, acc: List[Int]): List[Int] = if remaining < 2 then remaining.toInt +: acc
+    else {
+      accumulator(remaining / 2, (remaining % 2).toInt +: acc)
+    }
+
+    NArray(accumulator(n, Nil): _*)
   }
 
 }

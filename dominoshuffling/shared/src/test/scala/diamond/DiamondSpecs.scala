@@ -6,9 +6,7 @@ import utils.Platform
 final class DiamondSpecs extends munit.FunSuite {
 
   test("The only sub diamond of a full horizontal is another full horizontal") {
-    val maxOrder = utils.Platform.platform match
-      case Platform.JS  => 50
-      case Platform.JVM => 100
+    val maxOrder = utils.Platform.platformValue(100, 50)
     for (order <- 2 to maxOrder) {
       val thisDiamond     = UniformDiamond.countingTilingDiamond(order *: EmptyTuple)
       val previousDiamond = UniformDiamond.countingTilingDiamond((order - 1) *: EmptyTuple)
@@ -65,5 +63,53 @@ final class DiamondSpecs extends munit.FunSuite {
     inner <- 1 to 50
     outer <- 1 to 50
   } yield (inner, outer))
+
+  test("The UniformDiamond.countingTilingDiamond has only one sub diamond") {
+    for (order <- 2 to 10) {
+      assertEquals(UniformDiamond.countingTilingDiamond(order *: EmptyTuple).numberOfSubDiamonds, 1)
+      assertEquals(UniformDiamond.countingTilingDiamond(order *: EmptyTuple).subDiamonds.length, 1)
+    }
+  }
+
+  test("0-th indexed sub diamond of UniformDiamond.countingTilingDiamond is the previous one") {
+    for (order <- 2 to 10) {
+      val diamond    = UniformDiamond.countingTilingDiamond(order *: EmptyTuple)
+      val subDiamond = diamond.indexedSubDiamond(0)
+      assertEquals(subDiamond, UniformDiamond.countingTilingDiamond((order - 1) *: EmptyTuple))
+    }
+  }
+
+  test("All sub diamonds of Aztec Ring (3,8) can be retrieved by the indexedSubDiamond method") {
+    val diamond               = AztecRing.countingTilingDiamond((3, 8))
+    val numberOfSubDiamonds   = diamond.numberOfSubDiamonds
+    val subDiamonds           = diamond.subDiamonds
+    val allIndexedSubDiamonds = (0 until numberOfSubDiamonds).map(diamond.indexedSubDiamond).toList
+
+    assertEquals(numberOfSubDiamonds, subDiamonds.length)
+    assertEquals(allIndexedSubDiamonds.length, subDiamonds.length)
+    assertEquals(allIndexedSubDiamonds.toSet.size, subDiamonds.length)
+    assertEquals(allIndexedSubDiamonds.toSet, subDiamonds.toSet)
+  }
+
+  test("The aztec ring for counting tiling of the shape (3,8) has 4 sub diamonds") {
+    var diamond = AztecRing.countingTilingDiamond((3, 8))
+
+    def assertForThisDiamond(n: Int): Unit = {
+      assertEquals(diamond.numberOfSubDiamonds, n)
+      assertEquals(diamond.subDiamonds.length, n)
+      diamond = diamond.indexedSubDiamond(n - 1)
+    }
+
+    assertForThisDiamond(4)
+    assertForThisDiamond(16)
+    assertForThisDiamond(64)
+    assertForThisDiamond(16)
+    assertForThisDiamond(4)
+    assertForThisDiamond(1)
+    assertForThisDiamond(1)
+
+    assertEquals(diamond.order, 1)
+
+  }
 
 }

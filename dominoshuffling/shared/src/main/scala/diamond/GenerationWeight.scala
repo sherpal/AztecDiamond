@@ -9,7 +9,6 @@ trait GenerationWeight extends WeightTrait[Double] {
   /** Generates an aztec diamond according to the weights, given an already computed diamond of order diamondOrder - 1.
     */
   def generateDiamond(subDiamond: Diamond): Diamond = {
-
     val dominoes = Diamond.emptyArrayDominoes(n)
 
     Face.activeFaces(n).foreach { face =>
@@ -20,7 +19,7 @@ trait GenerationWeight extends WeightTrait[Double] {
       }
     }
 
-    new Diamond(dominoes)
+    Diamond(dominoes)
   }
 
   /** Generates an aztec diamond of order 1.

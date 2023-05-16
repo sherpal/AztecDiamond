@@ -70,12 +70,8 @@ object Communicator {
 
         val probability = diamond.probability(
           weights,
-          status =>
-            Communicator.postMessage(
-              CountingComputationStatus(
-                status
-              )
-            )
+          status => Communicator.postMessage(CountingComputationStatus(status)),
+          status => Communicator.postMessage(CountingComputationStatusSubroutine(status))
         )
 
         val diamondWeight = diamond.weightQRoot(weights)
