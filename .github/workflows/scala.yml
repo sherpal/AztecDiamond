@@ -20,7 +20,7 @@ jobs:
           java-version: "11"
           distribution: "adopt"
       - name: Install npm dependencies
-        run: cd webapp && npm ci && cd ..
+        run: npm ci && cd webapp && npm ci && cd ..
       - name: Compile
         run: sbt compile
       - name: Run tests

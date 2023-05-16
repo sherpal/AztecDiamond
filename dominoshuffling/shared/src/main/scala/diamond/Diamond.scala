@@ -211,8 +211,7 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
     * @param diamondIndex
     *   index of the sub diamond to build. Must satisfy 0 <= index < numberOfSubDiamonds
     */
-  def indexedSubDiamond(diamondIndex: Int): Diamond =
-  {
+  def indexedSubDiamond(diamondIndex: Int): Diamond = {
     def fillPossibilities(
         dominoesToFill: NArray[Domino],
         dominoes: NArray[NArray[Option[Domino]]]
@@ -228,9 +227,7 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
     )
     val previousConstructions                            = activeFaces.map(_.previousDiamondConstruction(this))
     val (previousWithOneDomino, previousWithTwoDominoes) = previousConstructions.partition(_.length == 1)
-    val diamondIndexBinDecomp                            = IntegerMethods.binaryDecomposition(diamondIndex)
-    val faceChoices =
-      (NArray.fill((previousWithTwoDominoes.length - diamondIndexBinDecomp.length) max 0)(0) ++ diamondIndexBinDecomp).toVector
+    val faceChoices = IntegerMethods.binaryDecompositionPrependedTo(diamondIndex, previousWithTwoDominoes.length)
 
     val dominoes = Diamond.emptyArrayDominoes(order - 1)
     previousWithOneDomino.foreach(previous => fillPossibilities(previous(0), dominoes))

@@ -190,4 +190,18 @@ object IntegerMethods {
     NArray(accumulator(n, Nil): _*)
   }
 
+  def binaryDecompositionPrependedTo(n: BigInt, length: Int): NArray[Int] = {
+    val decomposition = binaryDecomposition(n)
+    if decomposition.length >= length then decomposition
+    else {
+      val prependedDecomposition = NArray.fill(length)(0)
+      val startIndex = length - decomposition.length
+      //noinspection RangeToIndices
+      for (index <- 0 until decomposition.length) {
+        prependedDecomposition(index + startIndex) = decomposition(index)
+      }
+      prependedDecomposition
+    }
+  }
+
 }
