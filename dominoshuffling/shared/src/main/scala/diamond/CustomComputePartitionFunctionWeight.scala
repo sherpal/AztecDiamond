@@ -18,11 +18,9 @@ final class CustomComputePartitionFunctionWeight(val n: Int)(implicit
 
   /** Computes the Weights corresponding to the Diamond of order diamondOrder - 1
     */
-  def subWeights: CustomComputePartitionFunctionWeight = if (n == 1)
+  def subWeightsWithNotification(notification: () => Unit): CustomComputePartitionFunctionWeight = if (n == 1)
     throw new WrongOrderException("Can't compute WeightMap of order 0.")
   else {
-
-    val _0 = QRoot(0, 1)
 
     val newWeights = new CustomComputePartitionFunctionWeight(n - 1)
     Face
@@ -36,10 +34,12 @@ final class CustomComputePartitionFunctionWeight(val n: Int)(implicit
           }
         }
 
+        notification()
+
         newZeroes
       }
       .foreach { domino =>
-        if newWeights.inBoundsDomino(domino) then newWeights(domino) = _0
+        if newWeights.inBoundsDomino(domino) then newWeights(domino) = QRoot.zero
       }
 
     newWeights
@@ -55,7 +55,6 @@ final class CustomComputePartitionFunctionWeight(val n: Int)(implicit
     Face
       .activeFaces(n)
       .flatMap(_.dominoes)
-      .toList
       .foreach((domino: Domino) => newWeights(domino) = apply(domino) * coefficient)
     newWeights
   }

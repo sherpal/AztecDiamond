@@ -136,63 +136,6 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
       subroutineStatusCallback: Int => Unit
   ): QRoot = TilingNumberComputer(this, weights, statusCallback, subroutineStatusCallback).probability
 
-//  def probability(weights: ComputePartitionFunctionWeight, statusCallback: Int => Unit, subroutineStatusCallback: Int => Unit): QRoot = {
-//    val _1 = QRoot(1, 1)
-//
-//    def thisStepProbability(
-//        diamond: Diamond,
-//        weightTrait: WeightTrait[QRoot]
-//    ): QRoot =
-//      diamond.activeFaces
-//        .filter(_.dominoes.count(diamond.contains) == 2)
-//        .map { face =>
-//          val (alpha, beta, gamma, delta) = face.getFaceWeights(weightTrait)
-//          if diamond.contains(face.horizontalDominoes._1) then alpha * gamma / (alpha * gamma + beta * delta)
-//          else beta * delta / (alpha * gamma + beta * delta)
-//        }
-//        .product
-//
-//    /** Every diamond comes with a list of list of coefficients. The outer list reflects the number of such diamonds,
-//      * and the inner list are the coefficients stored up to that point. This should in principle dramatically reduce
-//      * the amount of computation.
-//      */
-//    @tailrec
-//    def probabilityAcc(
-//        diamondsAndCoefficients: NArray[(Diamond, NArray[NArray[QRoot]])],
-//        weightTrait: ComputePartitionFunctionWeight
-//    ): QRoot =
-//      if diamondsAndCoefficients.head._1.order == 1 then { // all diamonds will be of order 1 at the same time
-//        diamondsAndCoefficients.map { (d, listOfCoefficients) =>
-//          val thisStep = thisStepProbability(d, weightTrait)
-//          listOfCoefficients.map { coefficients =>
-//            coefficients.product * thisStep
-//          }.sum
-//        }.sum
-//      } else {
-//        val newDiamonds =
-//          NArray(diamondsAndCoefficients
-//            .foldLeft(NArray[(Diamond, NArray[NArray[QRoot]])]()) { case (diamonds, (d, listOfCoefficients)) =>
-//              val thisStep        = thisStepProbability(d, weightTrait)
-//              val newCoefficients = listOfCoefficients.map(thisStep +: _)
-//              d.subDiamonds.map((_, newCoefficients)) ++ diamonds
-//            }
-//            .groupBy(_._1)
-//            .toList: _*)
-//            .map { (key, values) =>
-//              key -> values.flatMap(_._2)
-//            }
-//
-//        statusCallback(100 - math.round(weightTrait.n * 100 / order.toDouble).toInt)
-//
-//        probabilityAcc(
-//         newDiamonds,
-//          weightTrait.subWeights
-//        )
-//      }
-//
-//    probabilityAcc(NArray((this, NArray(NArray(_1)))), weights)
-//  }
-
   lazy val numberOfSubDiamonds: Int = activeFaces.map(_.numberOfPreviousDiamond(this)).product
 
   /** Returns the sub diamond that correspond to the specified index.
@@ -221,10 +164,6 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
         dominoes(x)(y) = Some(domino)
       }
 
-    assert(
-      diamondIndex < numberOfSubDiamonds,
-      s"Diamond index ($diamondIndex) was not smaller than number of sub diamonds ($numberOfSubDiamonds)"
-    )
     val previousConstructions                            = activeFaces.map(_.previousDiamondConstruction(this))
     val (previousWithOneDomino, previousWithTwoDominoes) = previousConstructions.partition(_.length == 1)
     val faceChoices = IntegerMethods.binaryDecompositionPrependedTo(diamondIndex, previousWithTwoDominoes.length)

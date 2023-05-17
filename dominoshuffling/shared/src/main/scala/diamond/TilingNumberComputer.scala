@@ -1,6 +1,7 @@
 package diamond
 
 import custommath.QRoot
+import geometry.Face
 import narr.NArray
 
 import scala.annotation.tailrec
@@ -14,20 +15,31 @@ final class TilingNumberComputer(
 
   def order: Int = diamond.order
 
-  val totalNumberOfSubDiamonds: Long = diamond.numberOfSubDiamonds
+  private val totalNumberOfSubDiamonds: Int = diamond.numberOfSubDiamonds
 
-  private var lastSubRoutingSentStatus = -1
+  private lazy val oneLoopPercentage = 100.0 / totalNumberOfSubDiamonds
+
+  private var lastSubroutineStatus = -1
+
+  private var lastLiveCheckSent: Long = System.currentTimeMillis()
+
+  private def sendLiveCheck(): Unit = {
+    val now = System.currentTimeMillis()
+    if now - lastLiveCheckSent > 20000 then {
+      println("Live check")
+      lastLiveCheckSent = now
+      subroutineStatusCallback(lastSubroutineStatus)
+    }
+  }
 
   private def sendStatus(currentPath: Path, currentIndex: Int, thisIsANewLoop: Boolean): Unit =
     if thisIsANewLoop && currentPath.indices.nonEmpty then {
-      lastSubRoutingSentStatus = -1
       statusCallback((currentPath(0) * 100.0 / totalNumberOfSubDiamonds).toInt)
     } else {
-      val newStatus = currentIndex * 100 / order
-      if newStatus != lastSubRoutingSentStatus then {
-        subroutineStatusCallback(newStatus)
-        lastSubRoutingSentStatus = newStatus
-      }
+      val newStatus = currentIndex * 100.0 / order
+      lastSubroutineStatus = newStatus.toInt
+      subroutineStatusCallback(newStatus.toInt)
+      statusCallback((currentPath(0) * oneLoopPercentage + newStatus * oneLoopPercentage / 100.0).toInt)
     }
 
   private case class Path(indices: Vector[Int]) {
@@ -44,6 +56,8 @@ final class TilingNumberComputer(
           }
       )
     }
+
+    var maxNumberSeen = 0
 
     def probabilityFactorForPath: (QRoot, Int) = {
       @tailrec
@@ -62,11 +76,15 @@ final class TilingNumberComputer(
 
         sendStatus(this, indexInPath, thisIsANewLoop = false)
 
+        val nextCoefficientAcc = coefficientAcc * thisStepProbability(currentDiamond, currentWeights)
+        val nextSubWeights =
+          currentWeights.subWeightsWithNotification(sendLiveCheck)
+
         accumulator(
-          coefficientAcc * thisStepProbability(currentDiamond, currentWeights),
+          nextCoefficientAcc,
           if numberOfSubDiamonds > subDiamondIndex + 1 then indexInPath else indexForNextPath,
           subDiamond,
-          currentWeights.subWeights
+          nextSubWeights
         )
       }
 
