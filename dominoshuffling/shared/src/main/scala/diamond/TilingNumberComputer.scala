@@ -20,6 +20,7 @@ final class TilingNumberComputer(
   private lazy val oneLoopPercentage = 100.0 / totalNumberOfSubDiamonds
 
   private var lastSubroutineStatus = -1
+  private var maxGlobalStatus = 0
 
   private var lastLiveCheckSent: Long = System.currentTimeMillis()
 
@@ -32,15 +33,20 @@ final class TilingNumberComputer(
     }
   }
 
-  private def sendStatus(currentPath: Path, currentIndex: Int, thisIsANewLoop: Boolean): Unit =
-    if thisIsANewLoop && currentPath.indices.nonEmpty then {
-      statusCallback((currentPath(0) * 100.0 / totalNumberOfSubDiamonds).toInt)
-    } else {
-      val newStatus = currentIndex * 100.0 / order
-      lastSubroutineStatus = newStatus.toInt
-      subroutineStatusCallback(newStatus.toInt)
-      statusCallback((currentPath(0) * oneLoopPercentage + newStatus * oneLoopPercentage / 100.0).toInt)
-    }
+  private val sendStatus: (Path, Int, Boolean) => Unit =
+    if order == 1 then (_, _, _) => ()
+    else
+      (currentPath: Path, currentIndex: Int, thisIsANewLoop: Boolean) =>
+        if thisIsANewLoop && currentPath.indices.nonEmpty then {
+          maxGlobalStatus = maxGlobalStatus max (currentPath(0) * 100.0 / totalNumberOfSubDiamonds).toInt
+          statusCallback(maxGlobalStatus)
+        } else {
+          val newStatus = currentIndex * 100.0 / order
+          lastSubroutineStatus = newStatus.toInt
+          subroutineStatusCallback(newStatus.toInt)
+          maxGlobalStatus = maxGlobalStatus max (currentPath(0) * oneLoopPercentage + newStatus * oneLoopPercentage / 100.0).toInt
+          statusCallback(maxGlobalStatus)
+        }
 
   private case class Path(indices: Vector[Int]) {
 
@@ -74,7 +80,7 @@ final class TilingNumberComputer(
         val subDiamond          = currentDiamond.indexedSubDiamond(subDiamondIndex)
         val numberOfSubDiamonds = currentDiamond.numberOfSubDiamonds
 
-        sendStatus(this, indexInPath, thisIsANewLoop = false)
+        sendStatus(this, indexInPath, false)
 
         val nextCoefficientAcc = coefficientAcc * thisStepProbability(currentDiamond, currentWeights)
         val nextSubWeights =
@@ -109,7 +115,7 @@ final class TilingNumberComputer(
     def probabilityAcc(maybePath: Option[Path], acc: QRoot): QRoot = maybePath match {
       case None => acc
       case Some(path) =>
-        sendStatus(path, 0, thisIsANewLoop = true)
+        sendStatus(path, 0, true)
         val (coef, index) = path.probabilityFactorForPath
         probabilityAcc(path.increaseOnIndex(index), acc + coef)
     }
