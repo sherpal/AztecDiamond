@@ -1,6 +1,6 @@
 package diamond
 
-import custommath.QRoot
+import custommath.{IntegerMethods, QRoot}
 import diamond.diamondtypes.*
 import geometry.Face
 
@@ -42,6 +42,24 @@ final class TilingCountingSpecs extends munit.FunSuite {
       dominoTypeCountTest(AztecHouse)(args, expected)
     aztecHouseTest(AztecHouse.transformArguments(List(1, 1)).fold(exc => throw exc, identity), 2)
     aztecHouseTest(AztecHouse.transformArguments(List(5, 5)).fold(exc => throw exc, identity), 21740032)
+  }
+
+  test("Rectangle n*2 is fibonacci n+1") {
+    def rectangleTest(args: Rectangle.ArgType, expected: BigInt): Unit = dominoTypeCountTest(Rectangle)(args, expected)
+
+    for (n <- 1 to 10) {
+      rectangleTest((2, n), IntegerMethods.fibonacci(n + 1))
+    }
+  }
+  
+  test("Rectangle is symmetric") {
+    for {
+      width <- 1 to 10
+      height <- 1 to 10
+      if (width * height) % 2 == 0
+    } {
+      assertEquals(Rectangle.countTiling((width, height)), Rectangle.countTiling((height, width)), s"Countings not equals for ${(width, height)}")
+    }
   }
 
 }

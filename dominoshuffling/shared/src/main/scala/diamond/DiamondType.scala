@@ -47,6 +47,14 @@ trait DiamondType {
     * (OutOfMemory could also be an issue.)
     */
   def countingTilingDiamond(args: ArgType): Diamond
+  
+  def countTiling(args: ArgType): QRoot = {
+    val diamond = countingTilingDiamond(args)
+    val weights = makeComputationWeight(args)
+    val diamondProbability = diamond.probability(weights, _ => (), _ => ())
+    val partition = 1 / diamondProbability
+    totalPartitionFunctionToSubGraph(args, partition)
+  }
 
   /** Takes the Partition Function for the entire Aztec Diamond, and returns the Partition Function (which is then often
     * only the tiling number) of the sub graph we are interested in.

@@ -58,4 +58,15 @@ object QRootChecks extends Properties("QRootChecks") {
     a * (x + y) == a * x + a * y
   }
 
+  property("Square of square root is identity") =
+    forAll(Gen.choose[BigInt](0, 1000000))(n => (QRoot.sqrtOf(n) ** 2).toBigInt == n)
+
+  property("Conjugate binomials of square roots give integer output") =
+    forAll(Gen.choose[BigInt](0, 100000), Gen.choose[BigInt](0, 100000)) { (a, b) =>
+      val left  = QRoot.sqrtOf(a) - QRoot.sqrtOf(b)
+      val right = QRoot.sqrtOf(a) + QRoot.sqrtOf(b)
+
+      (left * right).toBigInt == a - b
+    }
+
 }

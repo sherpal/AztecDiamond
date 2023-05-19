@@ -33,7 +33,18 @@ final class IntegerMethodsSpecs extends munit.FunSuite {
   }
 
   test("Binary decomposition of 2 is [1, 0]") {
-    assertEquals(binaryDecomposition(2).toList, List(1,0))
+    assertEquals(binaryDecomposition(2).toList, List(1, 0))
+  }
+
+  test("Fibonacci works on first few examples") {
+    assertEquals(fibonacci(1), BigInt(1))
+    assertEquals(fibonacci(2), BigInt(1))
+    assertEquals(fibonacci(3), BigInt(2))
+    assertEquals(fibonacci(4), BigInt(3))
+    assertEquals(fibonacci(5), BigInt(5))
+    assertEquals(fibonacci(6), BigInt(8))
+    assertEquals(fibonacci(7), BigInt(13))
+    assertEquals(fibonacci(8), BigInt(21))
   }
 
 }

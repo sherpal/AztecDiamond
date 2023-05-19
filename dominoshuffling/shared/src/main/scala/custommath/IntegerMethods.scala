@@ -195,13 +195,21 @@ object IntegerMethods {
     if decomposition.length >= length then decomposition
     else {
       val prependedDecomposition = NArray.fill(length)(0)
-      val startIndex = length - decomposition.length
-      //noinspection RangeToIndices
-      for (index <- 0 until decomposition.length) {
+      val startIndex             = length - decomposition.length
+      // noinspection RangeToIndices
+      for (index <- 0 until decomposition.length)
         prependedDecomposition(index + startIndex) = decomposition(index)
-      }
       prependedDecomposition
     }
+  }
+
+  def fibonacci(n: Int): BigInt = {
+    val phi =
+      QRoot.notRational(NotRational.intCoefficientsArray(1 -> 1, 1 -> 5), NotRational.intCoefficientsArray(2 -> 1))
+    val psi =
+      QRoot.notRational(NotRational.intCoefficientsArray(1 -> 1, -1 -> 5), NotRational.intCoefficientsArray(2 -> 1))
+
+    ((phi ** n - psi ** n) / (phi - psi)).toBigInt
   }
 
 }

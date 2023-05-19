@@ -11,7 +11,6 @@ import narr.NArray
   * therefore leaving rational numbers. After that, sums and quotients are made. Most often that not, however, rational
   * numbers are enough and this is why we make two distinct concrete classes.
   */
-// TODO: optimize and clean all of this!
 sealed abstract class QRoot {
 
   def *(that: QRoot): QRoot
@@ -41,6 +40,13 @@ sealed abstract class QRoot {
   def toRational: Rational
 
   def isRational: Boolean
+
+  final def **(n: Int): QRoot = if n == 0 then QRoot.one
+  else {
+    val sqrt = **(n / 2)
+    if n % 2 == 0 then sqrt * sqrt
+    else sqrt * sqrt * this
+  }
 
 }
 
@@ -90,7 +96,7 @@ case class NotRational private (
 
   def toLong: Long = toDouble.toLong // TODO
 
-  def toBigInt: BigInt = BigInt(toLong) // TODO
+  def toBigInt: BigInt = toRational.toBigInt
 
   def toInt: Int = toDouble.toInt
 
@@ -233,9 +239,9 @@ object Rational {
 }
 
 object QRoot {
-  
-  val one: QRoot = QRoot(1, 1)
-  val zero: QRoot = QRoot(0,1)
+
+  val one: QRoot  = QRoot(1, 1)
+  val zero: QRoot = QRoot(0, 1)
 
   implicit def fromDouble(d: Double): QRoot = QRoot(d.toLong, 1)
   implicit def fromInt(n: Int): QRoot       = Rational(n, 1)
@@ -252,6 +258,16 @@ object QRoot {
   def abs(n: BigInt): BigInt = if n >= 0 then n else -n
 
   def apply(num: BigInt, den: BigInt): QRoot = Rational.apply(num, den)
+
+  def notRational(
+      numerators: NArray[(BigInt, BigInt)],
+      denominators: NArray[(BigInt, BigInt)]
+  ): NotRational = NotRational(numerators, denominators)
+  
+  def sqrtOf(n: BigInt): QRoot = notRational(
+    NotRational.coefficientsArray(BigInt(1) -> n),
+    NotRational.intCoefficientsArray(1 -> 1)
+  )
 
   import scala.language.implicitConversions
 

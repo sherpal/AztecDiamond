@@ -81,4 +81,8 @@ object IntegerMethodsChecks extends Properties("IntegerMethods") {
     abs(n) == binaryDecomposition(n).zip(powers).map((coef, b) => coef * b).sum
   }
 
+  property("fibonacci property is satisfied") = forAll(Gen.choose(1, 1000)) { n =>
+    fibonacci(n) + fibonacci(n + 1) == fibonacci(n + 2)
+  }
+
 }
