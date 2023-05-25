@@ -203,13 +203,9 @@ object IntegerMethods {
     }
   }
 
-  def fibonacci(n: Int): BigInt = {
-    val phi =
-      QRoot.notRational(NotRational.intCoefficientsArray(1 -> 1, 1 -> 5), NotRational.intCoefficientsArray(2 -> 1))
-    val psi =
-      QRoot.notRational(NotRational.intCoefficientsArray(1 -> 1, -1 -> 5), NotRational.intCoefficientsArray(2 -> 1))
+  private val phi = (1 + QRoot.sqrtOf(5)) / 2
+  private val psi = (1 - QRoot.sqrtOf(5)) / 2
 
-    ((phi ** n - psi ** n) / (phi - psi)).toBigInt
-  }
+  def fibonacci(n: Int): BigInt = ((phi ** n - psi ** n) / (phi - psi)).toBigInt
 
 }

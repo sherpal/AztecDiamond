@@ -4,6 +4,7 @@ import custommath.{QRoot, WeightLikeNumber}
 import exceptions.NotTileableException
 import geometry.{Domino, Face, Point, WestGoing}
 
+import scala.annotation.tailrec
 import scala.collection.immutable.TreeSet
 
 /** Describe the behaviour of weights.
@@ -50,6 +51,8 @@ trait WeightTrait[WeightType] {
   def subWeights: WeightTrait[WeightType]
 
   val n: Int
+
+  def order: Int = n
 
   /** Returns whether the point is within the graph of a diamond of order n.
     */

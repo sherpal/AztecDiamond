@@ -3,6 +3,8 @@ package diamond
 import diamond.diamondtypes.*
 import utils.Platform
 
+import scala.annotation.tailrec
+
 final class DiamondSpecs extends munit.FunSuite {
 
   test("The only sub diamond of a full horizontal is another full horizontal") {
@@ -50,6 +52,31 @@ final class DiamondSpecs extends munit.FunSuite {
         )
       }
     }
+    test(s"Diamond can be serialized and back for ${diamondType.name}") {
+      diamondTypeWithArgs.foreach { dt =>
+
+        def allSubWeights(weights: GenerationWeight): List[GenerationWeight] = {
+          @tailrec
+          def accumulator(currentWeights: GenerationWeight, acc: List[GenerationWeight]): List[GenerationWeight] =
+            if currentWeights.order == 1 then currentWeights +: acc
+            else accumulator(currentWeights.subWeights, currentWeights +: acc)
+
+          accumulator(weights, Nil)
+        }
+
+        val allWeights    = allSubWeights(dt.makeGenerationWeight)
+        val order1Weights = allWeights.head
+
+        val finalDiamond = allWeights.tail.foldLeft(order1Weights.generateOrderOneDiamond)((diamond, weights) =>
+          weights.generateDiamond(diamond)
+        )
+
+        val roundTripDiamond = Diamond.fromIntsSerialization(finalDiamond.toArray)
+
+        assertEquals(roundTripDiamond, finalDiamond)
+
+      }
+    }
   }
 
   checkRightCounts(UniformDiamond)((1 to 100).map(_ *: EmptyTuple))
@@ -62,6 +89,7 @@ final class DiamondSpecs extends munit.FunSuite {
   checkRightCounts(AztecRing)(for {
     inner <- 1 to 50
     outer <- 1 to 50
+    if outer > inner
   } yield (inner, outer))
 
   test("The UniformDiamond.countingTilingDiamond has only one sub diamond") {

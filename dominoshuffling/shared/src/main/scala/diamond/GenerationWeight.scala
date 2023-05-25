@@ -6,6 +6,8 @@ import narr.NArray
 
 trait GenerationWeight extends WeightTrait[Double] {
 
+  def subWeights: GenerationWeight
+
   /** Generates an aztec diamond according to the weights, given an already computed diamond of order diamondOrder - 1.
     */
   def generateDiamond(subDiamond: Diamond): Diamond = {

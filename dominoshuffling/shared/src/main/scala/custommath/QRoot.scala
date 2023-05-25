@@ -1,8 +1,9 @@
 package custommath
 
 import scala.language.implicitConversions
-
 import narr.NArray
+
+import scala.annotation.{tailrec, targetName}
 
 /** QRoot are numbers designed to handle weights that can appear during computations of weights. The restriction is that
   * all weights at the beginning must be rational or quotients of sums of square roots of natural numbers.
@@ -41,6 +42,7 @@ sealed abstract class QRoot {
 
   def isRational: Boolean
 
+  @targetName("pow")
   final def **(n: Int): QRoot = if n == 0 then QRoot.one
   else {
     val sqrt = **(n / 2)
@@ -213,6 +215,7 @@ final class Rational(val numerator: BigInt, val denominator: BigInt) extends QRo
 
   override def toString: String = s"$numerator/$denominator"
 
+  @tailrec
   override def equals(that: Any): Boolean = that match {
     case that: Int         => denominator == 1 && numerator == that
     case that: BigInt      => denominator == 1 && numerator == that
@@ -259,14 +262,14 @@ object QRoot {
 
   def apply(num: BigInt, den: BigInt): QRoot = Rational.apply(num, den)
 
-  def notRational(
+  private def notRational(
       numerators: NArray[(BigInt, BigInt)],
       denominators: NArray[(BigInt, BigInt)]
   ): NotRational = NotRational(numerators, denominators)
-  
+
   def sqrtOf(n: BigInt): QRoot = notRational(
     NotRational.coefficientsArray(BigInt(1) -> n),
-    NotRational.intCoefficientsArray(1 -> 1)
+    NotRational.intCoefficientsArray(1      -> 1)
   )
 
   import scala.language.implicitConversions
