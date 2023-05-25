@@ -46,5 +46,13 @@ final class IntegerMethodsSpecs extends munit.FunSuite {
     assertEquals(fibonacci(7), BigInt(13))
     assertEquals(fibonacci(8), BigInt(21))
   }
+  
+  test("Fibonacci works where standard double yields arithmetic errors") {
+    /**
+      This is the expected outcome when working with standard double:
+        61305790721611752.000000
+    */
+    assertEquals(fibonacci(82), BigInt("61305790721611591"))
+  }
 
 }
