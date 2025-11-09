@@ -1,5 +1,7 @@
 package graphics
 
 final case class DiamondMovieOptions(
-    resolution: Int
+    resolution: Int,
+    diamondSizeTier: Int,
+    drawDominoBorderUntil: Int
 )

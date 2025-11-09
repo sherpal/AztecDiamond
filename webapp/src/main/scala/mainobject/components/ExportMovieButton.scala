@@ -25,9 +25,19 @@ object ExportMovieButton {
 
     val openDialogBus = new EventBus[Boolean]()
 
-    val diamondMovieOptionsVar = Var(DiamondMovieOptions(resolution = 1600))
+    val diamondMovieOptionsVar = Var(
+      DiamondMovieOptions(
+        resolution = 1600,
+        diamondSizeTier = diamond.order,
+        drawDominoBorderUntil = if options.showBorderOfDominoes then diamond.order else 0
+      )
+    )
     val resolutionUpdater =
       diamondMovieOptionsVar.updater[Int]((current, newResolution) => current.copy(resolution = newResolution))
+    val sizeTierUpdater =
+      diamondMovieOptionsVar.updater[Int]((current, tier) => current.copy(diamondSizeTier = tier))
+    val drawDominoBorderUntilUpdater =
+      diamondMovieOptionsVar.updater[Int]((current, limit) => current.copy(drawDominoBorderUntil = limit))
 
     val startDownloadBus = new EventBus[Unit]()
 
@@ -61,11 +71,36 @@ object ExportMovieButton {
         _.slots.header := Title.h3("Download movie images"),
         div(
           div(
+            display.flex,
+            alignItems.center,
+            justifyContent.spaceBetween,
             Label("Resolution (in px)"),
             Input(
               _.value <-- diamondMovieOptionsVar.signal.map(_.resolution.toString),
               _.tpe    := InputType.Number,
               _.events.onChange.map(_.target.value.toInt) --> resolutionUpdater
+            )
+          ),
+          div(
+            display.flex,
+            alignItems.center,
+            justifyContent.spaceBetween,
+            Label("Keep domino size for how many orders"),
+            Input(
+              _.value <-- diamondMovieOptionsVar.signal.map(_.diamondSizeTier.toString),
+              _.tpe    := InputType.Number,
+              _.events.onChange.map(_.target.value.toInt) --> sizeTierUpdater
+            )
+          ),
+          div(
+            display.flex,
+            alignItems.center,
+            justifyContent.spaceBetween,
+            Label("Draw domino border until order"),
+            Input(
+              _.value <-- diamondMovieOptionsVar.signal.map(_.drawDominoBorderUntil.toString),
+              _.tpe    := InputType.Number,
+              _.events.onChange.map(_.target.value.toInt) --> drawDominoBorderUntilUpdater
             )
           ),
           div(
@@ -112,7 +147,6 @@ object ExportMovieButton {
     else TimerLogger.noOp
 
     val canvas = dom.document.createElement("canvas").asInstanceOf[dom.HTMLCanvasElement]
-    canvas.id = "the-movie-canvas"
 
     canvas.style.width = s"${movieOptions.resolution}px"
     canvas.style.height = canvas.style.width
@@ -130,9 +164,18 @@ object ExportMovieButton {
         drawWithWatermark = false
       ) match {
         case Some(drawer) =>
-          val zoom = options.transformations.zoom * diamondToDraw.order / diamond.order
+          val diamondOrderForDominoSize =
+            math.ceil(diamondToDraw.order / movieOptions.diamondSizeTier.toDouble) * movieOptions.diamondSizeTier
+          val zoom = options.transformations.zoom * diamondToDraw.order / diamondOrderForDominoSize
           currentlyDrawingDiamondOfOrder.onNext(diamondToDraw.order)
-          timerLogger.time("draw diamond")(drawer.drawOnCanvas(Canvas2D(canvas, canvasContext), options.withZoom(zoom)))
+          timerLogger.time("draw diamond")(
+            drawer.drawOnCanvas(
+              Canvas2D(canvas, canvasContext),
+              options
+                .withZoom(zoom)
+                .copy(showBorderOfDominoes = diamondToDraw.order <= movieOptions.drawDominoBorderUntil)
+            )
+          )
           utils.sleep(10.millis)
         case None =>
           throw IllegalStateException(s"Diamond was empty which should not have happened 😱")
