@@ -101,18 +101,8 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
     listOfDominoes.foreach { domino =>
       val (x1, y1) = (domino.p1.x + order - 1, domino.p1.y + order - 1)
       val (x2, y2) = (domino.p2.x + order - 1, domino.p2.y + order - 1)
-//      val color = domino.dominoType(order) match {
-//        case NorthGoing =>
-//          Console.RED_B
-//        case SouthGoing =>
-//          Console.GREEN_B
-//        case EastGoing =>
-//          Console.YELLOW_B
-//        case WestGoing =>
-//          Console.BLUE_B
-//      }
-      val black = "" //  Console.BLACK_B
-      val color = ""
+      val black    = ""
+      val color    = ""
       chars(y1)(x1) = color + " " + black
       chars(y2)(x2) = color + " " + black
       if (domino.isHorizontal) {
@@ -154,7 +144,7 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
     * @param diamondIndex
     *   index of the sub diamond to build. Must satisfy 0 <= index < numberOfSubDiamonds
     */
-  def indexedSubDiamond(diamondIndex: BigInt): Diamond = {
+  def indexedSubDiamond(diamondIndex: BigInt)(using timerLogger: TimerLogger = TimerLogger.noOp): Diamond = {
     def fillPossibilities(
         dominoesToFill: NArray[Domino],
         dominoes: NArray[NArray[Option[Domino]]]
@@ -166,16 +156,22 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
 
     val previousConstructions                            = activeFaces.map(_.previousDiamondConstruction(this))
     val (previousWithOneDomino, previousWithTwoDominoes) = previousConstructions.partition(_.length == 1)
-    val faceChoices = IntegerMethods.binaryDecompositionPrependedTo(diamondIndex, previousWithTwoDominoes.length)
+    val faceChoices = timerLogger.time("face choices")(
+      IntegerMethods.binaryDecompositionPrependedTo(diamondIndex, previousWithTwoDominoes.length)
+    )
 
     val dominoes = Diamond.emptyArrayDominoes(order - 1)
-    previousWithOneDomino.foreach(previous => fillPossibilities(previous(0), dominoes))
+    timerLogger.time("fill possibilities")(
+      previousWithOneDomino.foreach(previous => fillPossibilities(previous(0), dominoes))
+    )
 
-    for (index <- previousWithTwoDominoes.indices) {
-      val previousConstruction      = previousWithTwoDominoes(index)
-      val previousConstructionIndex = faceChoices.apply(index)
-      fillPossibilities(previousConstruction(previousConstructionIndex), dominoes)
-    }
+    timerLogger.time(s"Iterating over ${previousWithTwoDominoes.length}")(
+      for (index <- previousWithTwoDominoes.indices) {
+        val previousConstruction      = previousWithTwoDominoes(index)
+        val previousConstructionIndex = faceChoices.apply(index)
+        fillPossibilities(previousConstruction(previousConstructionIndex), dominoes)
+      }
+    )
 
     Diamond(dominoes)
   }

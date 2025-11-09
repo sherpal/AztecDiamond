@@ -185,16 +185,11 @@ object IntegerMethods {
     findBiggestSquareAcc(primes, Nil, Set.empty)
   }
 
-  @tailrec
-  def binaryDecomposition(n: BigInt): NArray[Int] = if n < 0 then binaryDecomposition(-n)
+  def binaryDecomposition(n: BigInt): NArray[Int] = if n == BigInt(0) then NArray(0)
   else {
-    @tailrec
-    def accumulator(remaining: BigInt, acc: List[Int]): List[Int] = if remaining < 2 then remaining.toInt +: acc
-    else {
-      accumulator(remaining / 2, (remaining % 2).toInt +: acc)
-    }
-
-    NArray(accumulator(n, Nil)*)
+    val abs        = n.abs
+    val bitsNumber = abs.bitLength
+    NArray((0 until bitsNumber).map(j => if abs.testBit(bitsNumber - 1 - j) then 1 else 0)*)
   }
 
   def binaryDecompositionPrependedTo(n: BigInt, length: Int): NArray[Int] = {
