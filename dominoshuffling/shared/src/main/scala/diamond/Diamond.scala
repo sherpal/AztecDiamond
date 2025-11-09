@@ -140,7 +140,7 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
 
   /** Returns the sub diamond that correspond to the specified index.
     *
-    * Note: it is note guaranteed that
+    * Note: it is not guaranteed that
     * {{{
     *   indexedSubDiamond(j) == subDiamonds(j)
     * }}}

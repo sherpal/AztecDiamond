@@ -121,7 +121,7 @@ object Communicator {
           else {
             val idxToRemove = (0 until height).map(width * _)
 
-            imageData.zipWithIndex.filter(elem => idxToRemove.contains(elem._2 / 4)).unzip._1
+            imageData.zipWithIndex.filter(elem => idxToRemove.contains(elem._2 / 4)).map(_._1)
           }
         val weight = CustomGenerationWeight.fromImageData(
           transformedImageData,

@@ -94,7 +94,7 @@ final class DiamondSpecs extends munit.FunSuite {
 
   test("The UniformDiamond.countingTilingDiamond has only one sub diamond") {
     for (order <- 2 to 10) {
-      assertEquals(UniformDiamond.countingTilingDiamond(order *: EmptyTuple).numberOfSubDiamonds, 1)
+      assertEquals(UniformDiamond.countingTilingDiamond(order *: EmptyTuple).numberOfSubDiamonds, BigInt(1))
       assertEquals(UniformDiamond.countingTilingDiamond(order *: EmptyTuple).subDiamonds.length, 1)
     }
   }
@@ -111,9 +111,9 @@ final class DiamondSpecs extends munit.FunSuite {
     val diamond               = AztecRing.countingTilingDiamond((3, 8))
     val numberOfSubDiamonds   = diamond.numberOfSubDiamonds
     val subDiamonds           = diamond.subDiamonds
-    val allIndexedSubDiamonds = (0 until numberOfSubDiamonds).map(diamond.indexedSubDiamond).toList
+    val allIndexedSubDiamonds = (0 until numberOfSubDiamonds.toInt).map(BigInt(_)).map(diamond.indexedSubDiamond).toList
 
-    assertEquals(numberOfSubDiamonds, subDiamonds.length)
+    assertEquals(numberOfSubDiamonds, BigInt(subDiamonds.length))
     assertEquals(allIndexedSubDiamonds.length, subDiamonds.length)
     assertEquals(allIndexedSubDiamonds.toSet.size, subDiamonds.length)
     assertEquals(allIndexedSubDiamonds.toSet, subDiamonds.toSet)
@@ -123,7 +123,7 @@ final class DiamondSpecs extends munit.FunSuite {
     var diamond = AztecRing.countingTilingDiamond((3, 8))
 
     def assertForThisDiamond(n: Int): Unit = {
-      assertEquals(diamond.numberOfSubDiamonds, n)
+      assertEquals(diamond.numberOfSubDiamonds, BigInt(n))
       assertEquals(diamond.subDiamonds.length, n)
       diamond = diamond.indexedSubDiamond(n - 1)
     }
