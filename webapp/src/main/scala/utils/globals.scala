@@ -7,6 +7,9 @@ import scala.scalajs.js.URIUtils.encodeURIComponent
 import scala.scalajs.LinkingInfo
 import io.circe.Encoder
 
+import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.{Future, Promise}
+
 private def downloadContent(filename: String, contents: String, contentType: String): Unit = {
   val element = dom.document.createElement("a").asInstanceOf[dom.HTMLElement]
 
@@ -29,3 +32,16 @@ def downloadJson[T](filename: String, contents: T)(using encoder: Encoder[T]): U
 def rawBasePath         = js.Dynamic.global.basePath.asInstanceOf[String]
 def basePath            = if LinkingInfo.developmentMode then "/" else rawBasePath
 def diamondImagesFolder = basePath ++ "images/diamonds/"
+
+extension (canvas: dom.HTMLCanvasElement) {
+  def toBlob: Future[dom.Blob] = {
+    val promise = Promise[dom.Blob]()
+    canvas.asInstanceOf[js.Dynamic].toBlob((blob: dom.Blob) => promise.success(blob), "image/png")
+    promise.future
+  }
+}
+
+def sleep(time: FiniteDuration): Future[Unit] =
+  val promise = Promise[Unit]()
+  js.timers.setTimeout(time)(promise.success(()))
+  promise.future

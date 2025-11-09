@@ -1,8 +1,8 @@
 import { createHtmlPlugin } from 'vite-plugin-html'
-
+import { scalaMetadata } from "./scala-metadata"
 import { defineConfig } from 'vite'
 
-const scalaVersion = "3.2.2"
+const scalaVersion = scalaMetadata.scalaVersion
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode, ssrBuild }) => {

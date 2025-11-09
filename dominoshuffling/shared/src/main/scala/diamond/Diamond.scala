@@ -4,9 +4,9 @@ import custommath.{IntegerMethods, QRoot, WeightLikeNumber}
 import exceptions.ShouldNotBeThereException
 import geometry.*
 
-import scala.util.Random
 import scala.concurrent.duration.FiniteDuration
 import narr.NArray
+import utils.TimerLogger
 
 import scala.annotation.tailrec
 
@@ -136,7 +136,7 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
       subroutineStatusCallback: Int => Unit
   ): QRoot = TilingNumberComputer(this, weights, statusCallback, subroutineStatusCallback).probability
 
-  lazy val numberOfSubDiamonds: Int = activeFaces.map(_.numberOfPreviousDiamond(this)).product
+  lazy val numberOfSubDiamonds: BigInt = activeFaces.map(_.numberOfPreviousDiamond(this)).map(BigInt(_)).product
 
   /** Returns the sub diamond that correspond to the specified index.
     *
@@ -154,7 +154,7 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
     * @param diamondIndex
     *   index of the sub diamond to build. Must satisfy 0 <= index < numberOfSubDiamonds
     */
-  def indexedSubDiamond(diamondIndex: Int): Diamond = {
+  def indexedSubDiamond(diamondIndex: BigInt): Diamond = {
     def fillPossibilities(
         dominoesToFill: NArray[Domino],
         dominoes: NArray[NArray[Option[Domino]]]
@@ -228,10 +228,13 @@ final class Diamond(private[diamond] val internalDominoes: NArray[NArray[Option[
   private[diamond] def allSubDiamonds: NArray[Diamond] =
     this +: subDiamonds.flatMap(_.allSubDiamonds)
 
-  def randomSubDiamond: Option[Diamond] =
-    Option.unless(order == 1)(indexedSubDiamond(Random.nextInt(numberOfSubDiamonds)))
+  def randomSubDiamond(using timerLogger: TimerLogger = TimerLogger.noOp): Option[Diamond] = Option.unless(order == 1) {
+    val number = timerLogger.time(s"number of sub-diamonds order $order")(numberOfSubDiamonds)
+    val index  = timerLogger.time("sub-diamond index")(IntegerMethods.nextBigInt(number))
+    timerLogger.time("choose sub-diamond")(indexedSubDiamond(index))
+  }
 
-  def aRandomSubDiamond: Diamond = subDiamonds(Random.nextInt(subDiamonds.length))
+  def aRandomSubDiamond: Diamond = randomSubDiamond.get
 
   def firstSubDiamond: Diamond = indexedSubDiamond(0)
 

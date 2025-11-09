@@ -5,22 +5,19 @@ import org.scalajs.dom
 import org.scalajs.dom.html
 import org.scalajs.dom.CanvasRenderingContext2D
 
-/** Canvas objects are use to draw stuff on them. The [[html.Canvas]] element
-  * created in the html file for actually printing on the screen. This class
-  * uses the CanvasRenderingContext2D technology to draw on the canvas.
+/** Canvas objects are use to draw stuff on them. The [[html.Canvas]] element created in the html file for actually
+  * printing on the screen. This class uses the CanvasRenderingContext2D technology to draw on the canvas.
   */
 class Canvas2D(val canvas: html.Canvas, ctx: CanvasRenderingContext2D) {
 
-  /** Creates an instance of Canvas for a pre-existing html.Canvas element. /!\
-    * Doing this will bind the context to the canvas, so it can't be done either
-    * before or after.
+  /** Creates an instance of Canvas for a pre-existing html.Canvas element. /!\ Doing this will bind the context to the
+    * canvas, so it can't be done either before or after.
     */
   def this(canvas: html.Canvas) =
     this(canvas, canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D])
 
-  /** Creates an instance of Canvas with a newly created html.Canvas element.
-    * /!\ This automatically binds the context to the canvas, so it can't be
-    * done after creation.
+  /** Creates an instance of Canvas with a newly created html.Canvas element. /!\ This automatically binds the context
+    * to the canvas, so it can't be done after creation.
     */
   def this() =
     this(dom.document.createElement("canvas").asInstanceOf[html.Canvas])
@@ -41,8 +38,7 @@ class Canvas2D(val canvas: html.Canvas, ctx: CanvasRenderingContext2D) {
   def setHeight(height: Int): Unit =
     canvas.height = height
 
-  /** Sets the width and height of the [[html.Canvas]] element attached to the
-    * Canvas.
+  /** Sets the width and height of the [[html.Canvas]] element attached to the Canvas.
     */
   def setSize(width: Int, height: Int): Unit = {
     setWidth(width)
@@ -50,7 +46,7 @@ class Canvas2D(val canvas: html.Canvas, ctx: CanvasRenderingContext2D) {
   }
 
   private var _backgroundColor: Vec4 = Vec4(0, 0, 0, 0)
-  def backgroundColor: Vec4 = _backgroundColor
+  def backgroundColor: Vec4          = _backgroundColor
   def setBackgroundColor(): Unit =
     setBackgroundColor(0, 0, 0, 0)
   def setBackgroundColor(v: Vec4): Unit =
@@ -69,10 +65,8 @@ class Canvas2D(val canvas: html.Canvas, ctx: CanvasRenderingContext2D) {
   // The change of coordinates in no more needed, it is done by the camera.
   def changeCoordinates(z: Complex): (Double, Double) = (z.re, z.im)
 
-  /** Sets a rectangle area that restrain the drawing area and apply body
-    * instructions. We go from cartesian coordinates ((0,0) is at the center of
-    * the canvas and y go up) to canvas coordinates ((0,0) at the top left and y
-    * go down).
+  /** Sets a rectangle area that restrain the drawing area and apply body instructions. We go from cartesian coordinates
+    * ((0,0) is at the center of the canvas and y go up) to canvas coordinates ((0,0) at the top left and y go down).
     *
     * @param x
     *   left pixel of area.
@@ -103,7 +97,7 @@ class Canvas2D(val canvas: html.Canvas, ctx: CanvasRenderingContext2D) {
       height: Double,
       color: Vec4 = Vec4(1.0, 1.0, 1.0, 1.0),
       lineWidth: Int = 0
-  ): Unit = {
+  ): Unit =
     if (lineWidth == 0) {
       ctx.fillStyle = color.toCSSColor
       val (locX, locY) = changeCoordinates(z)
@@ -121,7 +115,6 @@ class Canvas2D(val canvas: html.Canvas, ctx: CanvasRenderingContext2D) {
       ctx.closePath()
       ctx.stroke()
     }
-  }
 
   def drawDisk(
       center: Complex,
@@ -180,7 +173,7 @@ class Canvas2D(val canvas: html.Canvas, ctx: CanvasRenderingContext2D) {
       val canvasSpaceVertices = vertices.map(changeCoordinates)
       ctx.beginPath()
       ctx.moveTo(canvasSpaceVertices.head._1, canvasSpaceVertices.head._2)
-      canvasSpaceVertices.tail.foreach({ case (x, y) => ctx.lineTo(x, y) })
+      canvasSpaceVertices.tail.foreach { case (x, y) => ctx.lineTo(x, y) }
       if (lineWidth == 0) {
         ctx.closePath()
         ctx.fillStyle = color.toCSSColor
@@ -249,14 +242,14 @@ class Canvas2D(val canvas: html.Canvas, ctx: CanvasRenderingContext2D) {
     ctx.textBaseline = textBaseLine
 
     var left: Double = 0
-    val (x, y) = changeCoordinates(z)
+    val (x, y)       = changeCoordinates(z)
     val (xOff, yOff) =
       (xOffset, yOffset) // yOffset grows when text must be lower
-    texts.foreach({ case (text, color) =>
+    texts.foreach { case (text, color) =>
       ctx.fillStyle = color
       ctx.fillText(text, x + xOff + left, y + yOff)
       left += ctx.measureText(text).width
-    })
+    }
   }
 
   def textWidth(text: String, font: String): Double = {
@@ -268,25 +261,20 @@ class Canvas2D(val canvas: html.Canvas, ctx: CanvasRenderingContext2D) {
 
   // TODO: adapt the zoom
   def printWatermark(scaleX: Double, scaleY: Double): Unit = {
-    val name = List(65, 110, 116, 111, 105, 110, 101, 32, 68, 111, 101, 114, 97,
-      101, 110, 101)
+    val name = List(65, 110, 116, 111, 105, 110, 101, 32, 68, 111, 101, 114, 97, 101, 110, 101)
       .map(_.toChar)
       .mkString
     val info = List(
-      104, 116, 116, 112, 115, 58, 47, 47, 115, 105, 116, 101, 115, 46, 117, 99,
-      108, 111, 117, 118, 97, 105, 110, 46, 98, 101, 47, 97, 122, 116, 101, 99,
-      100, 105, 97, 109, 111, 110, 100, 47
+      104, 116, 116, 112, 115, 58, 47, 47, 115, 105, 116, 101, 115, 46, 117, 99, 108, 111, 117, 118, 97, 105, 110, 46,
+      98, 101, 47, 97, 122, 116, 101, 99, 100, 105, 97, 109, 111, 110, 100, 47
     )
       .map(_.toChar)
       .mkString
-//    val info = List(40, 73, 82, 77, 80, 32, 69, 110, 116, 101, 114, 116, 97, 105, 110, 109, 101, 110, 116, 41)
-//      .map(_.toChar)
-//      .mkString
 
     val font = "10px quicksand"
 
     val maxTextWidth = math.max(textWidth(name, font), textWidth(info, font))
-    val textHeight = 20
+    val textHeight   = 20
 
     print(
       List((name, "#CCC")),
@@ -307,15 +295,15 @@ class Canvas2D(val canvas: html.Canvas, ctx: CanvasRenderingContext2D) {
 
   def clear(): Unit = {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
-    if (!transparent) {
+    if !transparent then {
       ctx.fillStyle = backgroundColor.toCSSColor
       ctx.fillRect(0, 0, canvas.width, canvas.height)
     }
   }
 
   // transformation matrix
-  private val eye4: Matrix = Matrix.eye(4)
-  private var _transformationMatrix: Matrix = eye4
+  private val eye4: Matrix                        = Matrix.eye(4)
+  private var _transformationMatrix: Matrix       = eye4
   private var _storedTransformationMatrix: Matrix = eye4
 
   def resetTransformationMatrix(): Unit = {
@@ -325,8 +313,7 @@ class Canvas2D(val canvas: html.Canvas, ctx: CanvasRenderingContext2D) {
 
   /** Moves the center of the matrix transformation.
     * @param center
-    *   The center of the rotation, in cartesian coordinate. 0 is the center of
-    *   the canvas, and
+    *   The center of the rotation, in cartesian coordinate. 0 is the center of the canvas, and
     * -w/2 + h/2 i is the top left.
     * @param matrix
     *   The (3d) transformation matrix to apply.
@@ -356,12 +343,10 @@ class Canvas2D(val canvas: html.Canvas, ctx: CanvasRenderingContext2D) {
   /** A matrix for canvas 2d rotation.
     *
     * @param center
-    *   The center of the rotation, in cartesian coordinate. 0 is the center of
-    *   the canvas, and
+    *   The center of the rotation, in cartesian coordinate. 0 is the center of the canvas, and
     * -w/2 + h/2 i is the top left.
     * @param angle
-    *   The angle of the rotation. Positive value for counter clockwise
-    *   rotation.
+    *   The angle of the rotation. Positive value for counter clockwise rotation.
     * @return
     *   The (3d) transformation matrix to give to "withTransform" method.
     */
@@ -377,8 +362,7 @@ class Canvas2D(val canvas: html.Canvas, ctx: CanvasRenderingContext2D) {
   /** A matrix for canvas 2d scaling.
     *
     * @param center
-    *   The center of the rotation, in cartesian coordinate. 0 is the center of
-    *   the canvas, and
+    *   The center of the rotation, in cartesian coordinate. 0 is the center of the canvas, and
     * -w/2 + h/2 i is the top left.
     * @param sx
     *   Horizontal scaling.
@@ -398,9 +382,8 @@ class Canvas2D(val canvas: html.Canvas, ctx: CanvasRenderingContext2D) {
     Matrix.translation3d(dx, dy, 1)
 
   /** Stores the transformation matrix. */
-  def storeTransformationMatrix(): Unit = {
+  def storeTransformationMatrix(): Unit =
     _storedTransformationMatrix = _transformationMatrix
-  }
 
   /** Sets the transformation matrix to the stored matrix. */
   def restoreTransformationMatrix(): Unit = {
@@ -408,7 +391,7 @@ class Canvas2D(val canvas: html.Canvas, ctx: CanvasRenderingContext2D) {
     setTransform()
   }
 
-  private def setTransform(): Unit = {
+  private def setTransform(): Unit =
     ctx.setTransform(
       _transformationMatrix(0, 0),
       _transformationMatrix(1, 0),
@@ -417,7 +400,6 @@ class Canvas2D(val canvas: html.Canvas, ctx: CanvasRenderingContext2D) {
       _transformationMatrix(0, 3),
       _transformationMatrix(1, 3)
     )
-  }
 
   def withTransformationMatrix[A](matrix: Matrix)(body: => A): A = {
     storeTransformationMatrix()

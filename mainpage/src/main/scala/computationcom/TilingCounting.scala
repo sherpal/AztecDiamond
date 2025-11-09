@@ -50,10 +50,10 @@ trait TilingCounting extends Computer {
         )
 
         val isInteger =
-          subGraphPartition equals QRoot.fromBigInt(subGraphPartition.toBigInt)
+          subGraphPartition.equals(QRoot.fromBigInt(subGraphPartition.toBigInt))
 
         val scientificNotation: String =
-          if (!isInteger) ""
+          if !isInteger then ""
           else {
             val stringNbr = subGraphPartition.toBigInt.toString
             if (stringNbr.length < 6) ""

@@ -21,10 +21,10 @@ object QRootChecks extends Properties("QRootChecks") {
   } yield Rational(sign * num, den)
 
   val notRationalGen: Gen[NotRational] = for {
-    num       <- Gen.nonEmptyListOf(Gen.choose[BigInt](1, 10)).map(xs => NArray(xs.distinct.sorted: _*))
-    numCoeffs <- Gen.listOfN(num.length, Gen.choose[BigInt](1, 10)).map(xs => NArray(xs: _*))
-    den       <- Gen.nonEmptyListOf(Gen.choose[BigInt](1, 10)).map(xs => NArray(xs.distinct.sorted: _*))
-    denCoeffs <- Gen.listOfN(den.length, Gen.choose[BigInt](1, 10)).map(xs => NArray(xs: _*))
+    num       <- Gen.nonEmptyListOf(Gen.choose[BigInt](1, 10)).map(xs => NArray(xs.distinct.sorted*))
+    numCoeffs <- Gen.listOfN(num.length, Gen.choose[BigInt](1, 10)).map(xs => NArray(xs*))
+    den       <- Gen.nonEmptyListOf(Gen.choose[BigInt](1, 10)).map(xs => NArray(xs.distinct.sorted*))
+    denCoeffs <- Gen.listOfN(den.length, Gen.choose[BigInt](1, 10)).map(xs => NArray(xs*))
   } yield NotRational(numCoeffs.zip(num), denCoeffs.zip(den))
 
   val qRootGen: Gen[QRoot] = Gen.frequency(

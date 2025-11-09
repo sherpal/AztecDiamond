@@ -15,6 +15,7 @@
   "dependencies": {
     "@ui5/webcomponents": "1.10.0",
     "@ui5/webcomponents-fiori": "1.10.0",
-    "@ui5/webcomponents-icons": "1.10.0"
+    "@ui5/webcomponents-icons": "1.10.0",
+    "@zip.js/zip.js": "^2.6.15"
   }
 }

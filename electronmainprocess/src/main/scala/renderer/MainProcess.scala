@@ -1,19 +1,20 @@
 package renderer
 
-import electron._
+import electron.*
 import globalvariables.{AppVersion, WindowId}
 import nodejs.Path
 import org.scalajs.dom.Event
 import storage.Storage
 
 import scala.collection.mutable
+import scala.compiletime.uninitialized
 import scala.scalajs.js.UndefOr
 
 object MainProcess {
 
   val windows: mutable.Set[BrowserWindowMainProcess] = mutable.Set()
 
-  private var mainWindow: BrowserWindowMainProcess = _
+  private var mainWindow: BrowserWindowMainProcess = uninitialized
 
   def main(args: Array[String]): Unit = {
 

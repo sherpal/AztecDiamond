@@ -29,7 +29,7 @@ object Message {
     .addConcreteType[ImageDiamondMessage]
 
   def decode(buffer: Array[Byte]): Message =
-    Unpickle[Message](messagePickler).fromBytes(ByteBuffer.wrap(buffer))
+    Unpickle[Message](using messagePickler).fromBytes(ByteBuffer.wrap(buffer))
 
   def encode(message: Message): Array[Byte] = {
     val byteBuffer = Pickle.intoBytes(message)

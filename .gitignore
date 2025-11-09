@@ -4,6 +4,8 @@ dist
 .bsp
 temp
 
+webapp/scala-metadata.js
+
 .DS_Store
 .idea
 

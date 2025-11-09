@@ -9,10 +9,10 @@ object IntegerMethods {
   private def primesFrom(n: BigInt): LazyList[BigInt] =
     if isPrime(n) then n #:: primesFrom(n + 1) else primesFrom(n + 1)
 
-  lazy val primeNumbers = primesFrom(2)
+  lazy val primeNumbers: LazyList[BigInt] = primesFrom(2)
 
   private val precomputedPrimesNumber = 1000
-  lazy val precomputedPrimes          = NArray[BigInt](primeNumbers.take(precomputedPrimesNumber).toList: _*)
+  private lazy val precomputedPrimes  = NArray[BigInt](primeNumbers.take(precomputedPrimesNumber).toList*)
 
   def bigIntPow(base: BigInt, exp: Long): BigInt = if exp == 0 then BigInt(1)
   else {
@@ -22,6 +22,7 @@ object IntegerMethods {
   }
 
   def integerSquareRoot(n: Int): Int = {
+    @tailrec
     def integerSquareRootAcc(n: Int, start: Int): Int = {
       def iteration(x: Int): Int = (x + n / x) / 2
       val next                   = iteration(start)
@@ -33,7 +34,8 @@ object IntegerMethods {
     integerSquareRootAcc(n, n)
   }
 
-  def longSquareRoot(n: Long): Long = {
+  private def longSquareRoot(n: Long): Long = {
+    @tailrec
     def longSquareRootAcc(n: Long, start: Long): Long = {
       def iteration(x: Long): Long = (x + n / x) / 2
       val next                     = iteration(start)
@@ -48,6 +50,7 @@ object IntegerMethods {
   def bigIntSquareRoot(n: BigInt): BigInt =
     if (n == 0) n
     else {
+      @tailrec
       def bigIntSquareRootAcc(n: BigInt, start: BigInt): BigInt = {
         def iteration(x: BigInt): BigInt = (x + n / x) / 2
         val next                         = iteration(start)
@@ -69,6 +72,7 @@ object IntegerMethods {
     n == sqrt * sqrt
   }
 
+  @tailrec
   def euclidGCD(a: Long, b: Long): Long = if (b == 0) a else euclidGCD(b, a % b)
 
   def reduce(a: Long, b: Long): (Long, Long) = {
@@ -87,6 +91,7 @@ object IntegerMethods {
     }
 
   def bigIntDiv(n1: BigInt, n2: BigInt): Double = {
+    @tailrec
     def divAcc(n1: BigInt, n2: BigInt, decimals: Vector[BigInt]): Double =
       if (decimals.length >= 18)
         decimals.zipWithIndex.map { case (d, i) => d.toDouble * math.pow(10, -i) }.sum
@@ -107,6 +112,7 @@ object IntegerMethods {
     val isPositive = n >= 0
     val x          = if isPositive then n else -n
 
+    @tailrec
     def primeNumberAcc(
         currentPrime: BigInt,
         primeAttemptIndex: Int,
@@ -142,7 +148,7 @@ object IntegerMethods {
     if isPositive then primes else -1 +: primes
   }
 
-  def positiveDivisers(n: BigInt): List[BigInt] = {
+  private def positiveDivisers(n: BigInt): List[BigInt] = {
     val posN = if n < 0 then -n else n
     (if posN == 1 then Nil else List(n)) ++ (BigInt(1) to bigIntSquareRoot(posN)).filter(n % _ == 0).toList
   }
@@ -161,6 +167,7 @@ object IntegerMethods {
   else {
     val primes = primeNumberDecomposition(n)
 
+    @tailrec
     def findBiggestSquareAcc(
         remainingPrimes: List[BigInt],
         numbersForSquare: List[BigInt],
@@ -187,7 +194,7 @@ object IntegerMethods {
       accumulator(remaining / 2, (remaining % 2).toInt +: acc)
     }
 
-    NArray(accumulator(n, Nil): _*)
+    NArray(accumulator(n, Nil)*)
   }
 
   def binaryDecompositionPrependedTo(n: BigInt, length: Int): NArray[Int] = {
@@ -201,6 +208,17 @@ object IntegerMethods {
         prependedDecomposition(index + startIndex) = decomposition(index)
       prependedDecomposition
     }
+  }
+
+  def nextBigInt(limit: BigInt): BigInt = {
+    val random = new java.util.Random()
+    val nBits  = limit.bitLength
+
+    @tailrec def next(): BigInt =
+      val attempt = new java.math.BigInteger(nBits, random)
+      if attempt.compareTo(limit) >= 0 then attempt else next()
+
+    next()
   }
 
   private val phi = (1 + QRoot.sqrtOf(5)) / 2

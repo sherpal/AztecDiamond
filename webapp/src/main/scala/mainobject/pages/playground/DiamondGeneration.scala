@@ -1,28 +1,21 @@
 package mainobject.pages.playground
 
 import be.doeraene.webcomponents.ui5.*
+import be.doeraene.webcomponents.ui5.configkeys.*
 import com.raquo.laminar.api.L.*
+import computationcom.{AirstreamDiamondGenerator, BlobMaker}
 import diamond.DiamondType
-import diamond.DiamondType.*
 import diamond.diamondtypes.UniformDiamond
-import computationcom.AirstreamDiamondGenerator
+import graphics.{Canvas2D, DiamondDrawer, DiamondDrawingOptions, DiamondMovieOptions}
+import mainobject.components.{DiamondDrawingOptionsFormWrapper, ExportButton, ExportMovieButton}
 import messages.GenerateDiamondMessage
-import be.doeraene.webcomponents.ui5.configkeys.ButtonDesign
-import be.doeraene.webcomponents.ui5.configkeys.ValueState
-import graphics.DiamondDrawer
-import be.doeraene.webcomponents.ui5.configkeys.MessageStripDesign
-import scala.concurrent.duration.*
-import be.doeraene.webcomponents.ui5.configkeys.BarDesign
-import be.doeraene.webcomponents.ui5.configkeys.IconName
-import graphics.DiamondDrawingOptions
-import graphics.Canvas2D
-import mainobject.components.DiamondDrawingOptionsFormWrapper
-import scala.scalajs.LinkingInfo
-import scala.concurrent.ExecutionContext.Implicits.global
-import computationcom.BlobMaker
-import mainobject.components.ExportButton
 import org.scalajs.dom
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.*
+import scala.scalajs.LinkingInfo
 import scala.util.matching.Regex
+import scala.util.{Failure, Success}
 
 object DiamondGeneration {
 
@@ -184,31 +177,33 @@ object DiamondGeneration {
                     div(
                       displayTiming(diamondType, diamondOrder, timeTaken, true)
                     ),
-                    div(
-                      ExportButton(
-                        () =>
-                          utils.downloadSvgFile(
-                            "diamond.svg",
-                            diamondDrawer
-                              .svgCode(diamondOrder, diamondGenerationInfo.diamondTypeWithArgs, optionsVar.now())
-                          ),
-                        () => {
-                          val a = dom.document.createElement("a").asInstanceOf[dom.HTMLAnchorElement]
-                          val dataUrl = dom.document
-                            .getElementById("canvas-for-the-diamond")
-                            .asInstanceOf[dom.HTMLCanvasElement]
-                            .toDataURL("image/png")
-                          a.href =
-                            new Regex("^data:image/[^;]").replaceFirstIn(dataUrl, "data:application/octet-stream")
-                          dom.document.body.appendChild(a)
-                          a.style.display = "none"
-                          a.setAttribute("download", "aztec-diamond.png")
-                          a.click()
-                          dom.document.body.removeChild(a)
-                        },
-                        diamond,
-                        diamondTypeWithArgs
-                      )
+                    Bar(
+                      _.slots.startContent :=
+                        ExportButton(
+                          () =>
+                            utils.downloadSvgFile(
+                              "diamond.svg",
+                              diamondDrawer
+                                .svgCode(diamondOrder, diamondGenerationInfo.diamondTypeWithArgs, optionsVar.now())
+                            ),
+                          () => {
+                            val a = dom.document.createElement("a").asInstanceOf[dom.HTMLAnchorElement]
+                            val dataUrl = dom.document
+                              .getElementById("canvas-for-the-diamond")
+                              .asInstanceOf[dom.HTMLCanvasElement]
+                              .toDataURL("image/png")
+                            a.href =
+                              new Regex("^data:image/[^;]").replaceFirstIn(dataUrl, "data:application/octet-stream")
+                            dom.document.body.appendChild(a)
+                            a.style.display = "none"
+                            a.setAttribute("download", "aztec-diamond.png")
+                            a.click()
+                            dom.document.body.removeChild(a)
+                          },
+                          diamond,
+                          diamondTypeWithArgs
+                        ),
+                      _.slots.startContent <-- optionsVar.signal.map(options => ExportMovieButton(diamond, options))
                     )
                   )
                 case None =>
@@ -225,7 +220,7 @@ object DiamondGeneration {
     )
   }
 
-  def timeDisplay(timeTaken: FiniteDuration) =
+  def timeDisplay(timeTaken: FiniteDuration): String =
     if timeTaken < 1.second then timeTaken.toMillis.toString ++ "ms"
     else if timeTaken < 1.minute then timeTaken.toSeconds.toString ++ "s"
     else if timeTaken < 1.hour then s"${timeTaken.toMinutes} min ${timeTaken.toSeconds % 60}s"

@@ -1,8 +1,6 @@
 package diamond
 
 import custommath.QRoot
-import geometry.Face
-import narr.NArray
 
 import scala.annotation.tailrec
 
@@ -15,12 +13,12 @@ final class TilingNumberComputer(
 
   def order: Int = diamond.order
 
-  private val totalNumberOfSubDiamonds: Int = diamond.numberOfSubDiamonds
+  private val totalNumberOfSubDiamonds: Long = diamond.numberOfSubDiamonds.toLong
 
   private lazy val oneLoopPercentage = 100.0 / totalNumberOfSubDiamonds
 
   private var lastSubroutineStatus = -1
-  private var maxGlobalStatus = 0
+  private var maxGlobalStatus      = 0
 
   private var lastLiveCheckSent: Long = System.currentTimeMillis()
 
@@ -44,7 +42,8 @@ final class TilingNumberComputer(
           val newStatus = currentIndex * 100.0 / order
           lastSubroutineStatus = newStatus.toInt
           subroutineStatusCallback(newStatus.toInt)
-          maxGlobalStatus = maxGlobalStatus max (currentPath(0) * oneLoopPercentage + newStatus * oneLoopPercentage / 100.0).toInt
+          maxGlobalStatus =
+            maxGlobalStatus max (currentPath(0) * oneLoopPercentage + newStatus * oneLoopPercentage / 100.0).toInt
           statusCallback(maxGlobalStatus)
         }
 

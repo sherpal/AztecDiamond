@@ -113,9 +113,9 @@ case class NotRational private (
     denominators.forall((_, x) => IntegerMethods.isPerfectSquare(x))
 
   override def equals(that: Any): Boolean = that match {
-    case that: Int         => isRational && (toRational equals QRoot.fromInt(that))
-    case that: BigInt      => isRational && (toRational equals QRoot.fromBigInt(that))
-    case that: Rational    => this.toRational equals that
+    case that: Int         => isRational && (toRational.equals(QRoot.fromInt(that)))
+    case that: BigInt      => isRational && (toRational.equals(QRoot.fromBigInt(that)))
+    case that: Rational    => this.toRational.equals(that)
     case that: NotRational => (this - that).toNotRational.numerators.length == 0
     case _                 => false
   }
@@ -138,16 +138,16 @@ object NotRational {
       val (p, q) = IntegerMethods.biggestSquareDecomposition(x)
       (c * p, q)
     }
-    val sumTheGroups = NArray(biggestSquaresExtracted.groupBy(_._2).toSeq: _*).map { (x, coeffs) =>
+    val sumTheGroups = NArray(biggestSquaresExtracted.groupBy(_._2).toSeq*).map { (x, coeffs) =>
       coeffs.map(_._1).sum -> x
     }
 
     sumTheGroups.filter((c, x) => c != 0 && x != 0).sortBy(_.swap)
   }
 
-  def coefficientsArray(values: (BigInt, BigInt)*): NArray[(BigInt, BigInt)] = NArray(values: _*)
+  def coefficientsArray(values: (BigInt, BigInt)*): NArray[(BigInt, BigInt)] = NArray(values*)
   def intCoefficientsArray(values: (Int, Int)*): NArray[(BigInt, BigInt)] = coefficientsArray(
-    values.map((c, x) => BigInt(c) -> BigInt(x)): _*
+    values.map((c, x) => BigInt(c) -> BigInt(x))*
   )
 
   private def vectorProduct(
@@ -219,7 +219,7 @@ final class Rational(val numerator: BigInt, val denominator: BigInt) extends QRo
   override def equals(that: Any): Boolean = that match {
     case that: Int         => denominator == 1 && numerator == that
     case that: BigInt      => denominator == 1 && numerator == that
-    case that: NotRational => that.isRational && (that.toRational equals this)
+    case that: NotRational => that.isRational && (that.toRational.equals(this))
     case that: Rational =>
       that.numerator == this.numerator && that.denominator == this.denominator
     case _ => false

@@ -6,10 +6,11 @@ import urldsl.language.PathSegment
 import org.scalajs.dom
 import mainobject.pages.playground.Playground
 
-final case class Route(segment: PathSegment[Unit, _], component: () => HtmlElement, title: String) {
+final case class Route(segment: PathSegment[Unit, ?], component: () => HtmlElement, title: String) {
   def path: String = "/" ++ segment.createPart()
 }
 
+//noinspection TypeAnnotation
 object Route {
 
   println(utils.rawBasePath)

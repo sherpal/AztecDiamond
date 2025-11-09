@@ -22,6 +22,8 @@ final case class DiamondDrawingOptions(
     if !drawDominoes then _ => false
     else if showInFullAztecDiamond then _ => true
     else diamondType.isInDiamond
+
+  def withZoom(zoom: Double): DiamondDrawingOptions = copy(transformations = transformations.copy(zoom = zoom))
 }
 
 object DiamondDrawingOptions {

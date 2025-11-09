@@ -69,14 +69,14 @@ object IntegerMethodsChecks extends Properties("IntegerMethods") {
   }
 
   property("2x shifts the binary decomposition of x to the left if x != 0") = forAll(bigIntGen) { n =>
-    val forN = binaryDecomposition(n)
+    val forN  = binaryDecomposition(n)
     val for2N = binaryDecomposition(2 * n)
     n == 0 || forN.toList.appended(0) == for2N.toList
   }
 
   property("abs x can be recovered with the binary decomposition") = forAll(bigIntGen) { n =>
     val decomposition = binaryDecomposition(n)
-    //noinspection RangeToIndices
+    // noinspection RangeToIndices
     val powers = (0 until decomposition.length).map(bigIntPow(2, _)).reverse
     abs(n) == binaryDecomposition(n).zip(powers).map((coef, b) => coef * b).sum
   }

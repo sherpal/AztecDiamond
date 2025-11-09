@@ -1,7 +1,10 @@
 import org.scalajs.linker.interface.ESVersion
+
 import scala.util.matching.Regex
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
-import sbt.Keys._
+import sbt.Keys.*
+
+import java.nio.charset.StandardCharsets
 import scala.sys.process.Process
 
 name := "AztecDiamond"
@@ -13,9 +16,37 @@ val releaseVersion: String = "1.1.0"
 val isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
 val npm       = if (isWindows) "npm.cmd" else "npm"
 
+Global / onLoad := {
+  val scalaVersionValue = (`webApp` / scalaVersion).value
+  val outputFile        = baseDirectory.value / "webapp" / "scala-metadata.js"
+  IO.writeLines(
+    outputFile,
+    s"""
+       |const scalaVersion = "$scalaVersionValue"
+       |
+       |exports.scalaMetadata = {
+       |  scalaVersion: scalaVersion
+       |}
+       |""".stripMargin.split("\n").toList,
+    StandardCharsets.UTF_8
+  )
+
+  println("""
+            |  ___      _             ______ _                                 _
+            | / _ \    | |            |  _  (_)                               | |
+            |/ /_\ \___| |_ ___  ___  | | | |_  __ _ _ __ ___   ___  _ __   __| |___
+            ||  _  |_  / __/ _ \/ __| | | | | |/ _` | '_ ` _ \ / _ \| '_ \ / _` / __|
+            || | | |/ /| ||  __/ (__  | |/ /| | (_| | | | | | | (_) | | | | (_| \__ \
+            |\_| |_/___|\__\___|\___| |___/ |_|\__,_|_| |_| |_|\___/|_| |_|\__,_|___/
+            |
+            |""".stripMargin)
+
+  (Global / onLoad).value
+}
+
 val commonSettings = Seq(
   version      := releaseVersion,
-  scalaVersion := "3.2.2",
+  scalaVersion := "3.7.0",
   scalacOptions ++= Seq(
     "-encoding",
     "utf8",
@@ -175,8 +206,9 @@ lazy val `dominoShufflingAlgorithm` = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies += "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.3"
   )
   .jsSettings(
-    Test / jsEnv := new org.scalajs.jsenv.nodejs.NodeJSEnv(org.scalajs.jsenv.nodejs.NodeJSEnv.Config().withSourceMap(true))
-
+    Test / jsEnv := new org.scalajs.jsenv.nodejs.NodeJSEnv(
+      org.scalajs.jsenv.nodejs.NodeJSEnv.Config().withSourceMap(true)
+    )
   )
   .disablePlugins(sbtassembly.AssemblyPlugin)
 

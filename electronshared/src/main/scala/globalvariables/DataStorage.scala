@@ -46,7 +46,7 @@ object DataStorage {
   }
 
   def decode(buffer: scala.scalajs.js.Array[Byte]): Data =
-    Unpickle[Data](dataStoragePickler).fromBytes(ByteBuffer.wrap(buffer.toArray))
+    Unpickle[Data](using dataStoragePickler).fromBytes(ByteBuffer.wrap(buffer.toArray))
 
   def encode(message: Data): scala.scalajs.js.Array[Byte] = {
     val byteBuffer = Pickle.intoBytes(message)

@@ -1,15 +1,15 @@
 package communication
 
-import java.io._
+import java.io.*
 import java.net.{InetSocketAddress, Socket}
+import messages.*
 
-import messages._
-
+import scala.compiletime.uninitialized
 
 private[communication] object PlatformDependent {
 
-  private var address: String = _
-  private var port: Int = _
+  private var address: String = uninitialized
+  private var port: Int       = uninitialized
 
   private val socket: Socket = new Socket()
 
@@ -25,10 +25,9 @@ private[communication] object PlatformDependent {
   def postMessage(message: Message): Unit = {
     val bytes = Message.encode(message)
 
-    //output.writeInt(bytes.length)
+    // output.writeInt(bytes.length)
     output.writeInt(bytes.length)
     output.write(bytes)
-
 
 //    output.writeBytes("#" + bytes.mkString(",") + "#")
     Thread.sleep(1)
@@ -36,7 +35,7 @@ private[communication] object PlatformDependent {
     message match {
       case _: DiamondMessage =>
         disconnect()
-        //System.out.println("#" + Message.encode(message).mkString(",") + "#")
+      // System.out.println("#" + Message.encode(message).mkString(",") + "#")
       case _: TilingMessage =>
         disconnect()
       case _: TilingWrongParameterException =>
@@ -45,7 +44,7 @@ private[communication] object PlatformDependent {
         disconnect()
       case _: GenerationWrongParameterException =>
         disconnect()
-        //System.out.println("#" + Message.encode(message).mkString(",") + "#")
+      // System.out.println("#" + Message.encode(message).mkString(",") + "#")
       case _ =>
     }
   }
@@ -60,9 +59,9 @@ private[communication] object PlatformDependent {
 
     val message = Message.decode(args(1).split(",").map(_.toInt).map(_.toByte))
 
-    try {
+    try
       Communicator.receiveMessage(message)
-    } catch {
+    catch {
       case _: OutOfMemoryError =>
         System.err.println("outofmemory")
       case e: Throwable =>
@@ -76,7 +75,7 @@ private[communication] object PlatformDependent {
 //    val out = new PrintWriter(socket.getOutputStream, true)
 //    val in = new BufferedReader(new InputStreamReader(socket.getInputStream))
 
-    //out.println(s"Received: ${Message.decode(in.readLine().toCharArray.map(_.toByte)).toString}")
+    // out.println(s"Received: ${Message.decode(in.readLine().toCharArray.map(_.toByte)).toString}")
 
   }
 

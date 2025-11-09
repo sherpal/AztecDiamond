@@ -15,11 +15,12 @@ import diamond.DiamondType
   */
 class DiamondDrawer private (
     val diamond: Diamond,
-    isInSubGraph: (Domino) => Boolean,
-    canvas: Option[(html.Canvas, CanvasRenderingContext2D)]
+    isInSubGraph: Domino => Boolean,
+    canvas: Option[(html.Canvas, CanvasRenderingContext2D)],
+    drawWithWatermark: Boolean
 ) {
 
-  def isPointInSubGraph(point: Point): Boolean =
+  private def isPointInSubGraph(point: Point): Boolean =
     isInSubGraph(Domino(point, point + Point(1, 0))) ||
       isInSubGraph(Domino(point, point + Point(0, 1))) ||
       isInSubGraph(Domino(point + Point(-1, 0), point)) ||
@@ -34,12 +35,12 @@ class DiamondDrawer private (
     c
   }
 
-  val topMostFullDiamondCoordinate: Int    = diamond.order + 1
-  val rightMostFullDiamondCoordinate: Int  = diamond.order + 1
-  val bottomMostFullDiamondCoordinate: Int = -diamond.order + 1
-  val leftMostFullDiamondCoordinate: Int   = -diamond.order + 1
+  private val topMostFullDiamondCoordinate: Int    = diamond.order + 1
+  private val rightMostFullDiamondCoordinate: Int  = diamond.order + 1
+  private val bottomMostFullDiamondCoordinate: Int = -diamond.order + 1
+  private val leftMostFullDiamondCoordinate: Int   = -diamond.order + 1
 
-  val diamondCenter: Complex = Complex(
+  private val diamondCenter: Complex = Complex(
     (rightMostFullDiamondCoordinate + leftMostFullDiamondCoordinate) / 2.0,
     (topMostFullDiamondCoordinate + bottomMostFullDiamondCoordinate) / 2.0
   )
@@ -48,27 +49,27 @@ class DiamondDrawer private (
 
   def dominoesInSubGraph: Iterable[Domino] = dominoes.filter(isInSubGraph)
 
-  val topMostSubDiamondCoordinate: Int = dominoesInSubGraph
+  private val topMostSubDiamondCoordinate: Int = dominoesInSubGraph
     .foldLeft(bottomMostFullDiamondCoordinate) { case (curMax, domino) =>
       math.max(curMax, domino.p2.y + 1)
     }
 
-  val bottomMostSubDiamondCoordinate: Int = dominoesInSubGraph
+  private val bottomMostSubDiamondCoordinate: Int = dominoesInSubGraph
     .foldLeft(topMostFullDiamondCoordinate) { case (curMin, domino) =>
       math.min(curMin, domino.p1.y)
     }
 
-  val rightMostSubDiamondCoordinate: Int = dominoesInSubGraph
+  private val rightMostSubDiamondCoordinate: Int = dominoesInSubGraph
     .foldLeft(leftMostFullDiamondCoordinate) { case (curMax, domino) =>
       math.max(curMax, domino.p2.x + 1)
     }
 
-  val leftMostSubDiamondCoordinate: Int = dominoesInSubGraph
+  private val leftMostSubDiamondCoordinate: Int = dominoesInSubGraph
     .foldLeft(rightMostFullDiamondCoordinate) { case (curMax, domino) =>
       math.min(curMax, domino.p1.x)
     }
 
-  val subDiamondCenter: Complex = Complex(
+  private val subDiamondCenter: Complex = Complex(
     (rightMostSubDiamondCoordinate + leftMostSubDiamondCoordinate) / 2.0,
     (topMostSubDiamondCoordinate + bottomMostSubDiamondCoordinate) / 2.0
   )
@@ -86,12 +87,12 @@ class DiamondDrawer private (
   )
 
   private def dominoSprites: List[DominoSprite] =
-    dominoes.map(new DominoSprite(_)).toList
+    dominoes.map(DominoSprite(_)).toList
 
   private def emptyDominoSprites: List[EmptyDominoSprite] =
-    dominoes.map(new EmptyDominoSprite(_, canvas2D.width * 5 / 2000)).toList
+    dominoes.map(EmptyDominoSprite(_, canvas2D.width * 5 / 2000)).toList
 
-  def defaultColors(domino: Domino): (Double, Double, Double) =
+  private def defaultColors(domino: Domino): (Double, Double, Double) =
     domino.dominoType(diamond.order) match {
       case NorthGoing => (1, 0, 0)
       case SouthGoing => (0, 0, 1)
@@ -103,8 +104,8 @@ class DiamondDrawer private (
       worldCenter: Complex,
       scaleX: Double,
       scaleY: Double,
-      colors: (Domino) => (Double, Double, Double),
-      predicate: (Domino) => Boolean = _ => true,
+      colors: Domino => (Double, Double, Double),
+      predicate: Domino => Boolean = _ => true,
       fullDiamond: Boolean = true,
       border: Boolean = false
   ): Unit = {
@@ -142,7 +143,7 @@ class DiamondDrawer private (
       scaleX: Double = 1,
       scaleY: Double = 1,
       border: Boolean = false,
-      colors: (Domino) => (Double, Double, Double) = defaultColors
+      colors: Domino => (Double, Double, Double) = defaultColors
   ): Unit =
     rawDraw(worldCenter, scaleX, scaleY, colors, border = border)
 
@@ -151,7 +152,7 @@ class DiamondDrawer private (
       scaleX: Double = 1,
       scaleY: Double = 1,
       border: Boolean = false,
-      colors: (Domino) => (Double, Double, Double) = defaultColors
+      colors: Domino => (Double, Double, Double) = defaultColors
   ): Unit =
     rawDraw(
       worldCenter,
@@ -175,7 +176,7 @@ class DiamondDrawer private (
       scaleX: Double = 1,
       scaleY: Double = 1,
       border: Boolean = false,
-      colors: (Domino) => (Double, Double, Double) = defaultColors
+      colors: Domino => (Double, Double, Double) = defaultColors
   ): Unit = {
     camera.worldCenter = worldCenter
     camera.worldWidth = (rightMostFullDiamondCoordinate - leftMostFullDiamondCoordinate) / scaleX / 2
@@ -265,7 +266,7 @@ class DiamondDrawer private (
       canvasToDrawTo.drawCanvas(canvas2D.canvas, 0, canvasToDrawTo.canvas.width, canvasToDrawTo.canvas.height)
     }
 
-    if (!scala.scalajs.LinkingInfo.developmentMode) {
+    if !scala.scalajs.LinkingInfo.developmentMode && drawWithWatermark then {
       canvasToDrawTo.printWatermark(zoomX, zoomY)
     }
   }
@@ -426,15 +427,16 @@ object DiamondDrawer {
 
   def apply(
       diamond: Diamond,
-      isInSubGraph: (Domino) => Boolean = (_: Domino) => true,
-      canvas: Option[(html.Canvas, CanvasRenderingContext2D)] = None
+      isInSubGraph: Domino => Boolean = (_: Domino) => true,
+      canvas: Option[(html.Canvas, CanvasRenderingContext2D)] = None,
+      drawWithWatermark: Boolean = true
   ): Option[DiamondDrawer] = {
-    val diamondDrawer = new DiamondDrawer(diamond, isInSubGraph, canvas)
+    val diamondDrawer = new DiamondDrawer(diamond, isInSubGraph, canvas, drawWithWatermark)
 
     if (diamondDrawer.dominoesInSubGraph.isEmpty) None else Some(diamondDrawer)
   }
 
-  def emptyDiamondTikzCode(order: Int, unit: Double = 1): String = {
+  private def emptyDiamondTikzCode(order: Int, unit: Double = 1): String = {
     val lowerRightCornerCoordinates: Vector[Point] =
       (0 until order).toVector
         .flatMap(j => Vector(Point(1 + j, -order + 1 + j), Point(2 + j, -order + 1 + j)))

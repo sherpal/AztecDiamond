@@ -7,6 +7,7 @@ import org.scalajs.dom.URL
 import org.scalajs.dom.Worker
 import ui.AlertBox
 
+import scala.compiletime.uninitialized
 import scala.scalajs.js.JSConverters.*
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 
@@ -63,7 +64,7 @@ trait ComputerWorker extends Computer {
 @JSExportTopLevel("AztecDiamondConfig")
 object ComputerWorker {
 
-  private var _fileName: String = _
+  private var _fileName: String = uninitialized
 
   private var _fileNameSet: Boolean = false
 
