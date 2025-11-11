@@ -205,6 +205,7 @@ class Canvas2D(val canvas: html.Canvas, ctx: CanvasRenderingContext2D) {
       height: Double
   ): Unit = {
     val (dx, dy) = changeCoordinates(topLeft)
+    ctx.imageSmoothingEnabled = false
     ctx.drawImage(canvas, dx, dy, width, height)
   }
 

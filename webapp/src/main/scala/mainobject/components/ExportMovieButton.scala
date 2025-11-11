@@ -4,6 +4,8 @@ import be.doeraene.webcomponents.ui5.*
 import be.doeraene.webcomponents.ui5.configkeys.{ButtonDesign, IconName, InputType}
 import com.raquo.laminar.api.L.*
 import diamond.Diamond
+import graphics.DiamondDrawer.DominoBorderSizing
+import graphics.DiamondDrawer.DominoBorderSizing.FixedAfterZoom
 import graphics.{Canvas2D, DiamondDrawer, DiamondDrawingOptions, DiamondMovieOptions}
 import org.scalajs.dom
 import org.scalajs.dom.CanvasRenderingContext2D
@@ -30,7 +32,8 @@ object ExportMovieButton {
         resolution = 1600,
         diamondSizeTier = diamond.order,
         drawDominoBorderUntil = if options.showBorderOfDominoes then diamond.order else 0,
-        fullSizedDiamondStartingFromOrder = diamond.order
+        fullSizedDiamondStartingFromOrder = diamond.order,
+        dominoBorderSizing = DominoBorderSizing.Auto
       )
     )
     val resolutionUpdater =
@@ -41,6 +44,8 @@ object ExportMovieButton {
       diamondMovieOptionsVar.updater[Int]((current, limit) => current.copy(drawDominoBorderUntil = limit))
     val fullSizedDiamondStartingFromOrderUpdater =
       diamondMovieOptionsVar.updater[Int]((current, cutoff) => current.copy(fullSizedDiamondStartingFromOrder = cutoff))
+    val borderSizingUpdater =
+      diamondMovieOptionsVar.updater[DominoBorderSizing]((current, sizing) => current.copy(dominoBorderSizing = sizing))
 
     val startDownloadBus = new EventBus[Unit]()
 
@@ -112,6 +117,58 @@ object ExportMovieButton {
               _.events.onChange.map(_.target.value.toInt) --> fullSizedDiamondStartingFromOrderUpdater
             )
           ),
+          formField(
+            Label("Domino border size"),
+            span(
+              SegmentedButton(
+                _.item(
+                  "Auto",
+                  _.pressed <-- diamondMovieOptionsVar.signal.map(_.dominoBorderSizing match {
+                    case DominoBorderSizing.Auto               => true
+                    case DominoBorderSizing.FixedAfterZoom(_)  => false
+                    case DominoBorderSizing.FixedBeforeZoom(_) => false
+                  }),
+                  dataAttr("type") := "auto"
+                ),
+                _.item(
+                  "Fixed",
+                  _.pressed <-- diamondMovieOptionsVar.signal.map(_.dominoBorderSizing match {
+                    case DominoBorderSizing.Auto               => false
+                    case DominoBorderSizing.FixedAfterZoom(_)  => true
+                    case DominoBorderSizing.FixedBeforeZoom(_) => false
+                  }),
+                  dataAttr("type") := "fixed"
+                ),
+                _.events.onSelectionChange
+                  .map(_.detail.selectedItem)
+                  .map(
+                    _.dataset("type") match {
+                      case "fixed" => DominoBorderSizing.FixedAfterZoom(5)
+                      case "auto"  => DominoBorderSizing.Auto
+                      case tpe =>
+                        throw IllegalStateException(s"Item dataset 'type' was `$tpe`, expecting one of fixed, auto")
+                    }
+                  ) --> borderSizingUpdater
+              ),
+              Input(
+                _.value <-- diamondMovieOptionsVar.signal.map(_.dominoBorderSizing match {
+                  case DominoBorderSizing.Auto                  => ""
+                  case DominoBorderSizing.FixedAfterZoom(size)  => size.toString
+                  case DominoBorderSizing.FixedBeforeZoom(size) => size.toString
+                }),
+                _.disabled <-- diamondMovieOptionsVar.signal.map(_.dominoBorderSizing match {
+                  case DominoBorderSizing.Auto                  => true
+                  case DominoBorderSizing.FixedAfterZoom(size)  => false
+                  case DominoBorderSizing.FixedBeforeZoom(size) => false
+                }),
+                _.events.onChange
+                  .map(_.target.value)
+                  .map(value =>
+                    if value == "" then DominoBorderSizing.Auto else DominoBorderSizing.FixedAfterZoom(value.toInt)
+                  ) --> borderSizingUpdater
+              )
+            )
+          ),
           div(
             Button(
               "Download images...",
@@ -170,7 +227,9 @@ object ExportMovieButton {
       clearCanvas()
       DiamondDrawer(
         diamondToDraw,
-        drawWithWatermark = false
+        drawWithWatermark = false,
+        canvasSize = movieOptions.resolution,
+        borderSizing = movieOptions.dominoBorderSizing
       ) match {
         case Some(drawer) =>
           val zoomModifier =

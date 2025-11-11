@@ -3,10 +3,11 @@ package computationcom
 import diamond.Diamond
 import diamond.DiamondType.DiamondTypeFromString
 import graphics.{Canvas2D, DiamondDrawer}
-import messages._
+import messages.*
 import org.scalajs.dom
 import org.scalajs.dom.html
-import ui._
+import ui.*
+import utils.TimerLogger
 
 import scala.scalajs.js.timers.setTimeout
 import scala.util.matching.Regex
@@ -124,16 +125,16 @@ object DiamondGenerator {
     }
   }
 
-  def drawDrawer(): Unit =
-    if (drawnDiamond.isDefined) {
-      val t = new java.util.Date().getTime
+  def drawDrawer()(using timerLogger: TimerLogger = utils.consoleTimerLoggerDev): Unit =
+    if (drawnDiamond.isDefined) timerLogger.time("Draw Drawer") {
       drawnDiamond.get.canvas2D.clear()
 
       if (drawDominoesCheckBox.checked) {
         if (inFullAztecCheckBox.checked && !drawInLozengesCheckBox.checked) {
           drawnDiamond.get.draw(
             border = dominoesBorderCheckBox.checked,
-            colors = DominoColorSelector.dominoColorsDouble
+            colors = DominoColorSelector.dominoColorsDouble,
+            zoom = 1.0
           )
         } else if (!drawInLozengesCheckBox.checked) {
           drawnDiamond.get.drawSubGraph(
@@ -159,9 +160,6 @@ object DiamondGenerator {
 
       val (rotation, zoom) = DrawingTransformations.transformationSettings
       applyTransformation(rotation, zoom, zoom)
-      if (scala.scalajs.LinkingInfo.developmentMode) {
-        println(s"It took ${new java.util.Date().getTime - t} ms to draw the diamond.")
-      }
     }
 
   val weightGenerationStatusBar: StatusBar = StatusBar(0, 100, 200, 20)

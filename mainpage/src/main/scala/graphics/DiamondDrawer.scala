@@ -2,10 +2,11 @@ package graphics
 
 import custommath.Complex
 import diamond.Diamond
-import geometry._
+import geometry.*
 import org.scalajs.dom.html
 import org.scalajs.dom.CanvasRenderingContext2D
 import diamond.DiamondType
+import graphics.DiamondDrawer.DominoBorderSizing
 
 /** Class helper for drawing Diamond on a canvas.
   * @param diamond
@@ -17,7 +18,9 @@ class DiamondDrawer private (
     val diamond: Diamond,
     isInSubGraph: Domino => Boolean,
     canvas: Option[(html.Canvas, CanvasRenderingContext2D)],
-    drawWithWatermark: Boolean
+    drawWithWatermark: Boolean,
+    canvasSize: Int,
+    borderSizing: DominoBorderSizing
 ) {
 
   private def isPointInSubGraph(point: Point): Boolean =
@@ -31,7 +34,7 @@ class DiamondDrawer private (
       case Some((c, ctx)) => new Canvas2D(c, ctx)
       case None           => new Canvas2D
     }
-    c.setSize(2000, 2000)
+    c.setSize(canvasSize, canvasSize)
     c
   }
 
@@ -86,11 +89,17 @@ class DiamondDrawer private (
     canvas2D.height / (topMostSubDiamondCoordinate - bottomMostSubDiamondCoordinate)
   )
 
-  private def dominoSprites: List[DominoSprite] =
-    dominoes.map(DominoSprite(_)).toList
+  private def dominoSprites: Vector[DominoSprite] =
+    dominoes.map(DominoSprite(_)).toVector
 
-  private def emptyDominoSprites: List[EmptyDominoSprite] =
-    dominoes.map(EmptyDominoSprite(_, canvas2D.width * 5 / 2000)).toList
+  private def emptyDominoSprites(zoom: Double): Vector[EmptyDominoSprite] = {
+    val lineWidth = borderSizing match {
+      case DominoBorderSizing.Auto                  => canvas2D.width * 5 / canvasSize
+      case DominoBorderSizing.FixedAfterZoom(size)  => (size / zoom).toInt
+      case DominoBorderSizing.FixedBeforeZoom(size) => size
+    }
+    dominoes.map(EmptyDominoSprite(_, lineWidth)).toVector
+  }
 
   private def defaultColors(domino: Domino): (Double, Double, Double) =
     domino.dominoType(diamond.order) match {
@@ -107,7 +116,8 @@ class DiamondDrawer private (
       colors: Domino => (Double, Double, Double),
       predicate: Domino => Boolean = _ => true,
       fullDiamond: Boolean = true,
-      border: Boolean = false
+      border: Boolean = false,
+      zoom: Double = 1.0
   ): Unit = {
 
     camera.worldCenter = worldCenter
@@ -128,7 +138,7 @@ class DiamondDrawer private (
     camera.worldWidth = worldWidth
     camera.worldHeight = worldHeight
 
-    (if (border) dominoSprites ++ emptyDominoSprites else dominoSprites)
+    (if (border) dominoSprites ++ emptyDominoSprites(zoom) else dominoSprites)
       .filter(sprite => predicate(sprite.domino))
       .foreach { sprite =>
         val (r, g, b) = colors(sprite.domino)
@@ -143,16 +153,18 @@ class DiamondDrawer private (
       scaleX: Double = 1,
       scaleY: Double = 1,
       border: Boolean = false,
-      colors: Domino => (Double, Double, Double) = defaultColors
+      colors: Domino => (Double, Double, Double) = defaultColors,
+      zoom: Double
   ): Unit =
-    rawDraw(worldCenter, scaleX, scaleY, colors, border = border)
+    rawDraw(worldCenter, scaleX, scaleY, colors, border = border, zoom = zoom)
 
   def drawSubGraph(
       worldCenter: Complex = subDiamondCenter,
       scaleX: Double = 1,
       scaleY: Double = 1,
       border: Boolean = false,
-      colors: Domino => (Double, Double, Double) = defaultColors
+      colors: Domino => (Double, Double, Double) = defaultColors,
+      zoom: Double = 1.0
   ): Unit =
     rawDraw(
       worldCenter,
@@ -161,7 +173,8 @@ class DiamondDrawer private (
       colors,
       isInSubGraph,
       fullDiamond = false,
-      border = border
+      border = border,
+      zoom = zoom
     )
 
   private def lozengeSprites: List[LozengeSprite] =
@@ -262,9 +275,7 @@ class DiamondDrawer private (
     canvasToDrawTo.clear()
     canvasToDrawTo.withTransformationMatrix(
       canvasToDrawTo.rotate(0, rotation) * canvasToDrawTo.scale(0, zoomX, zoomY)
-    ) {
-      canvasToDrawTo.drawCanvas(canvas2D.canvas, 0, canvasToDrawTo.canvas.width, canvasToDrawTo.canvas.height)
-    }
+    )(canvasToDrawTo.drawCanvas(canvas2D.canvas, 0, canvasToDrawTo.canvas.width, canvasToDrawTo.canvas.height))
 
     if !scala.scalajs.LinkingInfo.developmentMode && drawWithWatermark then {
       canvasToDrawTo.printWatermark(zoomX, zoomY)
@@ -274,10 +285,14 @@ class DiamondDrawer private (
   def drawOnCanvas(canvasToDrawTo: Canvas2D, options: DiamondDrawingOptions): Unit = {
     canvas2D.clear()
     val dominoColors = options.colors.asDoubleFunction(diamond.order)
+
+    val DiamondDrawingOptions.Transformations(rotation, zoom) = options.transformations
+
     if options.drawDominoes then {
-      if options.showInFullAztecDiamond && !options.drawDominoesAsLozenges then
-        draw(border = options.showBorderOfDominoes, colors = dominoColors)
-      else if !options.drawDominoesAsLozenges then
+      if options.showInFullAztecDiamond && !options.drawDominoesAsLozenges then {
+        println(s"zoom: $zoom")
+        draw(border = options.showBorderOfDominoes, colors = dominoColors, zoom = zoom)
+      } else if !options.drawDominoesAsLozenges then
         drawSubGraph(border = options.showBorderOfDominoes, colors = dominoColors)
       else if options.showInFullAztecDiamond then
         drawAsLozenges(border = options.showBorderOfDominoes, colors = dominoColors)
@@ -287,8 +302,6 @@ class DiamondDrawer private (
     if options.drawNonIntersectingPaths then {
       drawNonIntersectingPaths(subGraph = !options.showInFullAztecDiamond)
     }
-
-    val DiamondDrawingOptions.Transformations(rotation, zoom) = options.transformations
     applyTransformation(canvasToDrawTo, rotation * 2 * math.Pi / 360, zoom, zoom)
   }
 
@@ -429,12 +442,19 @@ object DiamondDrawer {
       diamond: Diamond,
       isInSubGraph: Domino => Boolean = (_: Domino) => true,
       canvas: Option[(html.Canvas, CanvasRenderingContext2D)] = None,
-      drawWithWatermark: Boolean = true
+      drawWithWatermark: Boolean = true,
+      canvasSize: Int = 2000,
+      borderSizing: DominoBorderSizing = DominoBorderSizing.Auto
   ): Option[DiamondDrawer] = {
-    val diamondDrawer = new DiamondDrawer(diamond, isInSubGraph, canvas, drawWithWatermark)
+    val diamondDrawer = new DiamondDrawer(diamond, isInSubGraph, canvas, drawWithWatermark, canvasSize, borderSizing)
 
     if (diamondDrawer.dominoesInSubGraph.isEmpty) None else Some(diamondDrawer)
   }
+
+  enum DominoBorderSizing:
+    case Auto
+    case FixedAfterZoom(size: Int)
+    case FixedBeforeZoom(size: Int)
 
   private def emptyDiamondTikzCode(order: Int, unit: Double = 1): String = {
     val lowerRightCornerCoordinates: Vector[Point] =
