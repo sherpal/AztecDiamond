@@ -29,7 +29,8 @@ object ExportMovieButton {
       DiamondMovieOptions(
         resolution = 1600,
         diamondSizeTier = diamond.order,
-        drawDominoBorderUntil = if options.showBorderOfDominoes then diamond.order else 0
+        drawDominoBorderUntil = if options.showBorderOfDominoes then diamond.order else 0,
+        fullSizedDiamondStartingFromOrder = diamond.order
       )
     )
     val resolutionUpdater =
@@ -38,6 +39,8 @@ object ExportMovieButton {
       diamondMovieOptionsVar.updater[Int]((current, tier) => current.copy(diamondSizeTier = tier))
     val drawDominoBorderUntilUpdater =
       diamondMovieOptionsVar.updater[Int]((current, limit) => current.copy(drawDominoBorderUntil = limit))
+    val fullSizedDiamondStartingFromOrderUpdater =
+      diamondMovieOptionsVar.updater[Int]((current, cutoff) => current.copy(fullSizedDiamondStartingFromOrder = cutoff))
 
     val startDownloadBus = new EventBus[Unit]()
 
@@ -58,6 +61,13 @@ object ExportMovieButton {
         )
       )
 
+    def formField(mods: Modifier[HtmlElement]*): HtmlElement = div(
+      display.flex,
+      alignItems.center,
+      justifyContent.spaceBetween,
+      mods
+    )
+
     span(
       Button(
         _.design := ButtonDesign.Emphasized,
@@ -70,10 +80,7 @@ object ExportMovieButton {
         _.closeFromEvents(openDialogBus.events.collect { case false => () }),
         _.slots.header := Title.h3("Download movie images"),
         div(
-          div(
-            display.flex,
-            alignItems.center,
-            justifyContent.spaceBetween,
+          formField(
             Label("Resolution (in px)"),
             Input(
               _.value <-- diamondMovieOptionsVar.signal.map(_.resolution.toString),
@@ -81,10 +88,7 @@ object ExportMovieButton {
               _.events.onChange.map(_.target.value.toInt) --> resolutionUpdater
             )
           ),
-          div(
-            display.flex,
-            alignItems.center,
-            justifyContent.spaceBetween,
+          formField(
             Label("Keep domino size for how many orders"),
             Input(
               _.value <-- diamondMovieOptionsVar.signal.map(_.diamondSizeTier.toString),
@@ -92,15 +96,20 @@ object ExportMovieButton {
               _.events.onChange.map(_.target.value.toInt) --> sizeTierUpdater
             )
           ),
-          div(
-            display.flex,
-            alignItems.center,
-            justifyContent.spaceBetween,
+          formField(
             Label("Draw domino border until order"),
             Input(
               _.value <-- diamondMovieOptionsVar.signal.map(_.drawDominoBorderUntil.toString),
               _.tpe    := InputType.Number,
               _.events.onChange.map(_.target.value.toInt) --> drawDominoBorderUntilUpdater
+            )
+          ),
+          formField(
+            Label("Full Size starting at order"),
+            Input(
+              _.value <-- diamondMovieOptionsVar.signal.map(_.fullSizedDiamondStartingFromOrder.toString),
+              _.tpe    := InputType.Number,
+              _.events.onChange.map(_.target.value.toInt) --> fullSizedDiamondStartingFromOrderUpdater
             )
           ),
           div(
@@ -164,9 +173,14 @@ object ExportMovieButton {
         drawWithWatermark = false
       ) match {
         case Some(drawer) =>
-          val diamondOrderForDominoSize =
-            math.ceil(diamondToDraw.order / movieOptions.diamondSizeTier.toDouble) * movieOptions.diamondSizeTier
-          val zoom = options.transformations.zoom * diamondToDraw.order / diamondOrderForDominoSize
+          val zoomModifier =
+            if diamondToDraw.order >= movieOptions.fullSizedDiamondStartingFromOrder then 1.0
+            else {
+              val diamondOrderForDominoSize =
+                math.ceil(diamondToDraw.order / movieOptions.diamondSizeTier.toDouble) * movieOptions.diamondSizeTier
+              diamondToDraw.order / diamondOrderForDominoSize
+            }
+          val zoom = options.transformations.zoom * zoomModifier
           currentlyDrawingDiamondOfOrder.onNext(diamondToDraw.order)
           timerLogger.time("draw diamond")(
             drawer.drawOnCanvas(
