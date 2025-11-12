@@ -2,10 +2,12 @@ package mainobject.components
 
 import be.doeraene.webcomponents.ui5.*
 import be.doeraene.webcomponents.ui5.configkeys.{ButtonDesign, IconName, InputType}
+import be.doeraene.webcomponents.ui5.scaladsl.colour.Colour
 import com.raquo.laminar.api.L.*
 import diamond.Diamond
 import graphics.DiamondDrawer.DominoBorderSizing
 import graphics.DiamondDrawer.DominoBorderSizing.FixedAfterZoom
+import graphics.DiamondDrawingOptions.{Color, DiamondOrderFontInfo}
 import graphics.{Canvas2D, DiamondDrawer, DiamondDrawingOptions, DiamondMovieOptions}
 import org.scalajs.dom
 import org.scalajs.dom.CanvasRenderingContext2D
@@ -35,7 +37,8 @@ object ExportMovieButton {
         fullSizedDiamondStartingFromOrder = diamond.order,
         dominoBorderSizing = DominoBorderSizing.Auto,
         drawDiamondEveryNOrder = 1,
-        startDrawingAtOrder = 1
+        startDrawingAtOrder = 1,
+        fontOrderInfo = DiamondOrderFontInfo.Hidden
       )
     )
     val resolutionUpdater =
@@ -52,6 +55,24 @@ object ExportMovieButton {
       diamondMovieOptionsVar.updater[Int]((current, step) => current.copy(drawDiamondEveryNOrder = step))
     val startDrawingAtOrderUpdater =
       diamondMovieOptionsVar.updater[Int]((current, start) => current.copy(startDrawingAtOrder = start))
+    val fontOrderInfoUpdater =
+      diamondMovieOptionsVar.updater[DiamondOrderFontInfo]((current, fontInfo) =>
+        current.copy(fontOrderInfo = fontInfo)
+      )
+    val fontOrderSizeUpdater =
+      diamondMovieOptionsVar.updater[Int]((current, fontSize) =>
+        current.copy(fontOrderInfo = current.fontOrderInfo match {
+          case DiamondOrderFontInfo.Hidden          => DiamondOrderFontInfo.Hidden
+          case DiamondOrderFontInfo.Shown(_, color) => DiamondOrderFontInfo.Shown(fontSize, color)
+        })
+      )
+    val fontColorUpdater =
+      diamondMovieOptionsVar.updater[Color]((current, fontColor) =>
+        current.copy(fontOrderInfo = current.fontOrderInfo match {
+          case DiamondOrderFontInfo.Hidden         => DiamondOrderFontInfo.Hidden
+          case DiamondOrderFontInfo.Shown(size, _) => DiamondOrderFontInfo.Shown(size, fontColor)
+        })
+      )
 
     val startDownloadBus = new EventBus[Unit]()
 
@@ -78,6 +99,83 @@ object ExportMovieButton {
       justifyContent.spaceBetween,
       mods
     )
+
+    def orderDisplayFontField = {
+      val openColourPickerBus = new EventBus[dom.HTMLElement]
+
+      val openEvents = openColourPickerBus.events
+        .withCurrentValueOf(diamondMovieOptionsVar.signal.map(_.fontOrderInfo.shown))
+        .collect { case (elem, true) => elem }
+
+      def colourPicker = ColourPalettePopover(
+        _.showAtFromEvents(openEvents),
+        _.showRecentColours := true,
+        _.showMoreColours   := true,
+        Colour.someColours.map(colour => ColourPalette.item(_.value := colour)),
+        _.events.onItemClick.map(_.detail.color).map(Colour.fromString).map { colour =>
+          Color(colour.red, colour.green, colour.blue)
+        } --> fontColorUpdater
+      )
+
+      div(
+        formField(
+          Label("Order Display"),
+          span(
+            display.flex,
+            justifyContent.center,
+            SegmentedButton(
+              _.item(
+                "Hidden",
+                _.pressed <-- diamondMovieOptionsVar.signal.map(_.fontOrderInfo match {
+                  case DiamondOrderFontInfo.Hidden      => true
+                  case DiamondOrderFontInfo.Shown(_, _) => false
+                }),
+                dataAttr("shown") := "false"
+              ),
+              _.item(
+                "Show",
+                _.pressed <-- diamondMovieOptionsVar.signal.map(_.fontOrderInfo match {
+                  case DiamondOrderFontInfo.Hidden      => false
+                  case DiamondOrderFontInfo.Shown(_, _) => true
+                }),
+                dataAttr("shown") := "true"
+              ),
+              _.events.onSelectionChange
+                .map(_.detail.selectedItem)
+                .map(_.dataset("shown").toBoolean)
+                .map(
+                  if _ then DiamondOrderFontInfo.Shown(50, Color.white) else DiamondOrderFontInfo.Hidden
+                ) --> fontOrderInfoUpdater
+            ),
+            Input(
+              _.disabled <-- diamondMovieOptionsVar.signal.map(_.fontOrderInfo.hidden),
+              _.tpe       := InputType.Number,
+              _.value <-- diamondMovieOptionsVar.signal.map(_.fontOrderInfo match {
+                case DiamondOrderFontInfo.Hidden         => ""
+                case DiamondOrderFontInfo.Shown(size, _) => size.toString
+              }),
+              _.events.onChange
+                .map(_.target.value)
+                .map(value => if value == "" then 0 else value.toInt) --> fontOrderSizeUpdater
+            ),
+            ColourPalette(
+              _.item(
+                _.value <-- diamondMovieOptionsVar.signal
+                  .map(_.fontOrderInfo match {
+                    case DiamondOrderFontInfo.Hidden          => Color.white
+                    case DiamondOrderFontInfo.Shown(_, color) => color
+                  })
+                  .map { case Color(red, green, blue) =>
+                    Colour(red, green, blue)
+                  }
+              ),
+              inContext(ctx => ColourPalette.events.onItemClick.mapTo(ctx.ref) --> openColourPickerBus.writer)
+            )
+          )
+        ),
+        colourPicker
+      )
+    }
 
     span(
       Button(
@@ -191,6 +289,7 @@ object ExportMovieButton {
               _.events.onChange.map(_.target.value.toInt) --> startDrawingAtOrderUpdater
             )
           ),
+          orderDisplayFontField,
           div(
             Button(
               "Download images...",
@@ -209,7 +308,7 @@ object ExportMovieButton {
             ),
             child.text <-- currentlyDrawingDiamondOfOrderSignal.signal
               .map(_.getOrElse(diamond.order))
-              .map(currentOrder => s"Currently drawing order $currentOrder...")
+              .map(currentOrder => s"Currently processing order $currentOrder...")
           )
         ),
         _.slots.footer := Bar(
@@ -262,13 +361,16 @@ object ExportMovieButton {
               diamondToDraw.order / diamondOrderForDominoSize
             }
           val zoom = options.transformations.zoom * zoomModifier
-          currentlyDrawingDiamondOfOrder.onNext(diamondToDraw.order)
+
           timerLogger.time("draw diamond")(
             drawer.drawOnCanvas(
               Canvas2D(canvas, canvasContext),
               options
                 .withZoom(zoom)
-                .copy(showBorderOfDominoes = diamondToDraw.order <= movieOptions.drawDominoBorderUntil)
+                .copy(
+                  showBorderOfDominoes = diamondToDraw.order <= movieOptions.drawDominoBorderUntil,
+                  orderFontInfo = movieOptions.fontOrderInfo
+                )
             )
           )
           utils.sleep(10.millis)
@@ -279,14 +381,15 @@ object ExportMovieButton {
 
     val zipWriter = ZipWriter(BlobWriter("application/zip"))
 
-    def addDiamondToZip(diamondToDraw: Diamond): Future[Unit] = for {
+    def addDiamondToZip(diamondToDraw: Diamond): Future[Unit] = for
       _          <- drawStep(diamondToDraw)
       canvasBlob <- canvas.toBlob
       filename = s"the-diamond-${String.format(s"%0${diamond.order.toString.length}d", diamondToDraw.order)}.png"
       _ <- zipWriter.add(filename, BlobReader(canvasBlob)).toFuture
-    } yield ()
+    yield ()
 
     def addAllDiamondsToZip(startingDiamond: Diamond): Future[Boolean] = {
+      currentlyDrawingDiamondOfOrder.onNext(startingDiamond.order)
       val shouldDrawDiamond =
         startingDiamond.order == diamond.order || (startingDiamond.order - movieOptions.startDrawingAtOrder) % movieOptions.drawDiamondEveryNOrder == 0
       (if shouldDrawDiamond then addDiamondToZip(startingDiamond) else utils.sleep(10.millis)).flatMap { _ =>
@@ -300,10 +403,10 @@ object ExportMovieButton {
 
     val a = dom.document.createElement("a").asInstanceOf[dom.HTMLAnchorElement]
 
-    for {
+    for
       generated <- addAllDiamondsToZip(diamond)
       zipBlob   <- zipWriter.close().toFuture
-    } yield
+    yield
       if generated then
         a.href = dom.URL.createObjectURL(zipBlob)
         dom.document.body.appendChild(a)

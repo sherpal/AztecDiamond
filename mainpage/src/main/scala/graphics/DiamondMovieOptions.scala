@@ -1,6 +1,7 @@
 package graphics
 
 import graphics.DiamondDrawer.DominoBorderSizing
+import graphics.DiamondDrawingOptions.DiamondOrderFontInfo
 
 final case class DiamondMovieOptions(
     resolution: Int,
@@ -9,5 +10,6 @@ final case class DiamondMovieOptions(
     fullSizedDiamondStartingFromOrder: Int,
     dominoBorderSizing: DominoBorderSizing,
     drawDiamondEveryNOrder: Int,
-    startDrawingAtOrder: Int
+    startDrawingAtOrder: Int,
+    fontOrderInfo: DiamondOrderFontInfo
 )

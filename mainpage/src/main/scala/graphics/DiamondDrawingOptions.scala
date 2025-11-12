@@ -8,6 +8,7 @@ import geometry.WestGoing
 import diamond.DiamondType
 import diamond.Diamond
 import diamond.diamondtypes.UniformDiamond
+import graphics.DiamondDrawingOptions.DiamondOrderFontInfo
 
 final case class DiamondDrawingOptions(
     drawDominoes: Boolean,
@@ -16,7 +17,8 @@ final case class DiamondDrawingOptions(
     showBorderOfDominoes: Boolean,
     drawNonIntersectingPaths: Boolean,
     transformations: DiamondDrawingOptions.Transformations,
-    colors: DiamondDrawingOptions.DominoColors
+    colors: DiamondDrawingOptions.DominoColors,
+    orderFontInfo: DiamondOrderFontInfo
 ) {
   def shouldDrawDiamond(diamondType: DiamondType.DiamondTypeWithArgs): Domino => Boolean =
     if !drawDominoes then _ => false
@@ -35,7 +37,8 @@ object DiamondDrawingOptions {
     drawDominoesAsLozenges = diamondType.lozengeTiling,
     drawNonIntersectingPaths = false,
     transformations = Transformations(-diamondType.defaultRotation, 1),
-    colors = DominoColors.defaultFourTypes
+    colors = DominoColors.defaultFourTypes,
+    orderFontInfo = DiamondOrderFontInfo.Hidden
   )
 
   case class Transformations(
@@ -45,6 +48,8 @@ object DiamondDrawingOptions {
 
   case class Color(red: Int, green: Int, blue: Int) {
     def toTripleIn0_1Range: (Double, Double, Double) = (red / 255.0, green / 255.0, blue / 255.0)
+
+    def cssColor: String = s"rgb($red,$green,$blue)"
   }
   object Color {
     val white  = Color(255, 255, 255)
@@ -53,6 +58,7 @@ object DiamondDrawingOptions {
     val green  = Color(0, 255, 0)
     val blue   = Color(0, 0, 255)
     val yellow = Color(255, 255, 0)
+    val gray   = Color(128, 128, 128)
   }
   sealed trait DominoColors {
     def asFunction(diamondOrder: Int): Domino => Color
@@ -101,7 +107,18 @@ object DiamondDrawingOptions {
         case SouthGoing => if domino.p1.y % 2 == 0 then evenSouth else oddSouth
         case EastGoing  => if domino.p1.x % 2 == 0 then evenEast else oddEast
         case WestGoing  => if domino.p1.x % 2 == 0 then evenWest else oddWest
-
   }
 
+  enum DiamondOrderFontInfo:
+    case Hidden
+    case Shown(size: Int, color: Color)
+
+  object DiamondOrderFontInfo {
+    extension (fontInfo: DiamondOrderFontInfo)
+      def shown: Boolean = fontInfo match {
+        case DiamondOrderFontInfo.Hidden      => false
+        case DiamondOrderFontInfo.Shown(_, _) => true
+      }
+      def hidden: Boolean = !fontInfo.shown
+  }
 }

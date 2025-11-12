@@ -1,6 +1,7 @@
 package graphics
 
 import custommath.{Complex, Matrix, Vec4}
+import graphics.DiamondDrawingOptions.{Color, DiamondOrderFontInfo}
 import org.scalajs.dom
 import org.scalajs.dom.html
 import org.scalajs.dom.CanvasRenderingContext2D
@@ -292,6 +293,21 @@ class Canvas2D(val canvas: html.Canvas, ctx: CanvasRenderingContext2D) {
       textHeight / 2,
       font = font
     )
+  }
+
+  def printDiamondOrder(fontInfo: DiamondOrderFontInfo, order: Int): Unit = fontInfo match {
+    case DiamondOrderFontInfo.Hidden => ()
+    case DiamondOrderFontInfo.Shown(size, color) =>
+      val font         = s"${size}px quicksand"
+      val text         = order.toString
+      val theTextWidth = textWidth(text, font)
+      print(
+        Vector((order.toString, color.cssColor)),
+        Complex(5, size + 5),
+        theTextWidth + 5,
+        size + 5,
+        font = font
+      )
   }
 
   def clear(): Unit = {

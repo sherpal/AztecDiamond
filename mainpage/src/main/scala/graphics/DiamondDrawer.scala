@@ -7,6 +7,7 @@ import org.scalajs.dom.html
 import org.scalajs.dom.CanvasRenderingContext2D
 import diamond.DiamondType
 import graphics.DiamondDrawer.DominoBorderSizing
+import graphics.DiamondDrawingOptions.DiamondOrderFontInfo
 
 /** Class helper for drawing Diamond on a canvas.
   * @param diamond
@@ -271,7 +272,13 @@ class DiamondDrawer private (
     )
   }
 
-  private def applyTransformation(canvasToDrawTo: Canvas2D, rotation: Double, zoomX: Double, zoomY: Double): Unit = {
+  private def applyTransformation(
+      canvasToDrawTo: Canvas2D,
+      rotation: Double,
+      zoomX: Double,
+      zoomY: Double,
+      orderFontInfo: DiamondOrderFontInfo
+  ): Unit = {
     canvasToDrawTo.clear()
     canvasToDrawTo.withTransformationMatrix(
       canvasToDrawTo.rotate(0, rotation) * canvasToDrawTo.scale(0, zoomX, zoomY)
@@ -280,6 +287,8 @@ class DiamondDrawer private (
     if !scala.scalajs.LinkingInfo.developmentMode && drawWithWatermark then {
       canvasToDrawTo.printWatermark(zoomX, zoomY)
     }
+
+    canvasToDrawTo.printDiamondOrder(orderFontInfo, diamond.order)
   }
 
   def drawOnCanvas(canvasToDrawTo: Canvas2D, options: DiamondDrawingOptions): Unit = {
@@ -289,10 +298,9 @@ class DiamondDrawer private (
     val DiamondDrawingOptions.Transformations(rotation, zoom) = options.transformations
 
     if options.drawDominoes then {
-      if options.showInFullAztecDiamond && !options.drawDominoesAsLozenges then {
-        println(s"zoom: $zoom")
+      if options.showInFullAztecDiamond && !options.drawDominoesAsLozenges then
         draw(border = options.showBorderOfDominoes, colors = dominoColors, zoom = zoom)
-      } else if !options.drawDominoesAsLozenges then
+      else if !options.drawDominoesAsLozenges then
         drawSubGraph(border = options.showBorderOfDominoes, colors = dominoColors)
       else if options.showInFullAztecDiamond then
         drawAsLozenges(border = options.showBorderOfDominoes, colors = dominoColors)
@@ -302,7 +310,7 @@ class DiamondDrawer private (
     if options.drawNonIntersectingPaths then {
       drawNonIntersectingPaths(subGraph = !options.showInFullAztecDiamond)
     }
-    applyTransformation(canvasToDrawTo, rotation * 2 * math.Pi / 360, zoom, zoom)
+    applyTransformation(canvasToDrawTo, rotation * 2 * math.Pi / 360, zoom, zoom, options.orderFontInfo)
   }
 
   def tikzCode(unit: Double = 1): String = {

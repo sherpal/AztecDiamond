@@ -64,19 +64,21 @@ case class Complex(re: Double, im: Double) {
     case Complex(r, 0)           => r.toString
     case Complex(0, i)           => i.toString + " im"
     case Complex(r, i) if i >= 0 => r.toString + " + " + i.toString + " im"
-    case Complex(r, i) => r.toString + " - " + math.abs(i).toString + " im"
+    case Complex(r, i)           => r.toString + " - " + math.abs(i).toString + " im"
   }
 }
 
 object Complex {
   val i = Complex(0, 1)
 
+  val zero = Complex(0, 0)
+
   private val rnd: java.util.Random = new java.util.Random()
 
   def rndComplex(): Complex = Complex(rnd.nextDouble(), rnd.nextDouble())
 
-  implicit def fromDouble(d: Double): Complex = Complex(d, 0)
-  implicit def fromInt(n: Int): Complex = Complex(n, 0)
+  implicit def fromDouble(d: Double): Complex          = Complex(d, 0)
+  implicit def fromInt(n: Int): Complex                = Complex(n, 0)
   implicit def fromTuple(z: (Double, Double)): Complex = Complex(z._1, z._2)
 
   def exp(z: Complex): Complex =
@@ -99,7 +101,7 @@ object Complex {
   def rotation(angle: Double): Complex =
     Complex(math.cos(angle), math.sin(angle))
 
-  implicit object ComplexIsNumeric extends Numeric[Complex] {
+  given Numeric[Complex] = new Numeric[Complex] {
     override def plus(x: Complex, y: Complex): Complex = x + y
 
     override def minus(x: Complex, y: Complex): Complex = x - y

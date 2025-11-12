@@ -111,18 +111,17 @@ object DiamondGenerator {
   val canvas2D: Canvas2D = new Canvas2D(dom.document.getElementById("aztecDrawing").asInstanceOf[html.Canvas])
 
   def applyTransformation(rotation: Double, zoomX: Double, zoomY: Double): Unit = {
-    if (drawnDiamond.isDefined) {
+    drawnDiamond.foreach { drawnDiamond =>
       canvas2D.clear()
       canvas2D.withTransformationMatrix(
         canvas2D.rotate(0, rotation) * canvas2D.scale(0, zoomX, zoomY)
       ) {
-        canvas2D.drawCanvas(drawnDiamond.get.canvas2D.canvas, 0, canvas2D.canvas.width, canvas2D.canvas.height)
+        canvas2D.drawCanvas(drawnDiamond.canvas2D.canvas, 0, canvas2D.canvas.width, canvas2D.canvas.height)
       }
     }
 
-    if (!scala.scalajs.LinkingInfo.developmentMode) {
+    if (!scala.scalajs.LinkingInfo.developmentMode)
       canvas2D.printWatermark(zoomX, zoomY)
-    }
   }
 
   def drawDrawer()(using timerLogger: TimerLogger = utils.consoleTimerLoggerDev): Unit =
