@@ -7,5 +7,7 @@ final case class DiamondMovieOptions(
     diamondSizeTier: Int,
     drawDominoBorderUntil: Int,
     fullSizedDiamondStartingFromOrder: Int,
-    dominoBorderSizing: DominoBorderSizing
+    dominoBorderSizing: DominoBorderSizing,
+    drawDiamondEveryNOrder: Int,
+    startDrawingAtOrder: Int
 )

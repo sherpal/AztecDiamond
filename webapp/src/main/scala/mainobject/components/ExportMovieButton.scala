@@ -33,7 +33,9 @@ object ExportMovieButton {
         diamondSizeTier = diamond.order,
         drawDominoBorderUntil = if options.showBorderOfDominoes then diamond.order else 0,
         fullSizedDiamondStartingFromOrder = diamond.order,
-        dominoBorderSizing = DominoBorderSizing.Auto
+        dominoBorderSizing = DominoBorderSizing.Auto,
+        drawDiamondEveryNOrder = 1,
+        startDrawingAtOrder = 1
       )
     )
     val resolutionUpdater =
@@ -46,6 +48,10 @@ object ExportMovieButton {
       diamondMovieOptionsVar.updater[Int]((current, cutoff) => current.copy(fullSizedDiamondStartingFromOrder = cutoff))
     val borderSizingUpdater =
       diamondMovieOptionsVar.updater[DominoBorderSizing]((current, sizing) => current.copy(dominoBorderSizing = sizing))
+    val drawDiamondEveryNOrderUpdater =
+      diamondMovieOptionsVar.updater[Int]((current, step) => current.copy(drawDiamondEveryNOrder = step))
+    val startDrawingAtOrderUpdater =
+      diamondMovieOptionsVar.updater[Int]((current, start) => current.copy(startDrawingAtOrder = start))
 
     val startDownloadBus = new EventBus[Unit]()
 
@@ -169,6 +175,22 @@ object ExportMovieButton {
               )
             )
           ),
+          formField(
+            Label("Draw diamond every"),
+            Input(
+              _.tpe    := InputType.Number,
+              _.value <-- diamondMovieOptionsVar.signal.map(_.drawDiamondEveryNOrder.toString),
+              _.events.onChange.map(_.target.value.toInt) --> drawDiamondEveryNOrderUpdater
+            )
+          ),
+          formField(
+            Label("Starting order"),
+            Input(
+              _.tpe    := InputType.Number,
+              _.value <-- diamondMovieOptionsVar.signal.map(_.startDrawingAtOrder.toString),
+              _.events.onChange.map(_.target.value.toInt) --> startDrawingAtOrderUpdater
+            )
+          ),
           div(
             Button(
               "Download images...",
@@ -264,13 +286,17 @@ object ExportMovieButton {
       _ <- zipWriter.add(filename, BlobReader(canvasBlob)).toFuture
     } yield ()
 
-    def addAllDiamondsToZip(startingDiamond: Diamond): Future[Boolean] =
-      addDiamondToZip(startingDiamond).flatMap { _ =>
+    def addAllDiamondsToZip(startingDiamond: Diamond): Future[Boolean] = {
+      val shouldDrawDiamond =
+        startingDiamond.order == diamond.order || (startingDiamond.order - movieOptions.startDrawingAtOrder) % movieOptions.drawDiamondEveryNOrder == 0
+      (if shouldDrawDiamond then addDiamondToZip(startingDiamond) else utils.sleep(10.millis)).flatMap { _ =>
         startingDiamond.randomSubDiamond match
-          case None                             => Future.successful(true)
+          case None                                                                    => Future.successful(true)
+          case Some(subDiamond) if subDiamond.order < movieOptions.startDrawingAtOrder => Future.successful(true)
           case Some(subDiamond) if !cancelled() => addAllDiamondsToZip(subDiamond)
           case Some(_)                          => Future.successful(false)
       }
+    }
 
     val a = dom.document.createElement("a").asInstanceOf[dom.HTMLAnchorElement]
 
